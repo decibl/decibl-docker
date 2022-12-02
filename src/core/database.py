@@ -1,4 +1,7 @@
-import os, sys, logging
+import os
+import sys
+import logging
+import sqlite3
 
 # add current file to system path
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
@@ -46,12 +49,26 @@ logging.info("Loading database module")
 class AnalyticsDBHandler:
     """Class to handle all the data analytics, especially stuff like creating tables, making backups, etc."""
 
-     def __init__(self) -> None:
-        pass
+    def __init__(self) -> None:
+        self.conn = sqlite3.connect(config.DATABASE_PATH)
 
     def create_songs_table(self) -> bool:
         """Create the songs table, returns True if successful, False if not."""
-        pass
+        logging.info("Creating songs table")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """CREATE TABLE IF NOT EXISTS songs (
+                song_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                filepath TEXT NOT NULL,
+                title TEXT NOT NULL,
+                artist TEXT NOT NULL,
+                album TEXT NOT NULL
+            );"""
+        )
+
+        self.conn.commit()
+        logging.info("Created songs table")
+        return True
 
     def create_plays_table(self) -> bool:
         """Create the plays table, returns True if successful, False if not."""
@@ -75,4 +92,12 @@ class AnalyticsDBHandler:
 
     def restore_database(self) -> bool:
         """Restore the database, returns True if successful, False if not."""
-        pass 
+        pass
+
+
+if __name__ == "__main__":
+    # create an instance of the database handler
+    db_handler = AnalyticsDBHandler()
+
+    # create the songs table
+    db_handler.create_songs_table()
