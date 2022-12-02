@@ -1,3 +1,6 @@
 # ignore everything in src/soundfiles/*
 
+# ignore everything in src/logs/*
+src/logs/*
+
 # example.log

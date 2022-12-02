@@ -1,6 +1,8 @@
 # File that takes system variables and puts them into python variables
 from enum import Enum
 import os, sys, logging
+from logging.handlers import TimedRotatingFileHandler
+
 
 class Config(Enum):
     # Logging
@@ -13,6 +15,14 @@ class Config(Enum):
 
 # set logging config
 logging.basicConfig(filename=Config.LOGGING_FILENAME.value, encoding=Config.LOGGING_ENCODING.value, level=Config.LOGGING_LEVEL.value, format=Config.LOGGING_FORMAT.value, datefmt=Config.LOGGING_DATE_FORMAT.value)
+
+logging.info("Loading config file")
+logger = logging.getLogger("Rotating Time Log")
+logger.setLevel(logging.INFO)
+handler = TimedRotatingFileHandler(Config.LOGGING_FILENAME.value,
+                                    when="h",
+                                    interval=1,)
+logger.addHandler(handler)
 
 # log a message that the config file has been loaded
 logging.info("Loaded config file")
