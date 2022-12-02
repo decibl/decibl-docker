@@ -145,7 +145,7 @@ class AnalyticsDBHandler:
     # song will have a LOT of data
     def insert_song(self, filepath: str, title: str, artist: str, album: str) -> bool:
         """Insert a song into the database, returns True if successful, False if not."""
-        logging.info("Inserting song")
+        logging.info("Inserting song into songs taable")
         cursor = self.conn.cursor()
         cursor.execute(
             """INSERT INTO songs (filepath, title, artist, album) VALUES (?, ?, ?, ?);""",
@@ -155,6 +155,46 @@ class AnalyticsDBHandler:
         self.conn.commit()
         logging.info("Inserted song")
         return True
+
+    def insert_play(self, song_title: str, song_artist: str, start_dt: str, end_dt: str) -> bool:
+        """Insert a play into the database, returns True if successful, False if not."""
+        logging.info("Inserting play into plays table")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """INSERT INTO plays (song_title, song_artist, start_dt, end_dt) VALUES (?, ?, ?, ?);""",
+            (song_title, song_artist, start_dt, end_dt)
+        )
+
+        self.conn.commit()
+        logging.info("Inserted play")
+        return True
+
+    def insert_playlist(self, playlist_name: str, created_dt: str) -> bool:
+        """Insert a playlist into the database, returns True if successful, False if not."""
+        logging.info("Inserting playlist into playlists table")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """INSERT INTO playlists (playlist_name, created_dt) VALUES (?, ?);""",
+            (playlist_name, created_dt)
+        )
+
+        self.conn.commit()
+        logging.info("Inserted playlist")
+        return True
+
+    def insert_playlist_song(self, playlist_id: int, song_id: int, added_dt: str) -> bool:
+        """Insert a playlist_song into the database, returns True if successful, False if not."""
+        logging.info("Inserting playlist_song into playlists_songs table")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """INSERT INTO playlists_songs (playlist_id, song_id, added_dt) VALUES (?, ?, ?);""",
+            (playlist_id, song_id, added_dt)
+        )
+
+        self.conn.commit()
+        logging.info("Inserted playlist_song")
+        return True
+        
 
 
     # --------------------------------------------------------------------------------------------
@@ -189,5 +229,5 @@ if __name__ == "__main__":
     db_handler = AnalyticsDBHandler()
 
     # create the songs table
-    # db_handler.create_all_tables()
+    db_handler.create_all_tables()
     db_handler.insert_song("filepath", "title", "artist", "album")
