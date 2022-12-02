@@ -13,3 +13,6 @@ class Config(Enum):
 
 # set logging config
 logging.basicConfig(filename=Config.LOGGING_FILENAME.value, encoding=Config.LOGGING_ENCODING.value, level=Config.LOGGING_LEVEL.value, format=Config.LOGGING_FORMAT.value, datefmt=Config.LOGGING_DATE_FORMAT.value)
+
+# log a message that the config file has been loaded
+logging.info("Loaded config file")
