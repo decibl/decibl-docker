@@ -53,8 +53,15 @@ logging.info("Loading database module")
 class AnalyticsDBHandler:
     """Class to handle all the data analytics, especially stuff like creating tables, making backups, etc."""
 
+
+    # CONSTRUCTOR
+
     def __init__(self) -> None:
         self.conn = sqlite3.connect(config.DATABASE_PATH)
+
+    # --------------------------------------------------------------------------------------------
+    #                                    CREATE TABLES
+    # --------------------------------------------------------------------------------------------
 
     def create_songs_table(self) -> bool:
         """Create the songs table, returns True if successful, False if not."""
@@ -82,11 +89,14 @@ class AnalyticsDBHandler:
             """CREATE TABLE IF NOT EXISTS plays (
                 play_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 song_title TEXT NOT NULL,
-                artist TEXT NOT NULL,
+                song_artist TEXT NOT NULL,
                 start_dt TEXT NOT NULL,
                 end_dt TEXT NOT NULL
             );"""
         )
+        self.conn.commit()
+        logging.info("Created plays table")
+        return True
 
     def create_playlists_table(self) -> bool:
         """Create the playlists table, returns True if successful, False if not."""
@@ -99,6 +109,9 @@ class AnalyticsDBHandler:
                 created_dt TEXT NOT NULL
             );"""
         )
+        self.conn.commit()
+        logging.info("Created playlists table")
+        return True
 
     def create_playlists_songs_table(self) -> bool:
         """Create the playlists_songs table, returns True if successful, False if not."""
@@ -111,6 +124,9 @@ class AnalyticsDBHandler:
                 added_dt TEXT NOT NULL
             );"""
         )
+        self.conn.commit()
+        logging.info("Created playlists_songs table")
+        return True
 
     def create_all_tables(self) -> bool:
         """Create all the tables, returns True if successful, False if not."""
@@ -121,6 +137,29 @@ class AnalyticsDBHandler:
         self.create_playlists_songs_table()
         logging.info("Created all tables")
         return True
+
+    # --------------------------------------------------------------------------------------------
+    #                                    INSERT DATA
+    # --------------------------------------------------------------------------------------------
+
+    # song will have a LOT of data
+    def insert_song(self, filepath: str, title: str, artist: str, album: str) -> bool:
+        """Insert a song into the database, returns True if successful, False if not."""
+        logging.info("Inserting song")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """INSERT INTO songs (filepath, title, artist, album) VALUES (?, ?, ?, ?);""",
+            (filepath, title, artist, album)
+        )
+
+        self.conn.commit()
+        logging.info("Inserted song")
+        return True
+
+
+    # --------------------------------------------------------------------------------------------
+    #                                  Backup and Restore
+    # --------------------------------------------------------------------------------------------
 
     def backup_database(self) -> bool:
         """Backup the database, returns True if successful, False if not."""
@@ -150,4 +189,5 @@ if __name__ == "__main__":
     db_handler = AnalyticsDBHandler()
 
     # create the songs table
-    db_handler.create_songs_table()
+    # db_handler.create_all_tables()
+    db_handler.insert_song("filepath", "title", "artist", "album")

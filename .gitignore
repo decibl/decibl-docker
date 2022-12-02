@@ -4,3 +4,4 @@
 src/logs/*
 
 # example.log
+__pycache__/
