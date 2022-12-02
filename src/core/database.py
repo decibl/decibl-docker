@@ -6,7 +6,7 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 import config
 
 # log a message
-logging.info("Loading database module...")
+logging.info("Loading database module")
 
 
 # Make Database class to hold all the data analytics
@@ -42,3 +42,5 @@ logging.info("Loading database module...")
 # ║               ║          ║          ║
 # ║               ║          ║          ║
 # ╚═══════════════╩══════════╩══════════╝
+
+class AnalyticsDbHandler:
