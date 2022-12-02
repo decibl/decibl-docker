@@ -1,4 +1,5 @@
 import os
+import shutil
 import sys
 import logging
 import sqlite3
@@ -46,6 +47,7 @@ logging.info("Loading database module")
 # ║               ║          ║          ║
 # ╚═══════════════╩══════════╩══════════╝
 
+
 class AnalyticsDBHandler:
     """Class to handle all the data analytics, especially stuff like creating tables, making backups, etc."""
 
@@ -72,27 +74,73 @@ class AnalyticsDBHandler:
 
     def create_plays_table(self) -> bool:
         """Create the plays table, returns True if successful, False if not."""
-        pass
+        logging.info("Creating plays table")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """CREATE TABLE IF NOT EXISTS plays (
+                play_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                song_title TEXT NOT NULL,
+                artist TEXT NOT NULL,
+                start_dt TEXT NOT NULL,
+                end_dt TEXT NOT NULL
+            );"""
+        )
 
     def create_playlists_table(self) -> bool:
         """Create the playlists table, returns True if successful, False if not."""
-        pass
+        logging.info("Creating playlists table")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """CREATE TABLE IF NOT EXISTS playlists (
+                playlist_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                playlist_name TEXT NOT NULL,
+                created_dt TEXT NOT NULL
+            );"""
+        )
 
     def create_playlists_songs_table(self) -> bool:
         """Create the playlists_songs table, returns True if successful, False if not."""
-        pass
+        logging.info("Creating playlists_songs table")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """CREATE TABLE IF NOT EXISTS playlists_songs (
+                playlist_id INTEGER NOT NULL,
+                song_id INTEGER NOT NULL,
+                added_dt TEXT NOT NULL
+            );"""
+        )
 
     def create_all_tables(self) -> bool:
         """Create all the tables, returns True if successful, False if not."""
-        pass
+        logging.info("Creating all tables")
+        self.create_songs_table()
+        self.create_plays_table()
+        self.create_playlists_table()
+        self.create_playlists_songs_table()
+        logging.info("Created all tables")
+        return True
 
     def backup_database(self) -> bool:
         """Backup the database, returns True if successful, False if not."""
-        pass
+        logging.info("Backing up database")
+        try:
+            shutil.copyfile(config.DATABASE_PATH, config.DATABASE_BACKUP_PATH)
+            logging.info("Backed up database")
+            return True
+        except Exception as e:
+            logging.error(f"Error backing up database: {e}")
+            return False
 
     def restore_database(self) -> bool:
         """Restore the database, returns True if successful, False if not."""
-        pass
+        logging.info("Restoring database")
+        try:
+            shutil.copyfile(config.DATABASE_BACKUP_PATH, config.DATABASE_PATH)
+            logging.info("Restored database")
+            return True
+        except Exception as e:
+            logging.error(f"Error restoring database: {e}")
+            return False
 
 
 if __name__ == "__main__":
