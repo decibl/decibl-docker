@@ -5,7 +5,8 @@ import os, sys, logging
 class Config(Enum):
     # Logging
     LOGGING_LEVEL = logging.DEBUG
-    LOGGING_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
+    # For logging format, do datetime + file location then message
+    LOGGING_FORMAT = "%(asctime)s - %(pathname)s - %(levelname)s - %(message)s"
     LOGGING_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
     LOGGING_FILENAME = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "logs", "example.log"))
     LOGGING_ENCODING = "utf-8"
