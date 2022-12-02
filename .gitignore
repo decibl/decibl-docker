@@ -1,4 +1,3 @@
 # ignore everything in src/soundfiles/*
 
-src/soundfiles/*
-src/analyticsdb/*
+example.log
