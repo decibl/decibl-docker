@@ -1,11 +1,11 @@
 import datetime
 import os
-import shutil
 import sys
 import logging
 import sqlite3
 import zipfile
-
+import music_tag
+import PIL
 # add current file to system path
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
@@ -330,9 +330,22 @@ class AnalyticsDBHandler:
         logging.info("Backed up database")
         return True
 
+    # --------------------------------------------------------------------------------------------
+    #                                  READING METADATA
+    # --------------------------------------------------------------------------------------------
+
+    def read_song_metadata(self, filepath: str) -> dict:
+        """Read the metadata of a song, returns a dict of the metadata."""
+        logging.info("Reading song {} metadata".format(filepath))
+        metadata = {}
+
+        # Read the metadata of the song
+        f = music_tag.load_file(filepath)
+        print(f)
+
 
 
 if __name__ == "__main__":
     # create an instance of the database handler
     db_handler = AnalyticsDBHandler()
-    db_handler.backup_database()
+    db_handler.read_song_metadata(os.path.join(config.SOUNDFILES_PATH, "enemy.flac"))

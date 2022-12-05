@@ -45,6 +45,16 @@ logging.info("Making folder for database")
 if not os.path.exists(os.path.dirname(DATABASE_PATH)):
     os.makedirs(os.path.dirname(DATABASE_PATH))
 
+# ---------------------------------------------------------------------------------------------
+#                                      Sound Files
+# ---------------------------------------------------------------------------------------------
+
+# make sound folder if it doesn't exist
+logging.info("Making folder for sound files")
+SOUNDFILES_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "soundfiles"))
+if not os.path.exists(SOUNDFILES_PATH):
+    os.makedirs(SOUNDFILES_PATH)
+    
 
 # ---------------------------------------------------------------------------------------------
 #                                      Backups

@@ -2,3 +2,4 @@ fastapi
 sqlalchemy
 alembic
 uvicorn
+music-tag
