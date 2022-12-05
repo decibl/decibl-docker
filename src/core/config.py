@@ -2,6 +2,7 @@
 import os, sys, logging
 from logging.handlers import TimedRotatingFileHandler
 import datetime
+from sqlalchemy.ext.declarative import declarative_base
 
 # Logging
 LOGGING_LEVEL = logging.DEBUG
@@ -14,6 +15,8 @@ LOGGING_ENCODING = "utf-8"
 
 # Database
 DATABASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "analyticsdb", "analytics.db"))
+SQLALCHEMY_DATABASE_URL = "sqlite:////{}".format(DATABASE_PATH)
+DBbase = declarative_base()
 
 # set logging config
 logging.basicConfig(filename=LOGGING_FILENAME, encoding=LOGGING_ENCODING, level=LOGGING_LEVEL, format=LOGGING_FORMAT, datefmt=LOGGING_DATE_FORMAT)
@@ -28,3 +31,4 @@ logger.addHandler(handler)
 
 # log a message that the config file has been loaded
 logging.info("Loaded config file")
+
