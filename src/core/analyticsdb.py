@@ -3,13 +3,11 @@ import shutil
 import sys
 import logging
 import sqlite3
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import Session
+
+# add current file to system path
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 import config
-import models, schemas
 
 # log a message
 logging.info("Loading database module")
@@ -59,92 +57,143 @@ class AnalyticsDBHandler:
     # CONSTRUCTOR
 
     def __init__(self) -> None:
-        # The argument:
-        # connect_args={"check_same_thread": False}
-        # ...is needed only for SQLite. It's not needed for other databases.
-        self.engine = create_engine(
-            config.SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-        )
-
-        SessionLocal = self.get_local_session()
-
-        # config.DBbase.metadata.create_all(bind=self.engine)
-        # Create the database if it doesn't exist
-        # use sqlite3 to create the database config.DATABASE_PATH
-        if not os.path.exists(config.DATABASE_PATH):
-            logging.info("Database not found, creating...")
-            conn = sqlite3.connect(config.DATABASE_PATH)
-            
-
-
-
-    def get_local_session(self) -> sessionmaker:
-        SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
-        return SessionLocal
+        self.conn = sqlite3.connect(config.DATABASE_PATH)
 
     # --------------------------------------------------------------------------------------------
     #                                    CREATE TABLES
     # --------------------------------------------------------------------------------------------
 
+    def create_songs_table(self) -> bool:
+        """Create the songs table, returns True if successful, False if not."""
+        logging.info("Creating songs table")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """CREATE TABLE IF NOT EXISTS songs (
+                song_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                filepath TEXT NOT NULL,
+                title TEXT NOT NULL,
+                artist TEXT NOT NULL,
+                album TEXT NOT NULL
+            );"""
+        )
 
+        self.conn.commit()
+        logging.info("Created songs table")
+        return True
+
+    def create_plays_table(self) -> bool:
+        """Create the plays table, returns True if successful, False if not."""
+        logging.info("Creating plays table")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """CREATE TABLE IF NOT EXISTS plays (
+                play_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                song_title TEXT NOT NULL,
+                song_artist TEXT NOT NULL,
+                start_dt TEXT NOT NULL,
+                end_dt TEXT NOT NULL
+            );"""
+        )
+        self.conn.commit()
+        logging.info("Created plays table")
+        return True
+
+    def create_playlists_table(self) -> bool:
+        """Create the playlists table, returns True if successful, False if not."""
+        logging.info("Creating playlists table")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """CREATE TABLE IF NOT EXISTS playlists (
+                playlist_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                playlist_name TEXT NOT NULL,
+                created_dt TEXT NOT NULL
+            );"""
+        )
+        self.conn.commit()
+        logging.info("Created playlists table")
+        return True
+
+    def create_playlists_songs_table(self) -> bool:
+        """Create the playlists_songs table, returns True if successful, False if not."""
+        logging.info("Creating playlists_songs table")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """CREATE TABLE IF NOT EXISTS playlists_songs (
+                playlist_id INTEGER NOT NULL,
+                song_id INTEGER NOT NULL,
+                added_dt TEXT NOT NULL
+            );"""
+        )
+        self.conn.commit()
+        logging.info("Created playlists_songs table")
+        return True
+
+    def create_all_tables(self) -> bool:
+        """Create all the tables, returns True if successful, False if not."""
+        logging.info("Creating all tables")
+        self.create_songs_table()
+        self.create_plays_table()
+        self.create_playlists_table()
+        self.create_playlists_songs_table()
+        logging.info("Created all tables")
+        return True
 
     # --------------------------------------------------------------------------------------------
-    #                                    GET DATA
+    #                                    INSERT DATA
     # --------------------------------------------------------------------------------------------
 
     # song will have a LOT of data
-    def get_plays_by_id(self, db: Session, id: int):
-        return db.query(models.Plays).filter(models.Plays.id == id).first()
+    def insert_song(self, filepath: str, title: str, artist: str, album: str) -> bool:
+        """Insert a song into the database, returns True if successful, False if not."""
+        logging.info("Inserting song into songs taable")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """INSERT INTO songs (filepath, title, artist, album) VALUES (?, ?, ?, ?);""",
+            (filepath, title, artist, album)
+        )
 
-    def get_plays_by_song_id(self, db: Session, song_id: int):
-        return db.query(models.Plays).filter(models.Plays.song_id == song_id).all()
+        self.conn.commit()
+        logging.info("Inserted song")
+        return True
 
-    def get_plays(self, db: Session, skip: int = 0, limit: int = 100):
-        return db.query(models.Plays).offset(skip).limit(limit).all()
+    def insert_play(self, song_title: str, song_artist: str, start_dt: str, end_dt: str) -> bool:
+        """Insert a play into the database, returns True if successful, False if not."""
+        logging.info("Inserting play into plays table")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """INSERT INTO plays (song_title, song_artist, start_dt, end_dt) VALUES (?, ?, ?, ?);""",
+            (song_title, song_artist, start_dt, end_dt)
+        )
 
-    def get_song_by_id(self, db: Session, id: int):
-        return db.query(models.Songs).filter(models.Songs.id == id).first()
+        self.conn.commit()
+        logging.info("Inserted play")
+        return True
 
-    def get_songs(self, db: Session, skip: int = 0, limit: int = 100):
-        return db.query(models.Songs).offset(skip).limit(limit).all()
+    def insert_playlist(self, playlist_name: str, created_dt: str) -> bool:
+        """Insert a playlist into the database, returns True if successful, False if not."""
+        logging.info("Inserting playlist into playlists table")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """INSERT INTO playlists (playlist_name, created_dt) VALUES (?, ?);""",
+            (playlist_name, created_dt)
+        )
 
-    def get_playlist_by_id(self, db: Session, id: int):
-        return db.query(models.Playlists).filter(models.Playlists.id == id).first()
+        self.conn.commit()
+        logging.info("Inserted playlist")
+        return True
 
-    def get_playlists(self, db: Session, skip: int = 0, limit: int = 100):
-        return db.query(models.Playlists).offset(skip).limit(limit).all()
+    def insert_playlist_song(self, playlist_id: int, song_id: int, added_dt: str) -> bool:
+        """Insert a playlist_song into the database, returns True if successful, False if not."""
+        logging.info("Inserting playlist_song into playlists_songs table")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """INSERT INTO playlists_songs (playlist_id, song_id, added_dt) VALUES (?, ?, ?);""",
+            (playlist_id, song_id, added_dt)
+        )
 
-    # --------------------------------------------------------------------------------------------
-    #                                    CREATE DATA
-    # --------------------------------------------------------------------------------------------
-
-    def create_play(self, db: Session, play: schemas.PlaysCreate):
-        db_play = models.Plays(**play.dict())
-        db.add(db_play)
-        db.commit()
-        db.refresh(db_play)
-        return db_play
-
-    def create_song(self, db: Session, song: schemas.SongsCreate):
-        db_song = models.Songs(**song.dict())
-        db.add(db_song)
-        db.commit()
-        db.refresh(db_song)
-        return db_song
-
-    def create_playlist(self, db: Session, playlist: schemas.PlaylistsCreate):
-        db_playlist = models.Playlists(**playlist.dict())
-        db.add(db_playlist)
-        db.commit()
-        db.refresh(db_playlist)
-        return db_playlist
-
-    def create_playlist_song(self, db: Session, playlist_song: schemas.PlaylistSongsCreate):
-        db_playlist_song = models.PlaylistsSongs(**playlist_song.dict())
-        db.add(db_playlist_song)
-        db.commit()
-        db.refresh(db_playlist_song)
-        return db_playlist_song
+        self.conn.commit()
+        logging.info("Inserted playlist_song")
+        return True
         
 
 
@@ -178,3 +227,7 @@ class AnalyticsDBHandler:
 if __name__ == "__main__":
     # create an instance of the database handler
     db_handler = AnalyticsDBHandler()
+
+    # create the songs table
+    db_handler.create_all_tables()
+    db_handler.insert_song("filepath", "title", "artist", "album")
