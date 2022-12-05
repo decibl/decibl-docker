@@ -1,8 +1,10 @@
+import datetime
 import os
 import shutil
 import sys
 import logging
 import sqlite3
+import zipfile
 
 # add current file to system path
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
@@ -48,7 +50,8 @@ logging.info("Loading database module")
 # ║               ║          ║          ║
 # ║               ║          ║          ║
 # ╚═══════════════╩══════════╩══════════╝
-
+# ** = Primary Key
+# * = Foreign Key
 
 class AnalyticsDBHandler:
     """Class to handle all the data analytics, especially stuff like creating tables, making backups, etc."""
@@ -115,6 +118,8 @@ class AnalyticsDBHandler:
 
     def create_playlists_songs_table(self) -> bool:
         """Create the playlists_songs table, returns True if successful, False if not."""
+
+        # Song_id is a foreign key to the songs table
         logging.info("Creating playlists_songs table")
         cursor = self.conn.cursor()
         cursor.execute(
@@ -137,6 +142,59 @@ class AnalyticsDBHandler:
         self.create_playlists_songs_table()
         logging.info("Created all tables")
         return True
+    
+    # --------------------------------------------------------------------------------------------
+    #                                    RETRIEVE DATA
+    # --------------------------------------------------------------------------------------------
+
+    def get_song_by_id(self, song_id: int) -> tuple:
+        """Get a song by its ID, returns a Song object."""
+        logging.info(f"Getting song by ID: {song_id}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """SELECT * FROM songs WHERE song_id = ?;""",
+            (song_id,)
+        )
+        song = cursor.fetchone()
+        logging.info(f"Got song by ID: {song_id}")
+        return (song[0], song[1], song[2], song[3], song[4])
+
+    def get_songs_by_title(self, title: str) -> list:
+        """Get a list of songs by their title, returns a list of Song objects."""
+        logging.info(f"Getting songs by title: {title}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """SELECT * FROM songs WHERE title = ?;""",
+            (title,)
+        )
+        songs = cursor.fetchall()
+        logging.info(f"Got songs by title: {title}")
+        return [(song[0], song[1], song[2], song[3], song[4]) for song in songs]
+
+    def get_song_by_title_and_artist(self, title: str, artist: str) -> tuple:
+        """Get a song by its title and artist, returns a Song object."""
+        logging.info(f"Getting song by title and artist: {title} - {artist}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """SELECT * FROM songs WHERE title = ? AND artist = ?;""",
+            (title, artist)
+        )
+        song = cursor.fetchone()
+        logging.info(f"Got song by title and artist: {title} - {artist}")
+        return (song[0], song[1], song[2], song[3], song[4])
+
+
+    def get_play_by_title_and_artist(self, title: str, artist: str) -> tuple:
+        """Get a play by its title and artist, returns a Play object."""
+        logging.info(f"Getting play by title and artist: {title} - {artist}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """SELECT * FROM plays WHERE song_title = ? AND song_artist = ?;""",
+            (title, artist)
+        )
+        play = cursor.fetchone()
+        logging.info(f"Got play by title and artist: {title} - {artist}")
+        return (play[0], play[1], play[2], play[3], play[4])
 
     # --------------------------------------------------------------------------------------------
     #                                    INSERT DATA
@@ -204,24 +262,16 @@ class AnalyticsDBHandler:
     def backup_database(self) -> bool:
         """Backup the database, returns True if successful, False if not."""
         logging.info("Backing up database")
-        try:
-            shutil.copyfile(config.DATABASE_PATH, config.DATABASE_BACKUP_PATH)
-            logging.info("Backed up database")
-            return True
-        except Exception as e:
-            logging.error(f"Error backing up database: {e}")
-            return False
 
-    def restore_database(self) -> bool:
-        """Restore the database, returns True if successful, False if not."""
-        logging.info("Restoring database")
-        try:
-            shutil.copyfile(config.DATABASE_BACKUP_PATH, config.DATABASE_PATH)
-            logging.info("Restored database")
-            return True
-        except Exception as e:
-            logging.error(f"Error restoring database: {e}")
-            return False
+        # create config.DATABASE_BACKUP_PATH if it doesn't exist
+        if not os.path.exists(config.DATABASE_BACKUP_PATH):
+            os.makedirs(config.DATABASE_BACKUP_PATH)
+
+        # Zip the database file and name it with the current date
+        with zipfile.ZipFile(f"backup_{datetime.now().strftime('%Y-%m-%d')}.zip", "w") as zip:
+            # file is in config.DATABASE_PATH
+            zip.write(config.DATABASE_PATH)
+
 
 
 if __name__ == "__main__":
@@ -231,3 +281,10 @@ if __name__ == "__main__":
     # create the songs table
     db_handler.create_all_tables()
     db_handler.insert_song("filepath", "title", "artist", "album")
+
+    song = db_handler.get_song_by_id(1)
+    print(song)
+    songs = db_handler.get_songs_by_title("title")
+    print(songs)
+    artistsong = db_handler.get_song_by_title_and_artist("title", "artist")
+    print(artistsong)
