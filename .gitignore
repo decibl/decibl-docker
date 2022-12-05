@@ -3,7 +3,7 @@
 # ignore everything in src/logs/*
 src/logs/*
 
-src/analyticsdb/
+src/analyticsdb/*
 
 # example.log
 __pycache__/
