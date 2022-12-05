@@ -142,10 +142,31 @@ class AnalyticsDBHandler:
         self.create_playlists_songs_table()
         logging.info("Created all tables")
         return True
+
+    def clear_all_tables(self) -> bool:
+        """Clear all the tables, returns True if successful, False if not."""
+        logging.info("Clearing all tables")
+        cursor = self.conn.cursor()
+        cursor.execute("DELETE FROM songs;")
+        cursor.execute("DELETE FROM plays;")
+        cursor.execute("DELETE FROM playlists;")
+        cursor.execute("DELETE FROM playlists_songs;")
+        self.conn.commit()
+        logging.info("Cleared all tables")
+        return True
     
     # --------------------------------------------------------------------------------------------
     #                                    RETRIEVE DATA
     # --------------------------------------------------------------------------------------------
+
+    def get_all_tables(self) -> list:
+        """Get all the tables in the database, returns a list of table names."""
+        logging.info("Getting all tables")
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        tables = cursor.fetchall()
+        logging.info("Got all tables")
+        return tables
 
     def get_song_by_id(self, song_id: int) -> tuple:
         """Get a song by its ID, returns a Song object."""
@@ -195,6 +216,42 @@ class AnalyticsDBHandler:
         play = cursor.fetchone()
         logging.info(f"Got play by title and artist: {title} - {artist}")
         return (play[0], play[1], play[2], play[3], play[4])
+
+    def get_all_songs(self) -> list:
+        """Get all the songs in the database, returns a list of Song objects."""
+        logging.info("Getting all songs")
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT * FROM songs;")
+        songs = cursor.fetchall()
+        logging.info("Got all songs")
+        return [(song[0], song[1], song[2], song[3], song[4]) for song in songs]
+
+    def get_all_plays(self) -> list:
+        """Get all the plays in the database, returns a list of Play objects."""
+        logging.info("Getting all plays")
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT * FROM plays;")
+        plays = cursor.fetchall()
+        logging.info("Got all plays")
+        return [(play[0], play[1], play[2], play[3], play[4]) for play in plays]
+
+    def get_all_playlists(self) -> list:
+        """Get all the playlists in the database, returns a list of Playlist objects."""
+        logging.info("Getting all playlists")
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT * FROM playlists;")
+        playlists = cursor.fetchall()
+        logging.info("Got all playlists")
+        return [(playlist[0], playlist[1], playlist[2]) for playlist in playlists]
+
+    def get_all_playlists_songs(self) -> list:
+        """Get all the playlists_songs in the database, returns a list of PlaylistSong objects."""
+        logging.info("Getting all playlists_songs")
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT * FROM playlists_songs;")
+        playlists_songs = cursor.fetchall()
+        logging.info("Got all playlists_songs")
+        return [(playlist_song[0], playlist_song[1], playlist_song[2]) for playlist_song in playlists_songs]
 
     # --------------------------------------------------------------------------------------------
     #                                    INSERT DATA
@@ -263,28 +320,19 @@ class AnalyticsDBHandler:
         """Backup the database, returns True if successful, False if not."""
         logging.info("Backing up database")
 
-        # create config.DATABASE_BACKUP_PATH if it doesn't exist
-        if not os.path.exists(config.DATABASE_BACKUP_PATH):
-            os.makedirs(config.DATABASE_BACKUP_PATH)
-
         # Zip the database file and name it with the current date
-        with zipfile.ZipFile(f"backup_{datetime.now().strftime('%Y-%m-%d')}.zip", "w") as zip:
-            # file is in config.DATABASE_PATH
-            zip.write(config.DATABASE_PATH)
+        # then move it to config.DATABASE_BACKUP_PATH
+        # database is at config.DATABASE_PATH
+
+        with zipfile.ZipFile(f"{config.DATABASE_BACKUP_PATH}/{datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')}.zip", 'w') as zip:
+            zip.write(config.DATABASE_PATH, arcname="analytics.db")
+
+        logging.info("Backed up database")
+        return True
 
 
 
 if __name__ == "__main__":
     # create an instance of the database handler
     db_handler = AnalyticsDBHandler()
-
-    # create the songs table
-    db_handler.create_all_tables()
-    db_handler.insert_song("filepath", "title", "artist", "album")
-
-    song = db_handler.get_song_by_id(1)
-    print(song)
-    songs = db_handler.get_songs_by_title("title")
-    print(songs)
-    artistsong = db_handler.get_song_by_title_and_artist("title", "artist")
-    print(artistsong)
+    db_handler.backup_database()

@@ -15,9 +15,11 @@ LOGGING_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 LOGGING_FILENAME = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "logs", "log_{}.log".format(datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S"))))
 LOGGING_ENCODING = "utf-8"
 
+logging.info("Making folder for logs")
 if not os.path.exists(os.path.dirname(LOGGING_FILENAME)):
     os.makedirs(os.path.dirname(LOGGING_FILENAME))
-    
+
+
 logging.basicConfig(filename=LOGGING_FILENAME, encoding=LOGGING_ENCODING, level=LOGGING_LEVEL, format=LOGGING_FORMAT, datefmt=LOGGING_DATE_FORMAT)
 
 logging.info("Loading config file")
@@ -37,8 +39,25 @@ logging.info("Loaded config file")
 # ---------------------------------------------------------------------------------------------
 
 DATABASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "analyticsdb", "analytics.db"))
-DATABASE_BACKUP_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "analyticsdb", "analytics_backup.db"))
 
 # make database folder if it doesn't exist
+logging.info("Making folder for database")
 if not os.path.exists(os.path.dirname(DATABASE_PATH)):
     os.makedirs(os.path.dirname(DATABASE_PATH))
+
+
+# ---------------------------------------------------------------------------------------------
+#                                      Backups
+# ---------------------------------------------------------------------------------------------
+
+BACKUPS_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "backups"))
+DATABASE_BACKUP_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "backups", "database"))
+LOGS_BACKUP_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "backups", "logs"))
+# make backup folder if it doesn't exist
+logging.info("Making folder for backups")
+if not os.path.exists(BACKUPS_PATH):
+    os.makedirs(BACKUPS_PATH)
+if not os.path.exists(DATABASE_BACKUP_PATH):
+    os.makedirs(DATABASE_BACKUP_PATH)
+if not os.path.exists(LOGS_BACKUP_PATH):
+    os.makedirs(LOGS_BACKUP_PATH)
