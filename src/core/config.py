@@ -16,7 +16,7 @@ LOGGING_ENCODING = "utf-8"
 # Database
 DATABASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "analyticsdb", "analytics.db"))
 SQLALCHEMY_DATABASE_URL = "sqlite:////{}".format(DATABASE_PATH)
-DBbase = declarative_base()
+Base = declarative_base()
 
 # set logging config
 logging.basicConfig(filename=LOGGING_FILENAME, encoding=LOGGING_ENCODING, level=LOGGING_LEVEL, format=LOGGING_FORMAT, datefmt=LOGGING_DATE_FORMAT)

@@ -1,9 +1,9 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from config import DBbase
+from config import Base
 
-class Plays(DBbase):
+class Plays(Base):
     __tablename__ = "plays"
 
     id = Column(String, primary_key=True, index=True)
@@ -13,7 +13,7 @@ class Plays(DBbase):
     
     song = relationship("Songs", back_populates="plays")
 
-class Songs(DBbase):
+class Songs(Base):
     __tablename__ = "songs"
 
     id = Column(String, primary_key=True, index=True)
@@ -25,7 +25,7 @@ class Songs(DBbase):
     plays = relationship("Plays", back_populates="song")
     playlists = relationship("PlaylistSongs", back_populates="song")
 
-class Playlists(DBbase):
+class Playlists(Base):
     __tablename__ = "playlists"
 
     id = Column(String, primary_key=True, index=True)
@@ -34,7 +34,7 @@ class Playlists(DBbase):
 
     songs = relationship("PlaylistSongs", back_populates="playlist")
 
-class PlaylistSongs(DBbase):
+class PlaylistSongs(Base):
     __tablename__ = "playlist_songs"
 
     id = Column(Integer, primary_key=True, index=True)
