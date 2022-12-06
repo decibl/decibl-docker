@@ -43,6 +43,10 @@ This folder contains the backups of the database and logs. It is automatically g
 
 This folder contains the core files of the project. These are the files that are used to run the project. 
 
+```bash
+core/
+├── analyticsdb.py
+|── config.py
 
 #### analyticsdb.py
 
