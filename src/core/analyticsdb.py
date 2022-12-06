@@ -4,8 +4,6 @@ import sys
 import logging
 import sqlite3
 import zipfile
-import music_tag
-import PIL
 # add current file to system path
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
