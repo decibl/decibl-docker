@@ -290,10 +290,11 @@ class AnalyticsDBHandler:
         song = cursor.fetchone()
         logging.info(f"Got song by ID: {song_id}")
         return (song[0], song[1], song[2], song[3], song[4])
-    
+
     def get_song_by_title_filesize(self, title: str, filesize: int) -> int:
         """Get a song by its title and filesize, returns the id of the song."""
-        logging.info(f"Getting song by title and filesize: {title}, {filesize}")
+        logging.info(
+            f"Getting song by title and filesize: {title}, {filesize}")
         cursor = self.conn.cursor()
         cursor.execute(
             """SELECT * FROM songs WHERE title = ? AND filesize = ?;""",
@@ -371,7 +372,11 @@ class AnalyticsDBHandler:
         # }
 
         # check if song already exists
-        exists = self.check_if_song_exists(kwargs["filepath"], kwargs["filesize"])
+        song_id = self.get_song_by_title_filesize(
+            kwargs["title"], kwargs["filesize"])
+        if song_id:
+            logging.info("Song already exists")
+            return song_id
         cursor.execute(
             """INSERT INTO songs (
                 filepath,
@@ -443,7 +448,7 @@ class AnalyticsDBHandler:
             """SELECT song_id FROM songs WHERE filepath = ?;""",
             (kwargs["filepath"],)
         )
-        
+
         song_id = cursor.fetchone()[0]
         logging.info(f"Inserted song with song_id: {song_id}")
         return song_id
@@ -480,7 +485,8 @@ class AnalyticsDBHandler:
         cursor = self.conn.cursor()
         cursor.execute(
             """INSERT INTO composers (song_id, composer_name, dt_added) VALUES (?, ?, ?);""",
-            (song_id, composer_name, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+            (song_id, composer_name,
+             datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         )
 
         self.conn.commit()
@@ -500,8 +506,6 @@ class AnalyticsDBHandler:
         logging.info("Inserted genre")
         return True
 
-
-
     # IMPORTANT: FUNCTION BELOW!
 
     def populate_database(self):
@@ -516,7 +520,6 @@ class AnalyticsDBHandler:
 
             # get metadata from file
             parser = songparser.SongMetadata(file_path)
-
 
             # get the song data and insert it into the database
             song_data = parser.get_song_table_data()
@@ -549,7 +552,6 @@ class AnalyticsDBHandler:
             if genre_data is not None:
                 for genre in genre_data:
                     self.insert_genre(genre, song_id)
-            
 
     # --------------------------------------------------------------------------------------------
     #                                  Backup and Restore
@@ -574,8 +576,8 @@ if __name__ == "__main__":
     # create an instance of the database handler
     db_handler = AnalyticsDBHandler()
     # db_handler.create_all_tables()
-    # db_handler.populate_database()
+    db_handler.populate_database()
     print(db_handler.get_song_by_title_filesize("Gemstone", 34815481))
-    # sp = songparser.SongMetadata(os.path.join(config.SOUNDFILES_PATH, "Gemstone.flac"))
-    # print(sp.get_song_table_data())
-    logging.error("Finished")
+    # # sp = songparser.SongMetadata(os.path.join(config.SOUNDFILES_PATH, "Gemstone.flac"))
+    # # print(sp.get_song_table_data())
+    # logging.error("Finished")
