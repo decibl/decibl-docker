@@ -5,9 +5,9 @@ import logging
 import sqlite3
 import zipfile
 # add current file to system path
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 import config
+import songparser
 
 # log a message
 logging.info("Loading database module")
@@ -48,7 +48,7 @@ logging.info("Loading database module")
 # ║               ║          ║          ║
 # ║               ║          ║          ║
 # ╚═══════════════╩══════════╩══════════╝
-# 
+#
 # SONG_ARTISTS
 # ARTIST_NAME SONG_ID DT_ADDED
 # ALBUM_ARTISTS
@@ -60,7 +60,6 @@ logging.info("Loading database module")
 
 class AnalyticsDBHandler:
     """Class to handle all the data analytics, especially stuff like creating tables, making backups, etc."""
-
 
     # CONSTRUCTOR
 
@@ -80,7 +79,7 @@ class AnalyticsDBHandler:
         cursor.execute("""CREATE TABLE songs (
             song_id INTEGER PRIMARY KEY AUTOINCREMENT,
             filepath TEXT,
-            filesize INTEGER,
+            filesize BIGINT,
             padding INTEGER,
             album_artwork_bit_depth INTEGER,
             album_artwork_colors INTEGER,
@@ -106,12 +105,12 @@ class AnalyticsDBHandler:
             track_number INTEGER,
             track_total INTEGER,
             source TEXT,
-            favorited BOOLEAN
+            favorited BOOLEAN,
+            main_artist TEXT
         )""")
         self.conn.commit()
         logging.info("Created songs table")
         return True
-
 
     def create_plays_table(self) -> bool:
         """Create the plays table, returns True if successful, False if not."""
@@ -121,7 +120,8 @@ class AnalyticsDBHandler:
             """CREATE TABLE IF NOT EXISTS plays (
                 play_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 song_title TEXT NOT NULL,
-                song_artist TEXT NOT NULL,
+                song_primary_artist TEXT NOT NULL,
+                filesize BIGINT,
                 start_dt TEXT NOT NULL,
                 end_dt TEXT NOT NULL
             );"""
@@ -247,7 +247,7 @@ class AnalyticsDBHandler:
         os.remove(config.DATABASE_PATH)
         logging.info("Deleted database")
         return True
-    
+
     # --------------------------------------------------------------------------------------------
     #                                    RETRIEVE DATA
     # --------------------------------------------------------------------------------------------
@@ -273,11 +273,10 @@ class AnalyticsDBHandler:
         logging.info(f"Got song by ID: {song_id}")
         return (song[0], song[1], song[2], song[3], song[4])
 
-
     # --------------------------------------------------------------------------------------------
     #                                    INSERT DATA
     # --------------------------------------------------------------------------------------------
-       
+
     def insert_playlist(self, playlist_name: str, created_dt: str) -> bool:
         """Insert a playlist into the database, returns True if successful, False if not."""
         logging.info("Inserting playlist into playlists table")
@@ -303,8 +302,134 @@ class AnalyticsDBHandler:
         self.conn.commit()
         logging.info("Inserted playlist_song")
         return True
-        
 
+    def insert_song(self, **kwargs) -> bool:
+        """Insert a song into the database, returns True if successful, False if not."""
+        logging.info("Inserting song into songs table")
+        cursor = self.conn.cursor()
+        # self.song_table_data = {
+        #     "filepath": "N/A", # string
+        #     "main_artist": "N/A", # string
+        #     "filesize": -1, # in bytes
+        #     "padding": -1, # in bytes
+        #     "album_artwork_bit_depth": -1, # in bits
+        #     "album_artwork_colors": -1, # int
+        #     "album_artwork_height": -1, # in pixels
+        #     "album_artwork_width": -1, # in pixels
+        #     "bit_depth": -1, # in bits
+        #     "bitrate": -1, # in bits, divide by 1000 to get Kbps
+        #     "channels": -1, # int
+        #     "duration": -1, # in seconds
+        #     "sample_rate": -1, # in KHz
+        #     "album": "N/A", # string
+        #     "barcode": "N/A", # string
+        #     "date_created": "N/A", # in YYYY-MM-DD
+        #     "disc_number": -1, # int
+        #     "disc_total": -1, # int
+        #     "genre": "N/A", # string
+        #     "isrc": "N/A", # string
+        #     "itunesadvisory": "N/A", # string
+        #     "length": -1, # int
+        #     "publisher": "N/A", # string
+        #     "rating": -1, # int
+        #     "title": "N/A", # string
+        #     "track_number": -1, # int
+        #     "track_total": -1, # int
+        #     "source": "N/A", # string
+        #     "favorited": False, # bool
+        # }
+        cursor.execute(
+            """INSERT INTO songs (
+                filepath,
+                main_artist,
+                filesize,
+                padding,
+                album_artwork_bit_depth,
+                album_artwork_colors,
+                album_artwork_height,
+                album_artwork_width,
+                bit_depth,
+                bitrate,
+                channels,
+                duration,
+                sample_rate,
+                album,
+                barcode,
+                date_created,
+                disc_number,
+                disc_total,
+                genre,
+                isrc,
+                itunesadvisory,
+                length,
+                publisher,
+                rating,
+                title,
+                track_number,
+                track_total,
+                source,
+                favorited
+            ) VALUES (
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            );""",
+            (
+                kwargs["filepath"],
+                kwargs["main_artist"],
+                kwargs["filesize"],
+                kwargs["padding"],
+                kwargs["album_artwork_bit_depth"],
+                kwargs["album_artwork_colors"],
+                kwargs["album_artwork_height"],
+                kwargs["album_artwork_width"],
+                kwargs["bit_depth"],
+                kwargs["bitrate"],
+                kwargs["channels"],
+                kwargs["duration"],
+                kwargs["sample_rate"],
+                kwargs["album"],
+                kwargs["barcode"],
+                kwargs["date_created"],
+                kwargs["disc_number"],
+                kwargs["disc_total"],
+                kwargs["genre"],
+                kwargs["isrc"],
+                kwargs["itunesadvisory"],
+                kwargs["length"],
+                kwargs["publisher"],
+                kwargs["rating"],
+                kwargs["title"],
+                kwargs["track_number"],
+                kwargs["track_total"],
+                kwargs["source"],
+                kwargs["favorited"]
+            )
+        )
+
+        self.conn.commit()
+        logging.info("Inserted song")
+        return True
+
+    # IMPORTANT: FUNCTION BELOW!
+
+    def populate_database(self):
+        """Populate the database with all the given data"""
+
+        # fetch all the files from config.SOUNDFILES_PATH
+        soundfiles = os.listdir(config.SOUNDFILES_PATH)
+
+        for file in soundfiles:
+            # get path of file
+            file_path = os.path.join(config.SOUNDFILES_PATH, file)
+
+            # get metadata from file
+            parser = songparser.SongMetadata(file_path)
+
+
+            # get the song data and insert it into the database
+            song_data = parser.get_song_table_data()
+            if song_data is not None:
+                print(song_data['barcode'])
+                self.insert_song(**song_data)
 
     # --------------------------------------------------------------------------------------------
     #                                  Backup and Restore
@@ -328,4 +453,4 @@ class AnalyticsDBHandler:
 if __name__ == "__main__":
     # create an instance of the database handler
     db_handler = AnalyticsDBHandler()
-    db_handler.create_all_tables()
+    db_handler.populate_database()

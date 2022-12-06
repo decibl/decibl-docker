@@ -40,8 +40,8 @@ class SongMetadata:
 
     def __init__(self, filepath):
         # if filepath ends with .flac then set filetype to flac
-        if filepath.endswith(".flac"):
-            self.filetype = "flac"
+        self.filetype = filepath.split(".")[-1]
+        if self.filetype == "flac":
             self.metadata = audio_metadata.load(filepath)
         self.make_song_table_data()
 
@@ -91,7 +91,7 @@ class SongMetadata:
         if "filesize" in self.metadata:
             self.song_table_data["filesize"] = self.metadata["filesize"]
         if "padding" in self.metadata:
-            self.song_table_data["padding"] = self.metadata["padding"]
+            self.song_table_data["padding"] = self.metadata["padding"].size
         if "pictures" in self.metadata:
             if "bit_depth" in self.metadata["pictures"][0]:
                 self.song_table_data["album_artwork_bit_depth"] = self.metadata["pictures"][0]["bit_depth"]
@@ -114,43 +114,38 @@ class SongMetadata:
                 self.song_table_data["sample_rate"] = self.metadata["streaminfo"]["sample_rate"]
         if "tags" in self.metadata:
             if "album" in self.metadata["tags"]:
-                self.song_table_data["album"] = self.metadata["tags"]["album"]
-            if "albumartists" in self.metadata["tags"]:
-                self.song_table_data["album_artists"] = self.metadata["tags"]["albumartists"]
-            if "artists" in self.metadata["tags"]:
-                self.song_table_data["song_artists"] = self.metadata["tags"]["artists"]
+                self.song_table_data["album"] = self.metadata["tags"]["album"][0]
             if "barcode" in self.metadata["tags"]:
-                self.song_table_data["barcode"] = self.metadata["tags"]["barcode"]
-            if "composers" in self.metadata["tags"]:
-                self.song_table_data["composers"] = self.metadata["tags"]["composers"]
+                self.song_table_data["barcode"] = self.metadata["tags"]["barcode"][0]
             if "date" in self.metadata["tags"]:
-                self.song_table_data["date_created"] = self.metadata["tags"]["date"]
+                self.song_table_data["date_created"] = self.metadata["tags"]["date"][0]
             if "discnumber" in self.metadata["tags"]:
-                self.song_table_data["disc_number"] = self.metadata["tags"]["discnumber"]
+                self.song_table_data["disc_number"] = self.metadata["tags"]["discnumber"][0]
             if "disctotal" in self.metadata["tags"]:
-                self.song_table_data["disc_total"] = self.metadata["tags"]["disctotal"]
+                self.song_table_data["disc_total"] = self.metadata["tags"]["disctotal"][0]
             if "genre" in self.metadata["tags"]:
-                self.song_table_data["genre"] = self.metadata["tags"]["genre"]
+                self.song_table_data["genre"] = self.metadata["tags"]["genre"][0]
             if "isrc" in self.metadata["tags"]:
-                self.song_table_data["isrc"] = self.metadata["tags"]["isrc"]
+                self.song_table_data["isrc"] = self.metadata["tags"]["isrc"][0]
             if "itunesadvisory" in self.metadata["tags"]:
-                self.song_table_data["itunesadvisory"] = self.metadata["tags"]["itunesadvisory"]
+                self.song_table_data["itunesadvisory"] = self.metadata["tags"]["itunesadvisory"][0]
             if "length" in self.metadata["tags"]:
-                self.song_table_data["length"] = self.metadata["tags"]["length"]
+                self.song_table_data["length"] = self.metadata["tags"]["length"][0]
             if "publisher" in self.metadata["tags"]:
-                self.song_table_data["publisher"] = self.metadata["tags"]["publisher"]
+                self.song_table_data["publisher"] = self.metadata["tags"]["publisher"][0]
             if "rating" in self.metadata["tags"]:
-                self.song_table_data["rating"] = self.metadata["tags"]["rating"]
+                self.song_table_data["rating"] = self.metadata["tags"]["rating"][0]
             if "title" in self.metadata["tags"]:
-                self.song_table_data["title"] = self.metadata["tags"]["title"]
+                self.song_table_data["title"] = self.metadata["tags"]["title"][0]
             if "tracknumber" in self.metadata["tags"]:
-                self.song_table_data["track_number"] = self.metadata["tags"]["tracknumber"]
+                self.song_table_data["track_number"] = self.metadata["tags"]["tracknumber"][0]
             if "tracktotal" in self.metadata["tags"]:
-                self.song_table_data["track_total"] = self.metadata["tags"]["tracktotal"]
+                self.song_table_data["track_total"] = self.metadata["tags"]["tracktotal"][0]
             if "source" in self.metadata["tags"]:
-                self.song_table_data["source"] = self.metadata["tags"]["source"]
+                self.song_table_data["source"] = self.metadata["tags"]["source"][0]
         if "artist" in self.metadata["tags"]:
             self.song_table_data["main_artist"] = self.metadata["tags"]["artist"][0]
+
         return self.song_table_data
 
     def get_album_artist_data_flac(self):
@@ -192,12 +187,12 @@ class SongMetadata:
         return str(self.metadata)
 
 
-md = SongMetadata(os.path.join(config.SOUNDFILES_PATH, "enemy.flac"))
-print(md.get_song_table_data())
-print(md.get_album_artist_data())
-print(md.get_song_artist_data())
+# md = SongMetadata(os.path.join(config.SOUNDFILES_PATH, "enemy.flac"))
+# print(md.get_song_table_data())
+# print(md.get_album_artist_data())
+# print(md.get_song_artist_data())
 
-md2 = SongMetadata(os.path.join(config.SOUNDFILES_PATH, "gemstone.flac"))
-print(md2)
-# metadata2 = audio_metadata.load(os.path.join(config.SOUNDFILES_PATH, "example.mp3"))
-# print(metadata2)
+# md2 = SongMetadata(os.path.join(config.SOUNDFILES_PATH, "gemstone.flac"))
+# print(md2.get_song_table_data())
+# # metadata2 = audio_metadata.load(os.path.join(config.SOUNDFILES_PATH, "example.mp3"))
+# # print(metadata2)
