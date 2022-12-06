@@ -7,7 +7,7 @@ import datetime
 #                                      Logging
 # ---------------------------------------------------------------------------------------------
 
-LOGGING_LEVEL = logging.INFO
+LOGGING_LEVEL = logging.DEBUG
 # For logging format, do datetime + file location then message
 LOGGING_FORMAT = "%(asctime)s - %(pathname)s - %(levelname)s - %(message)s"
 LOGGING_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
@@ -15,12 +15,13 @@ LOGGING_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 LOGGING_FILENAME = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "logs", "log_{}.log".format(datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S"))))
 LOGGING_ENCODING = "utf-8"
 
-logging.info("Making folder for logs")
 if not os.path.exists(os.path.dirname(LOGGING_FILENAME)):
     os.makedirs(os.path.dirname(LOGGING_FILENAME))
 
 
 logging.basicConfig(filename=LOGGING_FILENAME, encoding=LOGGING_ENCODING, level=LOGGING_LEVEL, format=LOGGING_FORMAT, datefmt=LOGGING_DATE_FORMAT)
+logging.debug("Making folder for logs")
+
 
 logging.info("Loading config file")
 logger = logging.getLogger("Rotating Time Log")

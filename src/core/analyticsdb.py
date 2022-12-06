@@ -1,11 +1,11 @@
 import datetime
 import os
 import sys
-import logging
 import sqlite3
 import zipfile
 # add current file to system path
 
+import logging
 import config
 import songparser
 
@@ -290,22 +290,35 @@ class AnalyticsDBHandler:
         song = cursor.fetchone()
         logging.info(f"Got song by ID: {song_id}")
         return (song[0], song[1], song[2], song[3], song[4])
+    
+    def get_song_by_title_filesize(self, title: str, filesize: int) -> int:
+        """Get a song by its title and filesize, returns the id of the song."""
+        logging.info(f"Getting song by title and filesize: {title}, {filesize}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """SELECT * FROM songs WHERE title = ? AND filesize = ?;""",
+            (title, filesize)
+        )
+        # return the id of the song
+        song = cursor.fetchone()
+        logging.info(f"Got song by title and filesize: {title}, {filesize}")
+        return song[0]
 
     # --------------------------------------------------------------------------------------------
     #                                    INSERT DATA
     # --------------------------------------------------------------------------------------------
 
     def insert_playlist(self, playlist_name: str, created_dt: str) -> bool:
-        """Insert a playlist into the database, returns True if successful, False if not."""
+        """Insert a playlist into the database, returns True if successful, False if not. Only insert if the playlist does not already exist."""
         logging.info("Inserting playlist into playlists table")
         cursor = self.conn.cursor()
         cursor.execute(
-            """INSERT INTO playlists (playlist_name, created_dt) VALUES (?, ?);""",
-            (playlist_name, created_dt)
+            """INSERT INTO playlists (playlist_name, created_dt)
+            SELECT ?, ? WHERE NOT EXISTS (
+                SELECT 1 FROM playlists WHERE playlist_name = ?
+            );""",
+            (playlist_name, created_dt, playlist_name)
         )
-
-        self.conn.commit()
-        logging.info("Inserted playlist")
         return True
 
     def insert_playlist_song(self, playlist_id: int, song_id: int, added_dt: str) -> bool:
@@ -322,7 +335,7 @@ class AnalyticsDBHandler:
         return True
 
     def insert_song(self, **kwargs) -> bool:
-        """Insert a song into the database, returns song_id of inserted song"""
+        """Insert a song into the database, returns song_id of inserted song. Only insert if the song does not already exist. Use the title and filesize"""
         logging.info("Inserting song into songs table")
         cursor = self.conn.cursor()
         # self.song_table_data = {
@@ -356,6 +369,9 @@ class AnalyticsDBHandler:
         #     "source": "N/A", # string
         #     "favorited": False, # bool
         # }
+
+        # check if song already exists
+        exists = self.check_if_song_exists(kwargs["filepath"], kwargs["filesize"])
         cursor.execute(
             """INSERT INTO songs (
                 filepath,
@@ -445,6 +461,47 @@ class AnalyticsDBHandler:
         logging.info("Inserted album_artist")
         return True
 
+    def insert_song_artist(self, artist_name, song_id) -> bool:
+        """Insert a song_artist into the database, returns True if successful, False if not."""
+        logging.info("Inserting song_artist into song_artists table")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """INSERT INTO song_artists (song_id, artist_name, dt_added) VALUES (?, ?, ?);""",
+            (song_id, artist_name, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        )
+
+        self.conn.commit()
+        logging.info("Inserted song_artist")
+        return True
+
+    def insert_composer(self, composer_name, song_id) -> bool:
+        """Insert a composer into the database, returns True if successful, False if not."""
+        logging.info("Inserting composer into composers table")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """INSERT INTO composers (song_id, composer_name, dt_added) VALUES (?, ?, ?);""",
+            (song_id, composer_name, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        )
+
+        self.conn.commit()
+        logging.info("Inserted composer")
+        return True
+
+    def insert_genre(self, genre_name, song_id) -> bool:
+        """Insert a genre into the database, returns True if successful, False if not."""
+        logging.info("Inserting genre into genres table")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """INSERT INTO genres (song_id, genre_name, dt_added) VALUES (?, ?, ?);""",
+            (song_id, genre_name, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        )
+
+        self.conn.commit()
+        logging.info("Inserted genre")
+        return True
+
+
+
     # IMPORTANT: FUNCTION BELOW!
 
     def populate_database(self):
@@ -478,17 +535,20 @@ class AnalyticsDBHandler:
                 for artist in album_artist_data:
                     self.insert_album_artist(artist, song_id)
 
-            # song_artist_data = parser.get_song_artist_table_data()
-            # if song_artist_data is not None:
-            #     self.insert_song_artist(**song_artist_data)
+            song_artist_data = parser.get_song_artist_data()
+            if song_artist_data is not None:
+                for artist in song_artist_data:
+                    self.insert_song_artist(artist, song_id)
 
-            # composer_data = parser.get_composer_table_data()
-            # if composer_data is not None:
-            #     self.insert_composer(**composer_data)
+            composer_data = parser.get_composer_data()
+            if composer_data is not None:
+                for composer in composer_data:
+                    self.insert_composer(composer, song_id)
 
-            # genre_data = parser.get_genre_table_data()
-            # if genre_data is not None:
-            #     self.insert_genre(**genre_data)
+            genre_data = parser.get_genre_data()
+            if genre_data is not None:
+                for genre in genre_data:
+                    self.insert_genre(genre, song_id)
             
 
     # --------------------------------------------------------------------------------------------
@@ -514,4 +574,8 @@ if __name__ == "__main__":
     # create an instance of the database handler
     db_handler = AnalyticsDBHandler()
     # db_handler.create_all_tables()
-    db_handler.populate_database()
+    # db_handler.populate_database()
+    print(db_handler.get_song_by_title_filesize("Gemstone", 34815481))
+    # sp = songparser.SongMetadata(os.path.join(config.SOUNDFILES_PATH, "Gemstone.flac"))
+    # print(sp.get_song_table_data())
+    logging.error("Finished")
