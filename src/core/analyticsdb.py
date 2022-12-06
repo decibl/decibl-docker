@@ -48,6 +48,13 @@ logging.info("Loading database module")
 # ║               ║          ║          ║
 # ║               ║          ║          ║
 # ╚═══════════════╩══════════╩══════════╝
+# 
+# SONG_ARTISTS
+# ARTIST_NAME SONG_ID DT_ADDED
+# ALBUM_ARTISTS
+# ARTIST_NAME song_id DT_ADDED
+# COMPOSERS
+# COMPOSER_NAME SONG_ID DT_ADDED
 # ** = Primary Key
 # * = Foreign Key
 
@@ -68,19 +75,43 @@ class AnalyticsDBHandler:
         """Create the songs table, returns True if successful, False if not."""
         logging.info("Creating songs table")
         cursor = self.conn.cursor()
-        cursor.execute(
-            """CREATE TABLE IF NOT EXISTS songs (
-                song_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                filepath TEXT NOT NULL,
-                title TEXT NOT NULL,
-                artist TEXT NOT NULL,
-                album TEXT NOT NULL
-            );"""
-        )
-
+        # This is going to be a LOT of data, make a table with the following:
+        # Create the table
+        cursor.execute("""CREATE TABLE songs (
+            song_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            filepath TEXT,
+            filesize INTEGER,
+            padding INTEGER,
+            album_artwork_bit_depth INTEGER,
+            album_artwork_colors INTEGER,
+            album_artwork_height INTEGER,
+            album_artwork_width INTEGER,
+            bit_depth INTEGER,
+            bitrate INTEGER,
+            channels INTEGER,
+            duration INTEGER,
+            sample_rate INTEGER,
+            album TEXT,
+            barcode TEXT,
+            date_created TEXT,
+            disc_number INTEGER,
+            disc_total INTEGER,
+            genre TEXT,
+            isrc TEXT,
+            itunesadvisory TEXT,
+            length INTEGER,
+            publisher TEXT,
+            rating INTEGER,
+            title TEXT,
+            track_number INTEGER,
+            track_total INTEGER,
+            source TEXT,
+            favorited BOOLEAN
+        )""")
         self.conn.commit()
         logging.info("Created songs table")
         return True
+
 
     def create_plays_table(self) -> bool:
         """Create the plays table, returns True if successful, False if not."""
@@ -131,6 +162,57 @@ class AnalyticsDBHandler:
         logging.info("Created playlists_songs table")
         return True
 
+    def create_song_artists_table(self) -> bool:
+        """Create the song_artists table, returns True if successful, False if not."""
+
+        # Song_id is a foreign key to the songs table
+        logging.info("Creating song_artists table")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """CREATE TABLE IF NOT EXISTS song_artists (
+                artist_name TEXT NOT NULL,
+                song_id INTEGER NOT NULL,
+                dt_added TEXT NOT NULL
+            );"""
+        )
+        self.conn.commit()
+        logging.info("Created song_artists table")
+        return True
+
+    def create_album_artists_table(self) -> bool:
+        """Create the album_artists table, returns True if successful, False if not."""
+
+        # Album_id is a foreign key to the songs table
+        logging.info("Creating album_artists table")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """CREATE TABLE IF NOT EXISTS album_artists (
+                artist_name TEXT NOT NULL,
+                song_id INTEGER NOT NULL,
+                dt_added TEXT NOT NULL
+            );"""
+        )
+        self.conn.commit()
+        logging.info("Created album_artists table")
+        return True
+
+    def create_composers_table(self) -> bool:
+        """Create the composers table, returns True if successful, False if not."""
+
+        # Song_id is a foreign key to the songs table
+        logging.info("Creating composers table")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """CREATE TABLE IF NOT EXISTS composers (
+                composer_name TEXT NOT NULL,
+                song_id INTEGER NOT NULL,
+                dt_added TEXT NOT NULL
+            );"""
+        )
+        self.conn.commit()
+        logging.info("Created composers table")
+        return True
+
     def create_all_tables(self) -> bool:
         """Create all the tables, returns True if successful, False if not."""
         logging.info("Creating all tables")
@@ -138,6 +220,9 @@ class AnalyticsDBHandler:
         self.create_plays_table()
         self.create_playlists_table()
         self.create_playlists_songs_table()
+        self.create_song_artists_table()
+        self.create_album_artists_table()
+        self.create_composers_table()
         logging.info("Created all tables")
         return True
 
@@ -149,8 +234,18 @@ class AnalyticsDBHandler:
         cursor.execute("DELETE FROM plays;")
         cursor.execute("DELETE FROM playlists;")
         cursor.execute("DELETE FROM playlists_songs;")
+        cursor.execute("DELETE FROM song_artists;")
+        cursor.execute("DELETE FROM album_artists;")
+        cursor.execute("DELETE FROM composers;")
         self.conn.commit()
         logging.info("Cleared all tables")
+        return True
+
+    def delete_database(self) -> bool:
+        """Delete the database, returns True if successful, False if not."""
+        logging.info("Deleting database")
+        os.remove(config.DATABASE_PATH)
+        logging.info("Deleted database")
         return True
     
     # --------------------------------------------------------------------------------------------
@@ -178,110 +273,11 @@ class AnalyticsDBHandler:
         logging.info(f"Got song by ID: {song_id}")
         return (song[0], song[1], song[2], song[3], song[4])
 
-    def get_songs_by_title(self, title: str) -> list:
-        """Get a list of songs by their title, returns a list of Song objects."""
-        logging.info(f"Getting songs by title: {title}")
-        cursor = self.conn.cursor()
-        cursor.execute(
-            """SELECT * FROM songs WHERE title = ?;""",
-            (title,)
-        )
-        songs = cursor.fetchall()
-        logging.info(f"Got songs by title: {title}")
-        return [(song[0], song[1], song[2], song[3], song[4]) for song in songs]
-
-    def get_song_by_title_and_artist(self, title: str, artist: str) -> tuple:
-        """Get a song by its title and artist, returns a Song object."""
-        logging.info(f"Getting song by title and artist: {title} - {artist}")
-        cursor = self.conn.cursor()
-        cursor.execute(
-            """SELECT * FROM songs WHERE title = ? AND artist = ?;""",
-            (title, artist)
-        )
-        song = cursor.fetchone()
-        logging.info(f"Got song by title and artist: {title} - {artist}")
-        return (song[0], song[1], song[2], song[3], song[4])
-
-
-    def get_play_by_title_and_artist(self, title: str, artist: str) -> tuple:
-        """Get a play by its title and artist, returns a Play object."""
-        logging.info(f"Getting play by title and artist: {title} - {artist}")
-        cursor = self.conn.cursor()
-        cursor.execute(
-            """SELECT * FROM plays WHERE song_title = ? AND song_artist = ?;""",
-            (title, artist)
-        )
-        play = cursor.fetchone()
-        logging.info(f"Got play by title and artist: {title} - {artist}")
-        return (play[0], play[1], play[2], play[3], play[4])
-
-    def get_all_songs(self) -> list:
-        """Get all the songs in the database, returns a list of Song objects."""
-        logging.info("Getting all songs")
-        cursor = self.conn.cursor()
-        cursor.execute("SELECT * FROM songs;")
-        songs = cursor.fetchall()
-        logging.info("Got all songs")
-        return [(song[0], song[1], song[2], song[3], song[4]) for song in songs]
-
-    def get_all_plays(self) -> list:
-        """Get all the plays in the database, returns a list of Play objects."""
-        logging.info("Getting all plays")
-        cursor = self.conn.cursor()
-        cursor.execute("SELECT * FROM plays;")
-        plays = cursor.fetchall()
-        logging.info("Got all plays")
-        return [(play[0], play[1], play[2], play[3], play[4]) for play in plays]
-
-    def get_all_playlists(self) -> list:
-        """Get all the playlists in the database, returns a list of Playlist objects."""
-        logging.info("Getting all playlists")
-        cursor = self.conn.cursor()
-        cursor.execute("SELECT * FROM playlists;")
-        playlists = cursor.fetchall()
-        logging.info("Got all playlists")
-        return [(playlist[0], playlist[1], playlist[2]) for playlist in playlists]
-
-    def get_all_playlists_songs(self) -> list:
-        """Get all the playlists_songs in the database, returns a list of PlaylistSong objects."""
-        logging.info("Getting all playlists_songs")
-        cursor = self.conn.cursor()
-        cursor.execute("SELECT * FROM playlists_songs;")
-        playlists_songs = cursor.fetchall()
-        logging.info("Got all playlists_songs")
-        return [(playlist_song[0], playlist_song[1], playlist_song[2]) for playlist_song in playlists_songs]
 
     # --------------------------------------------------------------------------------------------
     #                                    INSERT DATA
     # --------------------------------------------------------------------------------------------
-
-    # song will have a LOT of data
-    def insert_song(self, filepath: str, title: str, artist: str, album: str) -> bool:
-        """Insert a song into the database, returns True if successful, False if not."""
-        logging.info("Inserting song into songs taable")
-        cursor = self.conn.cursor()
-        cursor.execute(
-            """INSERT INTO songs (filepath, title, artist, album) VALUES (?, ?, ?, ?);""",
-            (filepath, title, artist, album)
-        )
-
-        self.conn.commit()
-        logging.info("Inserted song")
-        return True
-
-    def insert_play(self, song_title: str, song_artist: str, start_dt: str, end_dt: str) -> bool:
-        """Insert a play into the database, returns True if successful, False if not."""
-        logging.info("Inserting play into plays table")
-        cursor = self.conn.cursor()
-        cursor.execute(
-            """INSERT INTO plays (song_title, song_artist, start_dt, end_dt) VALUES (?, ?, ?, ?);""",
-            (song_title, song_artist, start_dt, end_dt)
-        )
-
-        self.conn.commit()
-        logging.info("Inserted play")
-        return True
-
+       
     def insert_playlist(self, playlist_name: str, created_dt: str) -> bool:
         """Insert a playlist into the database, returns True if successful, False if not."""
         logging.info("Inserting playlist into playlists table")
@@ -328,22 +324,8 @@ class AnalyticsDBHandler:
         logging.info("Backed up database")
         return True
 
-    # --------------------------------------------------------------------------------------------
-    #                                  READING METADATA
-    # --------------------------------------------------------------------------------------------
-
-    def read_song_metadata(self, filepath: str) -> dict:
-        """Read the metadata of a song, returns a dict of the metadata."""
-        logging.info("Reading song {} metadata".format(filepath))
-        metadata = {}
-
-        # Read the metadata of the song
-        f = music_tag.load_file(filepath)
-        print(f)
-
-
 
 if __name__ == "__main__":
     # create an instance of the database handler
     db_handler = AnalyticsDBHandler()
-    db_handler.read_song_metadata(os.path.join(config.SOUNDFILES_PATH, "enemy.flac"))
+    db_handler.create_all_tables()
