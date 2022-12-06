@@ -213,6 +213,23 @@ class AnalyticsDBHandler:
         logging.info("Created composers table")
         return True
 
+    def create_genres_table(self) -> bool:
+        """Create the genres table, returns True if successful, False if not."""
+
+        # Song_id is a foreign key to the songs table
+        logging.info("Creating genres table")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """CREATE TABLE IF NOT EXISTS genres (
+                genre_name TEXT NOT NULL,
+                song_id INTEGER NOT NULL,
+                dt_added TEXT NOT NULL
+            );"""
+        )
+        self.conn.commit()
+        logging.info("Created genres table")
+        return True
+
     def create_all_tables(self) -> bool:
         """Create all the tables, returns True if successful, False if not."""
         logging.info("Creating all tables")
@@ -223,6 +240,7 @@ class AnalyticsDBHandler:
         self.create_song_artists_table()
         self.create_album_artists_table()
         self.create_composers_table()
+        self.create_genres_table()
         logging.info("Created all tables")
         return True
 
@@ -237,6 +255,7 @@ class AnalyticsDBHandler:
         cursor.execute("DELETE FROM song_artists;")
         cursor.execute("DELETE FROM album_artists;")
         cursor.execute("DELETE FROM composers;")
+        cursor.execute("DELETE FROM genres;")
         self.conn.commit()
         logging.info("Cleared all tables")
         return True
@@ -358,7 +377,6 @@ class AnalyticsDBHandler:
                 date_created,
                 disc_number,
                 disc_total,
-                genre,
                 isrc,
                 itunesadvisory,
                 length,
@@ -370,7 +388,7 @@ class AnalyticsDBHandler:
                 source,
                 favorited
             ) VALUES (
-                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
             );""",
             (
                 kwargs["filepath"],
@@ -391,7 +409,6 @@ class AnalyticsDBHandler:
                 kwargs["date_created"],
                 kwargs["disc_number"],
                 kwargs["disc_total"],
-                kwargs["genre"],
                 kwargs["isrc"],
                 kwargs["itunesadvisory"],
                 kwargs["length"],
@@ -453,4 +470,5 @@ class AnalyticsDBHandler:
 if __name__ == "__main__":
     # create an instance of the database handler
     db_handler = AnalyticsDBHandler()
+    db_handler.create_all_tables()
     db_handler.populate_database()

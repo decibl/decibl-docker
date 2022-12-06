@@ -123,8 +123,6 @@ class SongMetadata:
                 self.song_table_data["disc_number"] = self.metadata["tags"]["discnumber"][0]
             if "disctotal" in self.metadata["tags"]:
                 self.song_table_data["disc_total"] = self.metadata["tags"]["disctotal"][0]
-            if "genre" in self.metadata["tags"]:
-                self.song_table_data["genre"] = self.metadata["tags"]["genre"][0]
             if "isrc" in self.metadata["tags"]:
                 self.song_table_data["isrc"] = self.metadata["tags"]["isrc"][0]
             if "itunesadvisory" in self.metadata["tags"]:
@@ -166,6 +164,12 @@ class SongMetadata:
         else:
             return "N/A"
 
+    def get_genre_data_flac(self):
+        if "genre" in self.metadata["tags"]:
+            return self.metadata["tags"]["genre"]
+        else:
+            return "N/A"
+
     def get_album_artist_data(self):
         if self.filetype == "flac":
             return self.get_album_artist_data_flac()
@@ -177,6 +181,10 @@ class SongMetadata:
     def get_composer_data(self):
         if self.filetype == "flac":
             return self.get_composer_data_flac()
+        
+    def get_genre_data(self):
+        if self.filetype == "flac":
+            return self.get_genre_data_flac()
 
     # when printed, print the metadata
     def __str__(self):
@@ -192,7 +200,8 @@ class SongMetadata:
 # print(md.get_album_artist_data())
 # print(md.get_song_artist_data())
 
-# md2 = SongMetadata(os.path.join(config.SOUNDFILES_PATH, "gemstone.flac"))
+md2 = SongMetadata(os.path.join(config.SOUNDFILES_PATH, "gemstone.flac"))
+print(md2)
 # print(md2.get_song_table_data())
 # # metadata2 = audio_metadata.load(os.path.join(config.SOUNDFILES_PATH, "example.mp3"))
 # # print(metadata2)
