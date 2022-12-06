@@ -95,7 +95,6 @@ class AnalyticsDBHandler:
             date_created TEXT,
             disc_number INTEGER,
             disc_total INTEGER,
-            genre TEXT,
             isrc TEXT,
             itunesadvisory TEXT,
             length INTEGER,
@@ -323,7 +322,7 @@ class AnalyticsDBHandler:
         return True
 
     def insert_song(self, **kwargs) -> bool:
-        """Insert a song into the database, returns True if successful, False if not."""
+        """Insert a song into the database, returns song_id of inserted song"""
         logging.info("Inserting song into songs table")
         cursor = self.conn.cursor()
         # self.song_table_data = {
@@ -423,7 +422,27 @@ class AnalyticsDBHandler:
         )
 
         self.conn.commit()
-        logging.info("Inserted song")
+        # get the song_id of the inserted song
+        cursor.execute(
+            """SELECT song_id FROM songs WHERE filepath = ?;""",
+            (kwargs["filepath"],)
+        )
+        
+        song_id = cursor.fetchone()[0]
+        logging.info(f"Inserted song with song_id: {song_id}")
+        return song_id
+
+    def insert_album_artist(self, artist_name, song_id) -> bool:
+        """Insert an album_artist into the database, returns True if successful, False if not."""
+        logging.info("Inserting album_artist into album_artists table")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """INSERT INTO album_artists (song_id, artist_name, dt_added) VALUES (?, ?, ?);""",
+            (song_id, artist_name, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        )
+
+        self.conn.commit()
+        logging.info("Inserted album_artist")
         return True
 
     # IMPORTANT: FUNCTION BELOW!
@@ -444,9 +463,33 @@ class AnalyticsDBHandler:
 
             # get the song data and insert it into the database
             song_data = parser.get_song_table_data()
+            song_id = None
             if song_data is not None:
                 print(song_data['barcode'])
-                self.insert_song(**song_data)
+                song_id = self.insert_song(**song_data)
+            else:
+                logging.error(f"Could not get song data for file: {file_path}")
+                continue
+
+            # get the
+            # get the artist data and insert it into the database
+            album_artist_data = parser.get_album_artist_data_flac()
+            if album_artist_data is not None:
+                for artist in album_artist_data:
+                    self.insert_album_artist(artist, song_id)
+
+            # song_artist_data = parser.get_song_artist_table_data()
+            # if song_artist_data is not None:
+            #     self.insert_song_artist(**song_artist_data)
+
+            # composer_data = parser.get_composer_table_data()
+            # if composer_data is not None:
+            #     self.insert_composer(**composer_data)
+
+            # genre_data = parser.get_genre_table_data()
+            # if genre_data is not None:
+            #     self.insert_genre(**genre_data)
+            
 
     # --------------------------------------------------------------------------------------------
     #                                  Backup and Restore
@@ -470,5 +513,5 @@ class AnalyticsDBHandler:
 if __name__ == "__main__":
     # create an instance of the database handler
     db_handler = AnalyticsDBHandler()
-    db_handler.create_all_tables()
+    # db_handler.create_all_tables()
     db_handler.populate_database()
