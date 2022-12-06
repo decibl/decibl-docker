@@ -302,6 +302,8 @@ class AnalyticsDBHandler:
         )
         # return the id of the song
         song = cursor.fetchone()
+        if song is None:
+            return None
         logging.info(f"Got song by title and filesize: {title}, {filesize}")
         return song[0]
 
@@ -323,20 +325,22 @@ class AnalyticsDBHandler:
         return True
 
     def insert_playlist_song(self, playlist_id: int, song_id: int, added_dt: str) -> bool:
-        """Insert a playlist_song into the database, returns True if successful, False if not."""
+        """Insert a playlist_song into the database, returns True if successful, False if not. Only insert if the playlist_song does not already exist."""
         logging.info("Inserting playlist_song into playlists_songs table")
         cursor = self.conn.cursor()
         cursor.execute(
-            """INSERT INTO playlists_songs (playlist_id, song_id, added_dt) VALUES (?, ?, ?);""",
-            (playlist_id, song_id, added_dt)
+            """INSERT INTO playlists_songs (playlist_id, song_id, added_dt)
+            SELECT ?, ?, ? WHERE NOT EXISTS (
+                SELECT 1 FROM playlists_songs WHERE playlist_id = ? AND song_id = ?
+            );""",
+            (playlist_id, song_id, added_dt, playlist_id, song_id)
         )
-
-        self.conn.commit()
-        logging.info("Inserted playlist_song")
         return True
 
     def insert_song(self, **kwargs) -> bool:
-        """Insert a song into the database, returns song_id of inserted song. Only insert if the song does not already exist. Use the title and filesize"""
+        """Insert a song into the database, returns song_id of inserted song. 
+        Only insert if the song does not already exist. Use the title and filesize.
+        Returns the song_id"""
         logging.info("Inserting song into songs table")
         cursor = self.conn.cursor()
         # self.song_table_data = {
@@ -454,56 +458,56 @@ class AnalyticsDBHandler:
         return song_id
 
     def insert_album_artist(self, artist_name, song_id) -> bool:
-        """Insert an album_artist into the database, returns True if successful, False if not."""
+        """Insert an album_artist into the database, returns True if successful, False if not. Only insert if the album_artist does not already exist."""
         logging.info("Inserting album_artist into album_artists table")
         cursor = self.conn.cursor()
         cursor.execute(
-            """INSERT INTO album_artists (song_id, artist_name, dt_added) VALUES (?, ?, ?);""",
-            (song_id, artist_name, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+            """INSERT INTO album_artists (artist_name, song_id, dt_added)
+            SELECT ?, ?, ? WHERE NOT EXISTS (
+                SELECT 1 FROM album_artists WHERE artist_name = ? AND song_id = ?
+            );""",
+            (artist_name, song_id, datetime.datetime.now(), artist_name, song_id)
         )
-
-        self.conn.commit()
-        logging.info("Inserted album_artist")
         return True
 
     def insert_song_artist(self, artist_name, song_id) -> bool:
-        """Insert a song_artist into the database, returns True if successful, False if not."""
+        """Insert a song_artist into the database, returns True if successful, False if not. Only insert if the song_artist does not already exist."""
         logging.info("Inserting song_artist into song_artists table")
         cursor = self.conn.cursor()
         cursor.execute(
-            """INSERT INTO song_artists (song_id, artist_name, dt_added) VALUES (?, ?, ?);""",
-            (song_id, artist_name, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+            """INSERT INTO song_artists (artist_name, song_id, dt_added)
+            SELECT ?, ?, ? WHERE NOT EXISTS (
+                SELECT 1 FROM song_artists WHERE artist_name = ? AND song_id = ?
+            );""",
+            (artist_name, song_id, datetime.datetime.now(), artist_name, song_id)
         )
-
-        self.conn.commit()
-        logging.info("Inserted song_artist")
         return True
 
     def insert_composer(self, composer_name, song_id) -> bool:
-        """Insert a composer into the database, returns True if successful, False if not."""
+        """Insert a composer into the database, returns True if successful, False if not. 
+        Only insert if the composer does not already exist."""
         logging.info("Inserting composer into composers table")
         cursor = self.conn.cursor()
         cursor.execute(
-            """INSERT INTO composers (song_id, composer_name, dt_added) VALUES (?, ?, ?);""",
-            (song_id, composer_name,
-             datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+            """INSERT INTO composers (composer_name, song_id, dt_added)
+            SELECT ?, ?, ? WHERE NOT EXISTS (
+                SELECT 1 FROM composers WHERE composer_name = ? AND song_id = ?
+            );""",
+            (composer_name, song_id, datetime.datetime.now(), composer_name, song_id)
         )
-
-        self.conn.commit()
-        logging.info("Inserted composer")
         return True
 
     def insert_genre(self, genre_name, song_id) -> bool:
-        """Insert a genre into the database, returns True if successful, False if not."""
+        """Insert a genre into the database, returns True if successful, False if not. Only insert if the genre does not already exist."""
         logging.info("Inserting genre into genres table")
         cursor = self.conn.cursor()
         cursor.execute(
-            """INSERT INTO genres (song_id, genre_name, dt_added) VALUES (?, ?, ?);""",
-            (song_id, genre_name, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+            """INSERT INTO genres (genre_name, song_id, dt_added)
+            SELECT ?, ?, ? WHERE NOT EXISTS (
+                SELECT 1 FROM genres WHERE genre_name = ? AND song_id = ?
+            );""",
+            (genre_name, song_id, datetime.datetime.now(), genre_name, song_id)
         )
-
-        self.conn.commit()
-        logging.info("Inserted genre")
         return True
 
     # IMPORTANT: FUNCTION BELOW!
@@ -575,9 +579,9 @@ class AnalyticsDBHandler:
 if __name__ == "__main__":
     # create an instance of the database handler
     db_handler = AnalyticsDBHandler()
-    # db_handler.create_all_tables()
+    db_handler.create_all_tables()
     db_handler.populate_database()
-    print(db_handler.get_song_by_title_filesize("Gemstone", 34815481))
+    # print(db_handler.get_song_by_title_filesize("Gemstone", 34815481))
     # # sp = songparser.SongMetadata(os.path.join(config.SOUNDFILES_PATH, "Gemstone.flac"))
     # # print(sp.get_song_table_data())
     # logging.error("Finished")
