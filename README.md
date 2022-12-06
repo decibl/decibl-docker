@@ -48,6 +48,7 @@ core/
 ├── analyticsdb.py
 |── config.py
 |── songparser.py
+```
 
 #### analyticsdb.py
 
