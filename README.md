@@ -47,6 +47,7 @@ This folder contains the core files of the project. These are the files that are
 core/
 ├── analyticsdb.py
 |── config.py
+|── songparser.py
 
 #### analyticsdb.py
 
