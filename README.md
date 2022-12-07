@@ -94,10 +94,96 @@ It accounts for duplicates, so look for WARNING messages in the logs if you're a
 Yeah, there's a ton of parameters. This function is used to insert a song into the database. It's a bit of a pain to use, but it's the only way to insert a song into the database. Look at songparser.py for more info.
 
 
-
 ## config.py
 
-The main file that contains all the configuration variables. Look at the file for more information.
+The main file that contains all the configuration variables. Has tons of handy dandy info the rest of the program might need. Here's some important variables it contains:
+
+
+<!-- LOGGING_LEVEL = logging.DEBUG
+# For logging format, do datetime + file location then message
+LOGGING_FORMAT = "%(asctime)s - %(pathname)s - %(levelname)s - %(message)s"
+LOGGING_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+# make filename based on date
+LOGGING_FILENAME = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "logs", "log_{}.log".format(datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S"))))
+LOGGING_ENCODING = "utf-8"
+
+if not os.path.exists(os.path.dirname(LOGGING_FILENAME)):
+    os.makedirs(os.path.dirname(LOGGING_FILENAME))
+
+
+logging.basicConfig(filename=LOGGING_FILENAME, encoding=LOGGING_ENCODING, level=LOGGING_LEVEL, format=LOGGING_FORMAT, datefmt=LOGGING_DATE_FORMAT)
+logging.debug("Making folder for logs")
+
+
+logging.info("Loading config file")
+logger = logging.getLogger("Rotating Time Log")
+handler = TimedRotatingFileHandler(LOGGING_FILENAME,
+                                    when="h",
+                                    interval=1,)
+logger.addHandler(handler)
+
+# log a message that the config file has been loaded
+logging.info("Loaded config file")
+
+# make logging folder if it doesn't exist
+
+# ---------------------------------------------------------------------------------------------
+#                                      Database
+# ---------------------------------------------------------------------------------------------
+
+DATABASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "analyticsdb", "analytics.db"))
+
+# make database folder if it doesn't exist
+logging.info("Making folder for database")
+if not os.path.exists(os.path.dirname(DATABASE_PATH)):
+    os.makedirs(os.path.dirname(DATABASE_PATH))
+
+# ---------------------------------------------------------------------------------------------
+#                                      Sound Files
+# ---------------------------------------------------------------------------------------------
+
+# make sound folder if it doesn't exist
+logging.info("Making folder for sound files")
+SOUNDFILES_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "soundfiles"))
+if not os.path.exists(SOUNDFILES_PATH):
+    os.makedirs(SOUNDFILES_PATH)
+    
+
+# ---------------------------------------------------------------------------------------------
+#                                      Backups
+# ---------------------------------------------------------------------------------------------
+
+BACKUPS_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "backups"))
+DATABASE_BACKUP_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "backups", "database"))
+LOGS_BACKUP_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "backups", "logs"))
+# make backup folder if it doesn't exist
+logging.info("Making folder for backups")
+if not os.path.exists(BACKUPS_PATH):
+    os.makedirs(BACKUPS_PATH)
+if not os.path.exists(DATABASE_BACKUP_PATH):
+    os.makedirs(DATABASE_BACKUP_PATH)
+if not os.path.exists(LOGS_BACKUP_PATH):
+    os.makedirs(LOGS_BACKUP_PATH) -->
+
+### Logging
+* `LOGGING_LEVEL` - The logging level of the project. This should be always be DEBUG, otherwise you might not get any logs
+* `LOGGING_FORMAT` - The format of the logs. Those weird variables are the date, file location, and message.
+* `LOGGING_DATE_FORMAT` - The format of the date in the logs. 
+* `LOGGING_FILENAME` - The filename of the logs. This is automatically generated based on the date.
+* `LOGGING_ENCODING` - The encoding of the logs. This should always be utf-8.
+
+* `DATABASE_PATH` - The path to the database. This is automatically generated based on the project's directory.
+
+### Database
+* `DATABASE_PATH` - The path to the database. This is automatically generated based on the project's directory.
+
+### Sound Files
+* `SOUNDFILES_PATH` - The path to the sound files. This is automatically generated based on the project's directory.
+
+### Backups
+* `BACKUPS_PATH` - The path to the backups. This is automatically generated based on the project's directory.
+* `DATABASE_BACKUP_PATH` - The path to the database backups. This is automatically generated based on the project's directory.
+* `LOGS_BACKUP_PATH` - The path to the logs backups. This is automatically generated based on the project's directory.
 
 #### songparser.py
 
