@@ -16,47 +16,6 @@ logging.info("Loading database module")
 # Make Database class to hold all the data analytics
 # This will be used to create and manage the database of the users activity.
 # (there's lots of data in the songs table so I'm not going to put it in the graphic)
-# ╔══════════════════════════════════════════════════════╗
-# ║                         SONGS                        ║
-# ╠═══════════╦══════════╦═══════╦════════╦═══════╦══════╣
-# ║ **SONG_ID ║ FILEPATH ║ TITLE ║ ARTIST ║ ALBUM ║ ETC. ║
-# ║           ║          ║       ║        ║       ║      ║
-# ║           ║          ║       ║        ║       ║      ║
-# ╚═══════════╩══════════╩═══════╩════════╩═══════╩══════╝
-# ╔═══════════════════════════════════════════════════════════╗
-# ║                           PLAYS                           ║
-# ╠═══════════╦═════════════╦═════════════╦══════════╦════════╣
-# ║ **PLAY_ID ║ *SONG_TITLE ║ SONG_ARTIST ║ START_DT ║ END_DT ║
-# ║           ║             ║             ║          ║        ║
-# ║           ║             ║             ║          ║        ║
-# ║           ║             ║             ║          ║        ║
-# ║           ║             ║             ║          ║        ║
-# ╚═══════════╩═════════════╩═════════════╩══════════╩════════╝
-# ╔════════════════════════════════════════════╗
-# ║                  PLAYLISTS                 ║
-# ╠═══════════════╦═══════════════╦════════════╣
-# ║ **PLAYLIST_ID ║ PLAYLIST_NAME ║ CREATED_DT ║
-# ║               ║               ║            ║
-# ║               ║               ║            ║
-# ║               ║               ║            ║
-# ╚═══════════════╩═══════════════╩════════════╝
-# ╔═════════════════════════════════════╗
-# ║           PLAYLISTS_SONGS           ║
-# ╠═══════════════╦══════════╦══════════╣
-# ║ **PLAYLIST_ID ║ *SONG_ID ║ ADDED_DT ║
-# ║               ║          ║          ║
-# ║               ║          ║          ║
-# ║               ║          ║          ║
-# ╚═══════════════╩══════════╩══════════╝
-#
-# SONG_ARTISTS
-# ARTIST_NAME SONG_ID DT_ADDED
-# ALBUM_ARTISTS
-# ARTIST_NAME song_id DT_ADDED
-# COMPOSERS
-# COMPOSER_NAME SONG_ID DT_ADDED
-# ** = Primary Key
-# * = Foreign Key
 
 class AnalyticsDBHandler:
     """Class to handle all the data analytics, especially stuff like creating tables, making backups, etc."""
@@ -380,7 +339,7 @@ class AnalyticsDBHandler:
         song_id = self.get_song_by_title_filesize(
             kwargs["title"], kwargs["filesize"])
         if song_id:
-            logging.info("Song {} already exists in songs table".format(
+            logging.warning("Song {} already exists in songs table".format(
                 kwargs["title"]))
             return song_id
         cursor.execute(
@@ -471,7 +430,7 @@ class AnalyticsDBHandler:
         )
 
         if cursor.fetchone():
-            logging.info("Album artist {} with song_id {} already exists in album_artists table".format(
+            logging.warning("Album artist {} with song_id {} already exists in album_artists table".format(
                 artist_name, song_id))
             return False
         
@@ -507,7 +466,7 @@ class AnalyticsDBHandler:
         )
 
         if cursor.fetchone():
-            logging.info("Song artist {} with song_id {} already exists in song_artists table".format(
+            logging.warning("Song artist {} with song_id {} already exists in song_artists table".format(
                 artist_name, song_id))
             return False
 
@@ -543,7 +502,7 @@ class AnalyticsDBHandler:
         )
 
         if cursor.fetchone():
-            logging.info("Composer {} with song_id {} already exists in composers table".format(
+            logging.warning("Composer {} with song_id {} already exists in composers table".format(
                 composer_name, song_id))
             return False
 
@@ -560,7 +519,7 @@ class AnalyticsDBHandler:
 
     def insert_genre(self, genre_name, song_id) -> bool:
         """Insert a genre into the database, returns True if successful, False if not. Only insert if the genre does not already exist."""
-        logging.info("Inserting genre {} with song_id {} into genres table".format(
+        logging.warning("Inserting genre {} with song_id {} into genres table".format(
             genre_name, song_id))
         cursor = self.conn.cursor()
         # cursor.execute(
