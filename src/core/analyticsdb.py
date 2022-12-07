@@ -341,7 +341,8 @@ class AnalyticsDBHandler:
         """Insert a song into the database, returns song_id of inserted song. 
         Only insert if the song does not already exist. Use the title and filesize.
         Returns the song_id"""
-        logging.info("Inserting song into songs table")
+        logging.info(
+            "Inserting song {} into songs table".format(kwargs["title"]))
         cursor = self.conn.cursor()
         # self.song_table_data = {
         #     "filepath": "N/A", # string
@@ -379,7 +380,8 @@ class AnalyticsDBHandler:
         song_id = self.get_song_by_title_filesize(
             kwargs["title"], kwargs["filesize"])
         if song_id:
-            logging.info("Song already exists")
+            logging.info("Song {} already exists in songs table".format(
+                kwargs["title"]))
             return song_id
         cursor.execute(
             """INSERT INTO songs (
@@ -459,55 +461,136 @@ class AnalyticsDBHandler:
 
     def insert_album_artist(self, artist_name, song_id) -> bool:
         """Insert an album_artist into the database, returns True if successful, False if not. Only insert if the album_artist does not already exist."""
-        logging.info("Inserting album_artist into album_artists table")
+        logging.info("Attempting to insert album artist {} iwith song_id {} into album_artists table".format(
+            artist_name, song_id))
         cursor = self.conn.cursor()
+        # check if album_artist already exists
+        cursor.execute(
+            """SELECT 1 FROM album_artists WHERE artist_name = ? AND song_id = ?;""",
+            (artist_name, song_id)
+        )
+
+        if cursor.fetchone():
+            logging.info("Album artist {} with song_id {} already exists in album_artists table".format(
+                artist_name, song_id))
+            return False
+        
         cursor.execute(
             """INSERT INTO album_artists (artist_name, song_id, dt_added)
-            SELECT ?, ?, ? WHERE NOT EXISTS (
-                SELECT 1 FROM album_artists WHERE artist_name = ? AND song_id = ?
-            );""",
-            (artist_name, song_id, datetime.datetime.now(), artist_name, song_id)
+            VALUES (?, ?, ?);""",
+            (artist_name, song_id, datetime.datetime.now())
         )
+
+        self.conn.commit()
+        logging.info("Inserted album artist {} with song_id {} into album_artists table".format(
+            artist_name, song_id))
+
         return True
 
     def insert_song_artist(self, artist_name, song_id) -> bool:
         """Insert a song_artist into the database, returns True if successful, False if not. Only insert if the song_artist does not already exist."""
-        logging.info("Inserting song_artist into song_artists table")
+        logging.info("Attempting to insert song artist {} with song_id {} into song_artists table".format(
+            artist_name, song_id))
         cursor = self.conn.cursor()
+        # cursor.execute(
+        #     """INSERT INTO song_artists (artist_name, song_id, dt_added)
+        #     SELECT ?, ?, ? WHERE NOT EXISTS (
+        #         SELECT 1 FROM song_artists WHERE artist_name = ? AND song_id = ?
+        #     );""",
+        #     (artist_name, song_id, datetime.datetime.now(), artist_name, song_id)
+        # )
+
+        # check if song_artist already exists
+        cursor.execute(
+            """SELECT 1 FROM song_artists WHERE artist_name = ? AND song_id = ?;""",
+            (artist_name, song_id)
+        )
+
+        if cursor.fetchone():
+            logging.info("Song artist {} with song_id {} already exists in song_artists table".format(
+                artist_name, song_id))
+            return False
+
         cursor.execute(
             """INSERT INTO song_artists (artist_name, song_id, dt_added)
-            SELECT ?, ?, ? WHERE NOT EXISTS (
-                SELECT 1 FROM song_artists WHERE artist_name = ? AND song_id = ?
-            );""",
-            (artist_name, song_id, datetime.datetime.now(), artist_name, song_id)
+            VALUES (?, ?, ?);""",
+            (artist_name, song_id, datetime.datetime.now())
         )
+
+        self.conn.commit()
+        logging.info("Inserted song artist {} with song_id {} into song_artists table".format(
+            artist_name, song_id))
         return True
 
     def insert_composer(self, composer_name, song_id) -> bool:
         """Insert a composer into the database, returns True if successful, False if not. 
         Only insert if the composer does not already exist."""
-        logging.info("Inserting composer into composers table")
+        logging.info("Attempting to insert composer {} with song_id {} into composers table".format(
+            composer_name, song_id))
         cursor = self.conn.cursor()
+        # cursor.execute(
+        #     """INSERT INTO composers (composer_name, song_id, dt_added)
+        #     SELECT ?, ?, ? WHERE NOT EXISTS (
+        #         SELECT 1 FROM composers WHERE composer_name = ? AND song_id = ?
+        #     );""",
+        #     (composer_name, song_id, datetime.datetime.now(), composer_name, song_id)
+        # )
+
+        # check if composer already exists
+        cursor.execute(
+            """SELECT 1 FROM composers WHERE composer_name = ? AND song_id = ?;""",
+            (composer_name, song_id)
+        )
+
+        if cursor.fetchone():
+            logging.info("Composer {} with song_id {} already exists in composers table".format(
+                composer_name, song_id))
+            return False
+
         cursor.execute(
             """INSERT INTO composers (composer_name, song_id, dt_added)
-            SELECT ?, ?, ? WHERE NOT EXISTS (
-                SELECT 1 FROM composers WHERE composer_name = ? AND song_id = ?
-            );""",
-            (composer_name, song_id, datetime.datetime.now(), composer_name, song_id)
+            VALUES (?, ?, ?);""",
+            (composer_name, song_id, datetime.datetime.now())
         )
+
+        self.conn.commit()
+        logging.info("Inserted composer {} with song_id {} into composers table".format(
+            composer_name, song_id))
         return True
 
     def insert_genre(self, genre_name, song_id) -> bool:
         """Insert a genre into the database, returns True if successful, False if not. Only insert if the genre does not already exist."""
-        logging.info("Inserting genre into genres table")
+        logging.info("Inserting genre {} with song_id {} into genres table".format(
+            genre_name, song_id))
         cursor = self.conn.cursor()
+        # cursor.execute(
+        #     """INSERT INTO genres (genre_name, song_id, dt_added)
+        #     SELECT ?, ?, ? WHERE NOT EXISTS (
+        #         SELECT 1 FROM genres WHERE genre_name = ? AND song_id = ?
+        #     );""",
+        #     (genre_name, song_id, datetime.datetime.now(), genre_name, song_id)
+        # )
+
+        # check if genre already exists
+        cursor.execute(
+            """SELECT 1 FROM genres WHERE genre_name = ? AND song_id = ?;""",
+            (genre_name, song_id)
+        )
+
+        if cursor.fetchone():
+            logging.info("Genre {} with song_id {} already exists in genres table".format(
+                genre_name, song_id))
+            return False
+
         cursor.execute(
             """INSERT INTO genres (genre_name, song_id, dt_added)
-            SELECT ?, ?, ? WHERE NOT EXISTS (
-                SELECT 1 FROM genres WHERE genre_name = ? AND song_id = ?
-            );""",
-            (genre_name, song_id, datetime.datetime.now(), genre_name, song_id)
+            VALUES (?, ?, ?);""",
+            (genre_name, song_id, datetime.datetime.now())
         )
+
+        self.conn.commit()
+        logging.info("Inserted genre {} with song_id {} into genres table".format(
+            genre_name, song_id))
         return True
 
     # IMPORTANT: FUNCTION BELOW!

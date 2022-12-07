@@ -59,6 +59,8 @@ class SongFileFLAC(SongFile):
         self.make_song_table_data()
 
     def make_song_table_data(self):
+        # there's so much data bruh, here's a big ass list that details everything
+        # this method isn't really necessary, but I thinik it makes things cleaner
         self.song_table_data = {
             "filepath": "N/A", # string
             "main_artist": "N/A", # string
@@ -223,7 +225,8 @@ class SongMetadata:
     #   - favorited (bool)
 
     def __init__(self, filepath):
-        # get the extension of the file
+        """Initialize the SongMetadata object.
+            We want to see what file type it is, and load the correct file."""
         self.extension = os.path.splitext(filepath)[1]
         self.songfile = None
         if self.extension == ".flac":
