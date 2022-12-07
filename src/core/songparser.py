@@ -231,6 +231,8 @@ class SongMetadata:
         self.songfile = None
         if self.extension == ".flac":
             self.songfile = SongFileFLAC(filepath)
+        else:
+            logging.error("File type not supported: " + self.extension)
 
     def get_song_table_data(self):
         if self.songfile is not None:

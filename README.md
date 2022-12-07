@@ -189,21 +189,76 @@ if not os.path.exists(LOGS_BACKUP_PATH):
 - `DATABASE_BACKUP_PATH` - The path to the database backups. This is automatically generated based on the project's directory.
 - `LOGS_BACKUP_PATH` - The path to the logs backups. This is automatically generated based on the project's directory.
 
-#### songparser.py
+## songparser.py
 
 Responsible for parsing the song files and extracting their metadata.
 
-### logs
+### Overview
+
+We are using an abstract class `SongFile` which should be extended by child classes for each file type. For example: 
+
+```python
+# This is what the parent class looks like
+class SongFile(ABC): # ABC means it's an abstract class
+    @abstractmethod
+    def get_metadata(self):
+        pass
+
+# This is the class we want to make
+class SongFileFLAC(SongFile): # inherit from SongFile
+
+    def get_metadata(self): # this is an abstract method, so we have to implement it
+        super().get_metadata() # call the parent method (named the exact same as current function)
+        pass
+
+class SongFileMP3(SongFile): # inherit from SongFile
+
+    def get_metadata(self): # this is an abstract method, so we have to implement it
+        super().get_metadata() # call the parent method (named the exact same as current function)
+        pass
+```
+
+If you are adding support for a new file, there's some very important things you have to be aware of:
+
+1. Firstly, you need to create a child class of `SongFile` for your file type. Look at the above example for more information.
+
+2. Add your filetype to the `__init__()` function of the SongMetadata class. 
+
+```python
+
+    # This is what the init function will look like (maybe a little different since this was written but it will be same gist)
+
+    def __init__(self, filepath):
+        """Initialize the SongMetadata object.
+            We want to see what file type it is, and load the correct file."""
+        self.extension = os.path.splitext(filepath)[1]
+        self.songfile = None
+        if self.extension == ".flac":
+            self.songfile = SongFileFLAC(filepath)
+        # Add your file type here! For example, for mp3:
+        elif self.extension == ".mp3":
+            self.songfile = SongFileMP3(filepath) # change this to the class you made
+        else:
+            logging.error("File type not supported: " + self.extension)        
+
+```
+
+3. Add the required methods. These are the following
+    * a
+<!-- make a sub list -->
+
+
+## logs
 
 **Note: This folder is generated automatically when the project is run.**
 
 This folder contains the logs of the project. It is automatically generated when the project is run, and is used to store logs of the project. Look at the config.py file for more information.
 
-### soundfiles
+## soundfiles
 
 This folder contains the physical sound files of the project. This is where the project gets the sound files from. Look at the songparser.py file for more information.
 
-### tests
+## tests
 
 This folder contains the tests for the project. Run `pytest` to run the tests. Look at the tests for more information.
 
