@@ -26,7 +26,7 @@ class AnalyticsDBHandler:
         self.conn = sqlite3.connect(config.DATABASE_PATH)
 
     # --------------------------------------------------------------------------------------------
-    #                                    CREATE TABLES
+    #                                    CREATE AND DELETE TABLES
     # --------------------------------------------------------------------------------------------
 
     def create_songs_table(self) -> bool:
@@ -226,20 +226,12 @@ class AnalyticsDBHandler:
         return True
 
     # --------------------------------------------------------------------------------------------
-    #                                    RETRIEVE DATA
+    #                                    RETRIEVE DATA INDIVIDUAL
     # --------------------------------------------------------------------------------------------
-
-    def get_all_tables(self) -> list:
-        """Get all the tables in the database, returns a list of table names."""
-        logging.info("Getting all tables")
-        cursor = self.conn.cursor()
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-        tables = cursor.fetchall()
-        logging.info("Got all tables")
-        return tables
 
     def get_song_by_id(self, song_id: int) -> tuple:
         """Get a song by its ID, returns a Song object."""
+
         logging.info(f"Getting song by ID: {song_id}")
         cursor = self.conn.cursor()
         cursor.execute(
@@ -252,6 +244,7 @@ class AnalyticsDBHandler:
 
     def get_song_by_title_filesize(self, title: str, filesize: int) -> int:
         """Get a song by its title and filesize, returns the id of the song."""
+
         logging.info(
             f"Getting song by title and filesize: {title}, {filesize}")
         cursor = self.conn.cursor()
@@ -266,13 +259,81 @@ class AnalyticsDBHandler:
         logging.info(f"Got song by title and filesize: {title}, {filesize}")
         return song[0]
 
+    def get_songs_in_playlist(self, playlist_name: str) -> list:
+        """Get all the songs in a playlist, returns a list of Song objects."""
+
+        logging.info(f"Getting songs in playlist: {playlist_name}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """SELECT * FROM songs
+            INNER JOIN playlists_songs ON songs.song_id = playlists_songs.song_id
+            INNER JOIN playlists ON playlists_songs.playlist_id = playlists.playlist_id
+            WHERE playlists.playlist_name = ?;""",
+            (playlist_name,)
+        )
+        songs = cursor.fetchall()
+        logging.info(f"Got songs in playlist: {playlist_name}")
+        return songs
+
+    def get_playlist_id_by_name(self, playlist_name: str) -> int:
+        """Get a playlist by its name, returns the id of the playlist."""
+
+        logging.info(f"Getting playlist by name: {playlist_name}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """SELECT * FROM playlists WHERE playlist_name = ?;""",
+            (playlist_name,)
+        )
+        playlist = cursor.fetchone()
+        if playlist is None:
+            return None
+        logging.info(f"Got playlist by name: {playlist_name}")
+        return playlist[0]
+    # --------------------------------------------------------------------------------------------
+    #                                    RETRIEVE DATA MULTIPLE
+    # --------------------------------------------------------------------------------------------
+
+
+    def get_all_tables(self) -> list:
+        """Get all the tables in the database, returns a list of table names."""
+
+        logging.info("Getting all tables")
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        tables = cursor.fetchall()
+        logging.info("Got all tables")
+        return tables
+
+    def get_all_songs(self) -> list:
+        """Get all the songs in the database, returns a list of Song objects."""
+
+        logging.info("Getting all songs")
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT * FROM songs;")
+        songs = cursor.fetchall()
+        logging.info("Got all songs")
+        return songs
+
+    def get_all_plays(self) -> list:
+        """Get all the plays in the database, returns a list of Play objects."""
+
+        logging.info("Getting all plays")
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT * FROM plays;")
+        plays = cursor.fetchall()
+        logging.info("Got all plays")
+        return plays
+
+    
+
     # --------------------------------------------------------------------------------------------
     #                                    INSERT DATA
     # --------------------------------------------------------------------------------------------
 
     def insert_playlist(self, playlist_name: str, created_dt: str) -> bool:
         """Insert a playlist into the database, returns True if successful, False if not. Only insert if the playlist does not already exist."""
-        logging.info("Inserting playlist into playlists table")
+        logging.info("Inserting playlist {} into playlists table".format(playlist_name))
+
         cursor = self.conn.cursor()
         cursor.execute(
             """INSERT INTO playlists (playlist_name, created_dt)
@@ -281,19 +342,27 @@ class AnalyticsDBHandler:
             );""",
             (playlist_name, created_dt, playlist_name)
         )
+        self.conn.commit()
+        logging.info("Inserted playlist {} into playlists table".format(playlist_name))
         return True
 
-    def insert_playlist_song(self, playlist_id: int, song_id: int, added_dt: str) -> bool:
-        """Insert a playlist_song into the database, returns True if successful, False if not. Only insert if the playlist_song does not already exist."""
-        logging.info("Inserting playlist_song into playlists_songs table")
+    def insert_playlist_song(self, playlist_name: str, song_id: int) -> bool:
+        """Insert a playlist_song into the database, returns True if successful, False if not."""
+        logging.info("Inserting playlist_song {} into playlists_songs table".format(playlist_name))
+
+        playlist_id = self.get_playlist_id_by_name(playlist_name)
+        added_dt = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
         cursor = self.conn.cursor()
+        # duplicates are ok
+
         cursor.execute(
             """INSERT INTO playlists_songs (playlist_id, song_id, added_dt)
-            SELECT ?, ?, ? WHERE NOT EXISTS (
-                SELECT 1 FROM playlists_songs WHERE playlist_id = ? AND song_id = ?
-            );""",
-            (playlist_id, song_id, added_dt, playlist_id, song_id)
+            VALUES (?, ?, ?);""",
+            (playlist_id, song_id, added_dt)
         )
+        self.conn.commit()
+        logging.info("Inserted playlist_song {} into playlists_songs table".format(playlist_name))
         return True
 
     def insert_song(self, **kwargs) -> bool:
@@ -433,7 +502,7 @@ class AnalyticsDBHandler:
             logging.warning("Album artist {} with song_id {} already exists in album_artists table".format(
                 artist_name, song_id))
             return False
-        
+
         cursor.execute(
             """INSERT INTO album_artists (artist_name, song_id, dt_added)
             VALUES (?, ?, ?);""",
@@ -622,8 +691,17 @@ if __name__ == "__main__":
     # create an instance of the database handler
     db_handler = AnalyticsDBHandler()
     # db_handler.create_all_tables()
-    db_handler.clear_all_tables()
+    # db_handler.clear_all_tables()
     db_handler.populate_database()
+    # print(db_handler.get_all_songs())
+
+    db_handler.insert_playlist("Test Playlist", datetime.datetime.now())
+    db_handler.insert_playlist_song("Test Playlist", 1)
+    db_handler.insert_playlist_song("Test Playlist", 2)
+    db_handler.insert_playlist_song("Test Playlist", 3)
+    db_handler.insert_playlist_song("Test Playlist", 4)
+
+    # print(db_handler.get_songs_in_playlist("Test Playlist"))
     # print(db_handler.get_song_by_title_filesize("Gemstone", 34815481))
     # # sp = songparser.SongMetadata(os.path.join(config.SOUNDFILES_PATH, "Gemstone.flac"))
     # # print(sp.get_song_table_data())

@@ -9,11 +9,11 @@
 
 The Project is Structured as follows:
 
-<!-- src/ has backups/ analyticsdb/ core/ logs/ soundfiles/ tests/ -->
+<!-- src/ has backups/ databases/ core/ logs/ soundfiles/ tests/ -->
 
 ```bash
 src/
-├── analyticsdb/
+├── databases/
 |── backups/
 |── core/
 |── logs/

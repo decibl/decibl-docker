@@ -39,7 +39,7 @@ logging.info("Loaded config file")
 #                                      Database
 # ---------------------------------------------------------------------------------------------
 
-DATABASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "analyticsdb", "analytics.db"))
+DATABASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "databases", "analytics.db"))
 
 # make database folder if it doesn't exist
 logging.info("Making folder for database")
