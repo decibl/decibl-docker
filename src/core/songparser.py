@@ -3,33 +3,51 @@ import audio_metadata
 import config
 import os
 from abc import ABC, abstractmethod
+import logging
+
+# make decorator to log a certain method is being ran with a file
+# this is the first time I've used decorators LOL
+
+def log_data(func):
+    def wrapper(*args, **kwargs):
+        logging.info("Running " + func.__name__ + " on " + args[0].filename)
+        return func(*args, **kwargs)
+    return wrapper
 
 class SongFile(ABC):
 
     def __init__(self, filepath):
         self.filepath = filepath
+        self.filename = os.path.basename(filepath)
+        logging.info("Parsing metadata for " + self.filename)
         self.metadata = self.loadMetadata(filepath)
 
+    @log_data
     @abstractmethod
     def loadMetadata(self, filepath):
         pass
 
+    @log_data
     @abstractmethod
     def get_song_table_data(self):
         pass
 
+    @log_data
     @abstractmethod
     def get_album_artist_data(self):
         pass
 
+    @log_data
     @abstractmethod
     def get_song_artist_data(self):
         pass
 
+    @log_data
     @abstractmethod
     def get_composer_data(self):
         pass
 
+    @log_data
     @abstractmethod
     def get_genre_data(self):
         pass
@@ -77,6 +95,7 @@ class SongFileFLAC(SongFile):
         return audio_metadata.load(filepath)
 
     def get_song_table_data(self):
+        super().get_song_table_data()
                 # do the above but with if statements to check if the key exists
         if "filepath" in self.metadata:
             self.song_table_data["filepath"] = self.metadata["filepath"]
@@ -139,24 +158,28 @@ class SongFileFLAC(SongFile):
         return self.song_table_data
 
     def get_album_artist_data(self):
+        super().get_album_artist_data()
         if "albumartist" in self.metadata["tags"]:
             return self.metadata["tags"]["albumartist"]
         else:
             return "N/A"
 
     def get_song_artist_data(self):
+        super().get_song_artist_data()
         if "artist" in self.metadata["tags"]:
             return self.metadata["tags"]["artist"]
         else:
             return "N/A"
 
     def get_composer_data(self):
+        super().get_composer_data()
         if "composer" in self.metadata["tags"]:
             return self.metadata["tags"]["composer"]
         else:
             return "N/A"
 
     def get_genre_data(self):
+        super().get_genre_data()
         if "genre" in self.metadata["tags"]:
             return self.metadata["tags"]["genre"]
         else:
