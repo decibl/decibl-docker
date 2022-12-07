@@ -2,47 +2,42 @@
 import audio_metadata
 import config
 import os
+from abc import ABC, abstractmethod
 
-class SongMetadata:
-    # Songs have a lot of Metadata! We want to store as much as possible.
-    # We will store the following:
-    #   - filepath
-    #   - filesize (in bytes)
-    #   - padding (in bytes)
-    #   - Album Artwork Bit Depth (in bits)
-    #   - Album Artwork Colors (int)
-    #   - Album Artwork Size (in bytes)
-    #   - Album Artwork Height (in pixels)
-    #   - Album Artwork Width (in pixels)
-    #   - bit_depth (in bits)
-    #   - bitrates (in Kbps)
-    #   - channels (int)
-    #   - duration (in seconds)
-    #   - sample_rate (in KHz)
-    #   - Album
-    #   - Album Artists
-    #   - Song Artists
-    #   - Barcode
-    #   - Composers
-    #   - Date Created (in YYYY-MM-DD)
-    #   - Disc Number
-    #   - Disc Total
-    #   - Genre
-    #   - ISRC
-    #   - itunesadvisory
-    #   - length 
-    #   - publisher
-    #   - rating
-    #   - title
-    #   - track number
-    #   - track total
-    #   - favorited (bool)
+class SongFile(ABC):
 
     def __init__(self, filepath):
-        # if filepath ends with .flac then set filetype to flac
-        self.filetype = filepath.split(".")[-1]
-        if self.filetype == "flac":
-            self.metadata = audio_metadata.load(filepath)
+        self.filepath = filepath
+        self.metadata = self.loadMetadata(filepath)
+
+    @abstractmethod
+    def loadMetadata(self, filepath):
+        pass
+
+    @abstractmethod
+    def get_song_table_data(self):
+        pass
+
+    @abstractmethod
+    def get_album_artist_data(self):
+        pass
+
+    @abstractmethod
+    def get_song_artist_data(self):
+        pass
+
+    @abstractmethod
+    def get_composer_data(self):
+        pass
+
+    @abstractmethod
+    def get_genre_data(self):
+        pass
+
+class SongFileFLAC(SongFile):
+
+    def __init__(self, filepath):
+        super().__init__(filepath)
         self.make_song_table_data()
 
     def make_song_table_data(self):
@@ -77,15 +72,12 @@ class SongMetadata:
             "source": "N/A", # string
             "favorited": False, # bool
         }
-            
+
+    def loadMetadata(self, filepath):
+        return audio_metadata.load(filepath)
 
     def get_song_table_data(self):
-        if self.filetype == "flac":
-            return self.get_song_table_data_flac()
-
-    def get_song_table_data_flac(self):
-
-        # do the above but with if statements to check if the key exists
+                # do the above but with if statements to check if the key exists
         if "filepath" in self.metadata:
             self.song_table_data["filepath"] = self.metadata["filepath"]
         if "filesize" in self.metadata:
@@ -146,53 +138,102 @@ class SongMetadata:
 
         return self.song_table_data
 
-    def get_album_artist_data_flac(self):
+    def get_album_artist_data(self):
         if "albumartist" in self.metadata["tags"]:
             return self.metadata["tags"]["albumartist"]
         else:
             return "N/A"
 
-    def get_song_artist_data_flac(self):
+    def get_song_artist_data(self):
         if "artist" in self.metadata["tags"]:
             return self.metadata["tags"]["artist"]
         else:
             return "N/A"
 
-    def get_composer_data_flac(self):
+    def get_composer_data(self):
         if "composer" in self.metadata["tags"]:
             return self.metadata["tags"]["composer"]
         else:
             return "N/A"
 
-    def get_genre_data_flac(self):
+    def get_genre_data(self):
         if "genre" in self.metadata["tags"]:
             return self.metadata["tags"]["genre"]
         else:
             return "N/A"
 
+
+        
+class SongMetadata:
+    # Songs have a lot of Metadata! We want to store as much as possible.
+    # We will store the following:
+    #   - filepath
+    #   - filesize (in bytes)
+    #   - padding (in bytes)
+    #   - Album Artwork Bit Depth (in bits)
+    #   - Album Artwork Colors (int)
+    #   - Album Artwork Size (in bytes)
+    #   - Album Artwork Height (in pixels)
+    #   - Album Artwork Width (in pixels)
+    #   - bit_depth (in bits)
+    #   - bitrates (in Kbps)
+    #   - channels (int)
+    #   - duration (in seconds)
+    #   - sample_rate (in KHz)
+    #   - Album
+    #   - Album Artists
+    #   - Song Artists
+    #   - Barcode
+    #   - Composers
+    #   - Date Created (in YYYY-MM-DD)
+    #   - Disc Number
+    #   - Disc Total
+    #   - Genre
+    #   - ISRC
+    #   - itunesadvisory
+    #   - length 
+    #   - publisher
+    #   - rating
+    #   - title
+    #   - track number
+    #   - track total
+    #   - favorited (bool)
+
+    def __init__(self, filepath):
+        # get the extension of the file
+        self.extension = os.path.splitext(filepath)[1]
+        self.songfile = None
+        if self.extension == ".flac":
+            self.songfile = SongFileFLAC(filepath)
+
+    def get_song_table_data(self):
+        if self.songfile is not None:
+            return self.songfile.get_song_table_data()
+
     def get_album_artist_data(self):
-        if self.filetype == "flac":
-            return self.get_album_artist_data_flac()
+        if self.songfile is not None:
+            return self.songfile.get_album_artist_data()
 
     def get_song_artist_data(self):
-        if self.filetype == "flac":
-            return self.get_song_artist_data_flac()
+        if self.songfile is not None:
+            return self.songfile.get_song_artist_data()
 
     def get_composer_data(self):
-        if self.filetype == "flac":
-            return self.get_composer_data_flac()
-        
+        if self.songfile is not None:
+            return self.songfile.get_composer_data()
+
     def get_genre_data(self):
-        if self.filetype == "flac":
-            return self.get_genre_data_flac()
+        if self.songfile is not None:
+            return self.songfile.get_genre_data()
+
 
     # when printed, print the metadata
     def __str__(self):
-        return str(self.metadata)
+        return str(self.songfile.metadata)
 
     # when printed, print the metadata
     def __repr__(self):
-        return str(self.metadata)
+        return str(self.songfile.metadata)
 
 
 # md = SongMetadata(os.path.join(config.SOUNDFILES_PATH, "enemy.flac"))
@@ -200,8 +241,8 @@ class SongMetadata:
 # print(md.get_album_artist_data())
 # print(md.get_song_artist_data())
 
-md2 = SongMetadata(os.path.join(config.SOUNDFILES_PATH, "gemstone.flac"))
-print(md2)
+# md2 = SongMetadata(os.path.join(config.SOUNDFILES_PATH, "gemstone.flac"))
+# print(md2)
 # print(md2.get_song_table_data())
 # # metadata2 = audio_metadata.load(os.path.join(config.SOUNDFILES_PATH, "example.mp3"))
 # # print(metadata2)

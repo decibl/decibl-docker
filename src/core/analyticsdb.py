@@ -537,7 +537,7 @@ class AnalyticsDBHandler:
 
             # get the
             # get the artist data and insert it into the database
-            album_artist_data = parser.get_album_artist_data_flac()
+            album_artist_data = parser.get_album_artist_data()
             if album_artist_data is not None:
                 for artist in album_artist_data:
                     self.insert_album_artist(artist, song_id)
@@ -579,7 +579,7 @@ class AnalyticsDBHandler:
 if __name__ == "__main__":
     # create an instance of the database handler
     db_handler = AnalyticsDBHandler()
-    db_handler.create_all_tables()
+    # db_handler.create_all_tables()
     db_handler.populate_database()
     # print(db_handler.get_song_by_title_filesize("Gemstone", 34815481))
     # # sp = songparser.SongMetadata(os.path.join(config.SOUNDFILES_PATH, "Gemstone.flac"))
