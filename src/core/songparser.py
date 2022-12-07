@@ -8,11 +8,13 @@ import logging
 # make decorator to log a certain method is being ran with a file
 # this is the first time I've used decorators LOL
 
+
 def log_data(func):
     def wrapper(*args, **kwargs):
         logging.info("Running " + func.__name__ + " on " + args[0].filename)
         return func(*args, **kwargs)
     return wrapper
+
 
 class SongFile(ABC):
 
@@ -23,7 +25,6 @@ class SongFile(ABC):
         self.metadata = self.loadMetadata(filepath)
 
     @log_data
-    @abstractmethod
     def loadMetadata(self, filepath):
         pass
 
@@ -52,6 +53,7 @@ class SongFile(ABC):
     def get_genre_data(self):
         pass
 
+
 class SongFileFLAC(SongFile):
 
     def __init__(self, filepath):
@@ -62,35 +64,35 @@ class SongFileFLAC(SongFile):
         # there's so much data bruh, here's a big ass list that details everything
         # this method isn't really necessary, but I thinik it makes things cleaner
         self.song_table_data = {
-            "filepath": "N/A", # string
-            "main_artist": "N/A", # string
-            "filesize": -1, # in bytes
-            "padding": -1, # in bytes
-            "album_artwork_bit_depth": -1, # in bits
-            "album_artwork_colors": -1, # int
-            "album_artwork_height": -1, # in pixels
-            "album_artwork_width": -1, # in pixels
-            "bit_depth": -1, # in bits
-            "bitrate": -1, # in bits, divide by 1000 to get Kbps
-            "channels": -1, # int
-            "duration": -1, # in seconds
-            "sample_rate": -1, # in KHz
-            "album": "N/A", # string
-            "barcode": "N/A", # string
-            "date_created": "N/A", # in YYYY-MM-DD
-            "disc_number": -1, # int
-            "disc_total": -1, # int
-            "genre": "N/A", # string
-            "isrc": "N/A", # string
-            "itunesadvisory": "N/A", # string
-            "length": -1, # int
-            "publisher": "N/A", # string
-            "rating": -1, # int
-            "title": "N/A", # string
-            "track_number": -1, # int
-            "track_total": -1, # int
-            "source": "N/A", # string
-            "favorited": False, # bool
+            "filepath": None,  # string
+            "main_artist": None,  # string
+            "filesize": None,  # int in bytes
+            "padding": None,  # int in bytes
+            "album_artwork_bit_depth": None,  # int in bits
+            "album_artwork_colors": None,  # int
+            "album_artwork_height": None,  # int in pixels
+            "album_artwork_width": None,  # int in pixels
+            "bit_depth": None,  # int in bits
+            "bitrate": None,  # int in bits, divide by 1000 to get Kbps
+            "channels": None,  # int
+            "duration": None,  # int in seconds
+            "sample_rate": None,  # int in KHz
+            "album": None,  # string
+            "barcode": None,  # string
+            "date_created": None,  # string in YYYY-MM-DD
+            "disc_number": None,  # int
+            "disc_total": None,  # int
+            "genre": None,  # string
+            "isrc": None,  # string
+            "itunesadvisory": None,  # string
+            "length": None,  # int
+            "publisher": None,  # string
+            "rating": None,  # int
+            "title": None,  # string
+            "track_number": None,  # int
+            "track_total": None,  # int
+            "source": None,  # string
+            "favorited": False,  # bool
         }
 
     def loadMetadata(self, filepath):
@@ -98,7 +100,7 @@ class SongFileFLAC(SongFile):
 
     def get_song_table_data(self):
         super().get_song_table_data()
-                # do the above but with if statements to check if the key exists
+        # do the above but with if statements to check if the key exists
         if "filepath" in self.metadata:
             self.song_table_data["filepath"] = self.metadata["filepath"]
         if "filesize" in self.metadata:
@@ -164,31 +166,30 @@ class SongFileFLAC(SongFile):
         if "albumartist" in self.metadata["tags"]:
             return self.metadata["tags"]["albumartist"]
         else:
-            return "N/A"
+            return None
 
     def get_song_artist_data(self):
         super().get_song_artist_data()
         if "artist" in self.metadata["tags"]:
             return self.metadata["tags"]["artist"]
         else:
-            return "N/A"
+            return None
 
     def get_composer_data(self):
         super().get_composer_data()
         if "composer" in self.metadata["tags"]:
             return self.metadata["tags"]["composer"]
         else:
-            return "N/A"
+            return None
 
     def get_genre_data(self):
         super().get_genre_data()
         if "genre" in self.metadata["tags"]:
             return self.metadata["tags"]["genre"]
         else:
-            return "N/A"
+            return None
 
 
-        
 class SongMetadata:
     # Songs have a lot of Metadata! We want to store as much as possible.
     # We will store the following:
@@ -216,7 +217,7 @@ class SongMetadata:
     #   - Genre
     #   - ISRC
     #   - itunesadvisory
-    #   - length 
+    #   - length
     #   - publisher
     #   - rating
     #   - title
@@ -254,8 +255,8 @@ class SongMetadata:
         if self.songfile is not None:
             return self.songfile.get_genre_data()
 
-
     # when printed, print the metadata
+
     def __str__(self):
         return str(self.songfile.metadata)
 

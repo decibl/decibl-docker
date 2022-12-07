@@ -622,6 +622,7 @@ if __name__ == "__main__":
     # create an instance of the database handler
     db_handler = AnalyticsDBHandler()
     # db_handler.create_all_tables()
+    db_handler.clear_all_tables()
     db_handler.populate_database()
     # print(db_handler.get_song_by_title_filesize("Gemstone", 34815481))
     # # sp = songparser.SongMetadata(os.path.join(config.SOUNDFILES_PATH, "Gemstone.flac"))

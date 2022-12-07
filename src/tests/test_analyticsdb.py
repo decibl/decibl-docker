@@ -10,6 +10,9 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "a
 import config
 import analyticsdb
 
+dbHelper = analyticsdb.AnalyticsDBHandler()
+dbHelper.create_all_tables()
+
 def delete_folder(path):
     if os.path.exists(path):
         for file in os.listdir(path):
@@ -37,8 +40,7 @@ def test_vital_folders():
     assert os.path.exists(os.path.dirname(config.LOGGING_FILENAME))
 
 def test_table_creation():
-    dbHelper = analyticsdb.AnalyticsDBHandler()
-    dbHelper.create_all_tables()
+    global dbHelper
 
     # make sure all tables exist
     tables = dbHelper.get_all_tables()
@@ -58,10 +60,7 @@ def test_table_creation():
     assert count == 4
 
 def test_insertion_retrieval():
-    dbHelper = analyticsdb.AnalyticsDBHandler()
-    dbHelper.create_all_tables()
-    dbHelper.clear_all_tables()
-
+    global dbHelper
     # insert a song
         # def insert_song(self, filepath: str, title: str, artist: str, album: str) -> bool:
 
