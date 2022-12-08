@@ -242,8 +242,70 @@ class AnalyticsDBHandler:
             (song_id,)
         )
         song = cursor.fetchone()
-        logging.info(f"Got song by ID: {song_id}")
-        return song
+        
+        song_table_data = {
+            "filepath": None,  # string
+            "main_artist": None,  # string
+            "filesize": None,  # int in bytes
+            "padding": None,  # int in bytes
+            "album_artwork_bit_depth": None,  # int in bits
+            "album_artwork_colors": None,  # int
+            "album_artwork_height": None,  # int in pixels
+            "album_artwork_width": None,  # int in pixels
+            "bit_depth": None,  # int in bits
+            "bitrate": None,  # int in bits, divide by 1000 to get Kbps
+            "channels": None,  # int
+            "duration": None,  # int in seconds
+            "sample_rate": None,  # int in KHz
+            "album": None,  # string
+            "barcode": None,  # string
+            "date_created": None,  # string in YYYY-MM-DD
+            "disc_number": None,  # int
+            "disc_total": None,  # int
+            "genre": None,  # string
+            "isrc": None,  # string
+            "itunesadvisory": None,  # string
+            "length": None,  # int
+            "publisher": None,  # string
+            "rating": None,  # int
+            "title": None,  # string
+            "track_number": None,  # int
+            "track_total": None,  # int
+            "source": None,  # string
+            "favorited": False,  # bool
+        }
+        if song is None:
+            return None
+
+        song_table_data["filepath"] = song[1]
+        song_table_data["filesize"] = song[2]
+        song_table_data["padding"] = song[3]
+        song_table_data["album_artwork_bit_depth"] = song[4]
+        song_table_data["album_artwork_colors"] = song[5]
+        song_table_data["album_artwork_height"] = song[6]
+        song_table_data["album_artwork_width"] = song[7]
+        song_table_data["bit_depth"] = song[8]
+        song_table_data["bitrate"] = song[9]
+        song_table_data["channels"] = song[10]
+        song_table_data["duration"] = song[11]
+        song_table_data["sample_rate"] = song[12]
+        song_table_data["album"] = song[13]
+        song_table_data["barcode"] = song[14]
+        song_table_data["date_created"] = song[15]
+        song_table_data["disc_number"] = song[16]
+        song_table_data["disc_total"] = song[17]
+        song_table_data["isrc"] = song[18]
+        song_table_data["itunesadvisory"] = song[19]
+        song_table_data["length"] = song[20]
+        song_table_data["publisher"] = song[21]
+        song_table_data["rating"] = song[22]
+        song_table_data["title"] = song[23]
+        song_table_data["track_number"] = song[24]
+        song_table_data["track_total"] = song[25]
+        song_table_data["source"] = song[26]
+        song_table_data["main_artist"] = song[27]
+
+        return song_table_data
 
     def get_song_id_by_title_filesize(self, title: str, filesize: int) -> int:
         """Get a song by its title and filesize, returns the id of the song."""
@@ -410,7 +472,84 @@ class AnalyticsDBHandler:
         cursor.execute("SELECT DISTINCT artist_name FROM song_artists;")
         song_artists = cursor.fetchall()
         logging.info("Got all song artists")
+        song_artists = [artist[0] for artist in song_artists]
         return song_artists
+
+    def get_all_album_artists(self) -> list:
+        """Get all the album artists in the database, returns a list of strings."""
+
+        # artists can be duplicated, so we need to remove duplicates from album_artists
+        logging.info("Getting all album artists")
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT DISTINCT artist_name FROM album_artists;")
+        album_artists = cursor.fetchall()
+        logging.info("Got all album artists")
+        album_artists = [artist[0] for artist in album_artists]
+        return album_artists
+
+    def get_all_composers(self) -> list:
+        """Get all the composers in the database, returns a list of strings."""
+
+        # composers can be duplicated, so we need to remove duplicates from composers
+        logging.info("Getting all composers")
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT DISTINCT composer_name FROM composers;")
+        composers = cursor.fetchall()
+        logging.info("Got all composers")
+        composers = [composer[0] for composer in composers]
+        return composers
+
+    def get_all_genres(self) -> list:
+        """Get all the genres in the database, returns a list of strings."""
+
+        # genres can be duplicated, so we need to remove duplicates from genres
+        logging.info("Getting all genres")
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT DISTINCT genre_name FROM genres;")
+        genres = cursor.fetchall()
+        logging.info("Got all genres")
+        genres = [genre[0] for genre in genres]
+        return genres
+
+    def get_all_playlist_names(self) -> list:
+        """Get all the playlist names in the database, returns a list of strings."""
+
+        logging.info("Getting all playlist names")
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT playlist_name FROM playlists;")
+        playlist_names = cursor.fetchall()
+        
+        # remove the tuple from each playlist name
+        playlist_names = [playlist_name[0] for playlist_name in playlist_names]
+        logging.info("Got all playlist names")
+        return playlist_names
+
+    def get_all_playlist_songs(self) -> list:
+        """Get all the playlist names in the database, then return a dictionary of playlist names and their songs."""
+
+        playlist_names = self.get_all_playlist_names()
+        playlist_songs = {}
+        for playlist_name in playlist_names:
+            # we only want the song_name, file_size, and id
+            songs = self.get_songs_in_playlist(playlist_name)
+            playlist_values = []
+            for song_data in songs:
+                print(song_data)
+                song_values = {
+                    "song_name": song_data["title"],
+                    "file_size": song_data["filesize"],
+                }
+
+                song_id = self.get_song_id_by_title_filesize(song_values["song_name"], song_values["file_size"])
+                song_values["id"] = song_id
+                playlist_values.append(song_values)
+            
+            playlist_songs[playlist_name] = playlist_values
+        return playlist_songs
+        
+
+
+
 
     # --------------------------------------------------------------------------------------------
     #                                    INSERT DATA
@@ -777,18 +916,22 @@ if __name__ == "__main__":
     db_handler = AnalyticsDBHandler()
     # db_handler.create_all_tables()
     # db_handler.clear_all_tables()
-    db_handler.populate_database()
-    # print(db_handler.get_all_songs())
+    # db_handler.populate_database()
+    # # print(db_handler.get_all_songs())
 
-    db_handler.insert_playlist("Test Playlist", "Test Description", datetime.datetime.now())
-    db_handler.insert_playlist_song("Test Playlist", 1)
-    db_handler.insert_playlist_song("Test Playlist", 2)
-    db_handler.insert_playlist_song("Test Playlist", 3)
-    db_handler.insert_playlist_song("Test Playlist", 4)
+    # db_handler.insert_playlist("Test Playlist", "Test Description", datetime.datetime.now())
+    # db_handler.insert_playlist_song("Test Playlist", 1)
+    # db_handler.insert_playlist_song("Test Playlist", 2)
+    # db_handler.insert_playlist_song("Test Playlist", 3)
+    # db_handler.insert_playlist_song("Test Playlist", 4)
 
-    print(db_handler.get_songs_in_playlist("Test Playlist"))
+    # print(db_handler.get_songs_in_playlist("Test Playlist"))
 
-    print(db_handler.get_all_song_artists())
+    # print(db_handler.get_all_song_artists())
+    # print(db_handler.get_all_album_artists())
+    # print(db_handler.get_all_composers())
+    # print(db_handler.get_all_genres())
+    print(db_handler.get_all_playlist_songs())
 
     # print(db_handler.get_songs_in_playlist("Test Playlist"))
     # print(db_handler.get_song_id_by_title_filesize("Gemstone", 34815481))

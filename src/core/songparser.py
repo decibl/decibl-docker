@@ -235,6 +235,7 @@ class SongMetadata:
         else:
             logging.error("File type not supported: " + self.extension)
 
+
     def get_song_table_data(self):
         if self.songfile is not None:
             return self.songfile.get_song_table_data()
