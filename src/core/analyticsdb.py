@@ -9,6 +9,8 @@ import logging
 import config
 import songparser
 
+from fastapi import HTTPException
+
 # log a message
 logging.info("Loading database module")
 
@@ -23,174 +25,195 @@ class AnalyticsDBHandler:
 
     def __init__(self) -> None:
         self.conn = sqlite3.connect(config.DATABASE_PATH)
+    
+    # --------------------------------------------------------------------------------------------
+    #                                    Error Handling
+    # --------------------------------------------------------------------------------------------
+    
+    def raise_table_not_created(self,table,details):
+        err = "Unable to create "+table+" table: "+details
+        logging.info(err)
+        raise HTTPException(status_code=400, detail=err)
 
     # --------------------------------------------------------------------------------------------
     #                                    CREATE AND DELETE TABLES
     # --------------------------------------------------------------------------------------------
-
-    def create_songs_table(self) -> bool:
-        """Create the songs table, returns True if successful, False if not."""
-        logging.info("Creating songs table")
-        cursor = self.conn.cursor()
-        # This is going to be a LOT of data, make a table with the following:
-        # Create the table
-        cursor.execute("""CREATE TABLE songs (
-            song_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            filepath TEXT,
-            filesize BIGINT,
-            padding INTEGER,
-            album_artwork_bit_depth INTEGER,
-            album_artwork_colors INTEGER,
-            album_artwork_height INTEGER,
-            album_artwork_width INTEGER,
-            bit_depth INTEGER,
-            bitrate INTEGER,
-            channels INTEGER,
-            duration INTEGER,
-            sample_rate INTEGER,
-            album TEXT,
-            barcode TEXT,
-            date_created TEXT,
-            disc_number INTEGER,
-            disc_total INTEGER,
-            isrc TEXT,
-            itunesadvisory TEXT,
-            length INTEGER,
-            publisher TEXT,
-            rating INTEGER,
-            title TEXT,
-            track_number INTEGER,
-            track_total INTEGER,
-            source TEXT,
-            favorited BOOLEAN,
-            main_artist TEXT
-        )""")
-        self.conn.commit()
-        logging.info("Created songs table")
-        return True
-
-    def create_plays_table(self) -> bool:
-        """Create the plays table, returns True if successful, False if not."""
-        logging.info("Creating plays table")
-        cursor = self.conn.cursor()
-        cursor.execute(
-            """CREATE TABLE IF NOT EXISTS plays (
-                play_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                song_title TEXT NOT NULL,
-                song_primary_artist TEXT NOT NULL,
+    
+    def create_songs_table(self):
+        try:
+            """Create the songs table, returns True if successful, False if not."""
+            logging.info("Creating songs table")
+            cursor = self.conn.cursor()
+            # This is going to be a LOT of data, make a table with the following:
+            # Create the table
+            cursor.execute("""CREATE TABLE IF NOT EXISTS songs (
+                song_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                filepath TEXT,
                 filesize BIGINT,
-                start_dt TEXT NOT NULL,
-                end_dt TEXT NOT NULL
-            );"""
-        )
-        self.conn.commit()
-        logging.info("Created plays table")
-        return True
+                padding INTEGER,
+                album_artwork_bit_depth INTEGER,
+                album_artwork_colors INTEGER,
+                album_artwork_height INTEGER,
+                album_artwork_width INTEGER,
+                bit_depth INTEGER,
+                bitrate INTEGER,
+                channels INTEGER,
+                duration INTEGER,
+                sample_rate INTEGER,
+                album TEXT,
+                barcode TEXT,
+                date_created TEXT,
+                disc_number INTEGER,
+                disc_total INTEGER,
+                isrc TEXT,
+                itunesadvisory TEXT,
+                length INTEGER,
+                publisher TEXT,
+                rating INTEGER,
+                title TEXT,
+                track_number INTEGER,
+                track_total INTEGER,
+                source TEXT,
+                favorited BOOLEAN,
+                main_artist TEXT
+            )""")
+            self.conn.commit()
+            logging.info("Created songs table")
+        except:
+            self.raise_table_not_created("song","unable to create table")
+        
+
+    def create_plays_table(self):
+        """Create the plays table, returns True if successful, False if not."""
+        try:
+            logging.info("Creating plays table")
+            cursor = self.conn.cursor()
+            cursor.execute(
+                """CREATE TABLE IF NOT EXISTS plays (
+                    play_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    song_title TEXT NOT NULL,
+                    song_primary_artist TEXT NOT NULL,
+                    filesize BIGINT,
+                    start_dt TEXT NOT NULL,
+                    end_dt TEXT NOT NULL
+                );"""
+            )
+            self.conn.commit()
+            logging.info("Created plays table")
+        except:
+            self.raise_table_not_created("plays","unable to create table")
 
     def create_playlists_table(self) -> bool:
         """Create the playlists table, returns True if successful, False if not."""
-        logging.info("Creating playlists table")
-        cursor = self.conn.cursor()
+        try:
+            logging.info("Creating playlists table")
+            cursor = self.conn.cursor()
 
-        # description is a text that is
-        cursor.execute(
-            """CREATE TABLE IF NOT EXISTS playlists (
-                playlist_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                playlist_name TEXT NOT NULL,
-                playlist_desc TEXT,
-                created_dt TEXT NOT NULL
-            );"""
-        )
-        self.conn.commit()
-        logging.info("Created playlists table")
-        return True
+            # description is a text that is
+            cursor.execute(
+                """CREATE TABLE IF NOT EXISTS playlists (
+                    playlist_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    playlist_name TEXT NOT NULL,
+                    playlist_desc TEXT,
+                    created_dt TEXT NOT NULL
+                );"""
+            )
+            self.conn.commit()
+            logging.info("Created playlists table")
+        except:
+            self.raise_table_not_created("playlists","unable to create table")
 
     def create_playlists_songs_table(self) -> bool:
         """Create the playlists_songs table, returns True if successful, False if not."""
+        try:
+            # Song_id is a foreign key to the songs table
+            logging.info("Creating playlists_songs table")
+            cursor = self.conn.cursor()
+            cursor.execute(
+                """CREATE TABLE IF NOT EXISTS playlists_songs (
+                    playlist_id INTEGER NOT NULL,
+                    song_id INTEGER NOT NULL,
+                    added_dt TEXT NOT NULL
+                );"""
+            )
+            self.conn.commit()
+            logging.info("Created playlists_songs table")
+        except:
+            self.raise_table_not_created("playlists_songs","unable to create table")
 
-        # Song_id is a foreign key to the songs table
-        logging.info("Creating playlists_songs table")
-        cursor = self.conn.cursor()
-        cursor.execute(
-            """CREATE TABLE IF NOT EXISTS playlists_songs (
-                playlist_id INTEGER NOT NULL,
-                song_id INTEGER NOT NULL,
-                added_dt TEXT NOT NULL
-            );"""
-        )
-        self.conn.commit()
-        logging.info("Created playlists_songs table")
-        return True
-
-    def create_song_artists_table(self) -> bool:
+    def create_song_artists_table(self):
         """Create the song_artists table, returns True if successful, False if not."""
+        try:
+            # Song_id is a foreign key to the songs table
+            logging.info("Creating song_artists table")
+            cursor = self.conn.cursor()
+            cursor.execute(
+                """CREATE TABLE IF NOT EXISTS song_artists (
+                    artist_name TEXT NOT NULL,
+                    song_id INTEGER NOT NULL,
+                    dt_added TEXT NOT NULL
+                );"""
+            )
+            self.conn.commit()
+            logging.info("Created song_artists table")
+        except:
+            self.raise_table_not_created("song_artists","unable to create table")
 
-        # Song_id is a foreign key to the songs table
-        logging.info("Creating song_artists table")
-        cursor = self.conn.cursor()
-        cursor.execute(
-            """CREATE TABLE IF NOT EXISTS song_artists (
-                artist_name TEXT NOT NULL,
-                song_id INTEGER NOT NULL,
-                dt_added TEXT NOT NULL
-            );"""
-        )
-        self.conn.commit()
-        logging.info("Created song_artists table")
-        return True
-
-    def create_album_artists_table(self) -> bool:
+    def create_album_artists_table(self):
         """Create the album_artists table, returns True if successful, False if not."""
-
-        # Album_id is a foreign key to the songs table
-        logging.info("Creating album_artists table")
-        cursor = self.conn.cursor()
-        cursor.execute(
-            """CREATE TABLE IF NOT EXISTS album_artists (
-                artist_name TEXT NOT NULL,
-                song_id INTEGER NOT NULL,
-                dt_added TEXT NOT NULL
-            );"""
-        )
-        self.conn.commit()
-        logging.info("Created album_artists table")
-        return True
+        try:
+            # Album_id is a foreign key to the songs table
+            logging.info("Creating album_artists table")
+            cursor = self.conn.cursor()
+            cursor.execute(
+                """CREATE TABLE IF NOT EXISTS album_artists (
+                    artist_name TEXT NOT NULL,
+                    song_id INTEGER NOT NULL,
+                    dt_added TEXT NOT NULL
+                );"""
+            )
+            self.conn.commit()
+            logging.info("Created album_artists table")
+        except:
+            self.raise_table_not_created("album_artists","unable to create table")
 
     def create_composers_table(self) -> bool:
         """Create the composers table, returns True if successful, False if not."""
+        try:
+            # Song_id is a foreign key to the songs table
+            logging.info("Creating composers table")
+            cursor = self.conn.cursor()
+            cursor.execute(
+                """CREATE TABLE IF NOT EXISTS composers (
+                    composer_name TEXT NOT NULL,
+                    song_id INTEGER NOT NULL,
+                    dt_added TEXT NOT NULL
+                );"""
+            )
+            self.conn.commit()
+            logging.info("Created composers table")
+        except:
+            self.raise_table_not_created("composers","unable to create table")
 
-        # Song_id is a foreign key to the songs table
-        logging.info("Creating composers table")
-        cursor = self.conn.cursor()
-        cursor.execute(
-            """CREATE TABLE IF NOT EXISTS composers (
-                composer_name TEXT NOT NULL,
-                song_id INTEGER NOT NULL,
-                dt_added TEXT NOT NULL
-            );"""
-        )
-        self.conn.commit()
-        logging.info("Created composers table")
-        return True
-
-    def create_genres_table(self) -> bool:
+    def create_genres_table(self):
         """Create the genres table, returns True if successful, False if not."""
+        try:
+            # Song_id is a foreign key to the songs table
+            logging.info("Creating genres table")
+            cursor = self.conn.cursor()
+            cursor.execute(
+                """CREATE TABLE IF NOT EXISTS genres (
+                    genre_name TEXT NOT NULL,
+                    song_id INTEGER NOT NULL,
+                    dt_added TEXT NOT NULL
+                );"""
+            )
+            self.conn.commit()
+            logging.info("Created genres table")
+        except:
+            self.raise_table_not_created("genres","unable to create table")
 
-        # Song_id is a foreign key to the songs table
-        logging.info("Creating genres table")
-        cursor = self.conn.cursor()
-        cursor.execute(
-            """CREATE TABLE IF NOT EXISTS genres (
-                genre_name TEXT NOT NULL,
-                song_id INTEGER NOT NULL,
-                dt_added TEXT NOT NULL
-            );"""
-        )
-        self.conn.commit()
-        logging.info("Created genres table")
-        return True
-
-    def create_all_tables(self) -> bool:
+    async def create_all_tables(self):
         """Create all the tables, returns True if successful, False if not."""
         logging.info("Creating all tables")
         self.create_songs_table()
@@ -202,7 +225,6 @@ class AnalyticsDBHandler:
         self.create_composers_table()
         self.create_genres_table()
         logging.info("Created all tables")
-        return True
 
     def clear_all_tables(self) -> bool:
         """Clear all the tables, returns True if successful, False if not."""
@@ -909,10 +931,11 @@ class AnalyticsDBHandler:
         return True
 
 
-if __name__ == "__main__":
+def init_db():
     # create an instance of the database handler
     db_handler = AnalyticsDBHandler()
-    # db_handler.create_all_tables()
+    db_handler.create_all_tables()
+    #db_handler.create_songs_table()
     # db_handler.clear_all_tables()
     # db_handler.populate_database()
     # # print(db_handler.get_all_songs())
@@ -929,7 +952,7 @@ if __name__ == "__main__":
     # print(db_handler.get_all_album_artists())
     # print(db_handler.get_all_composers())
     # print(db_handler.get_all_genres())
-    print(db_handler.get_all_playlist_songs())
+    # print(db_handler.get_all_playlist_songs())
 
     # print(db_handler.get_songs_in_playlist("Test Playlist"))
     # print(db_handler.get_song_id_by_title_filesize("Gemstone", 34815481))

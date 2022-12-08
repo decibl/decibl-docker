@@ -1,5 +1,5 @@
 # Make a class to parse the metadata of song Files
-import audio_metadata
+#import audio_metadata
 import config
 import os
 from abc import ABC, abstractmethod
