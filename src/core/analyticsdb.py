@@ -92,10 +92,13 @@ class AnalyticsDBHandler:
         """Create the playlists table, returns True if successful, False if not."""
         logging.info("Creating playlists table")
         cursor = self.conn.cursor()
+
+        # description is a text that is
         cursor.execute(
             """CREATE TABLE IF NOT EXISTS playlists (
                 playlist_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 playlist_name TEXT NOT NULL,
+                playlist_desc TEXT,
                 created_dt TEXT NOT NULL
             );"""
         )
@@ -240,7 +243,7 @@ class AnalyticsDBHandler:
         )
         song = cursor.fetchone()
         logging.info(f"Got song by ID: {song_id}")
-        return (song[0], song[1], song[2], song[3], song[4])
+        return song
 
     def get_song_by_title_filesize(self, title: str, filesize: int) -> int:
         """Get a song by its title and filesize, returns the id of the song."""
@@ -263,16 +266,23 @@ class AnalyticsDBHandler:
         """Get all the songs in a playlist, returns a list of Song objects."""
 
         logging.info(f"Getting songs in playlist: {playlist_name}")
+        
+        playlist_id = self.get_playlist_id_by_name(playlist_name)
+
+        # GET SONG IDS from playlists_songs table then look up songs in songs table
         cursor = self.conn.cursor()
         cursor.execute(
-            """SELECT * FROM songs
-            INNER JOIN playlists_songs ON songs.song_id = playlists_songs.song_id
-            INNER JOIN playlists ON playlists_songs.playlist_id = playlists.playlist_id
-            WHERE playlists.playlist_name = ?;""",
-            (playlist_name,)
+            """SELECT * FROM playlists_songs WHERE playlist_id = ?;""",
+            (playlist_id,)
         )
-        songs = cursor.fetchall()
+        playlist_songs = cursor.fetchall()
+        songs = []
+        for playlist_song in playlist_songs:
+            song_id = playlist_song[1]
+            song = self.get_song_by_id(song_id)
+            songs.append(song)
         logging.info(f"Got songs in playlist: {playlist_name}")
+    
         return songs
 
     def get_playlist_id_by_name(self, playlist_name: str) -> int:
@@ -330,18 +340,17 @@ class AnalyticsDBHandler:
     #                                    INSERT DATA
     # --------------------------------------------------------------------------------------------
 
-    def insert_playlist(self, playlist_name: str, created_dt: str) -> bool:
+    def insert_playlist(self, playlist_name: str, playlist_desc: str, created_dt: str) -> bool:
         """Insert a playlist into the database, returns True if successful, False if not. Only insert if the playlist does not already exist."""
         logging.info("Inserting playlist {} into playlists table".format(playlist_name))
 
         cursor = self.conn.cursor()
         cursor.execute(
-            """INSERT INTO playlists (playlist_name, created_dt)
-            SELECT ?, ? WHERE NOT EXISTS (
-                SELECT 1 FROM playlists WHERE playlist_name = ?
-            );""",
-            (playlist_name, created_dt, playlist_name)
+            """INSERT INTO playlists (playlist_name, playlist_desc, created_dt)
+            VALUES (?, ?, ?);""",
+            (playlist_name, playlist_desc, created_dt)
         )
+
         self.conn.commit()
         logging.info("Inserted playlist {} into playlists table".format(playlist_name))
         return True
@@ -695,11 +704,13 @@ if __name__ == "__main__":
     db_handler.populate_database()
     # print(db_handler.get_all_songs())
 
-    db_handler.insert_playlist("Test Playlist", datetime.datetime.now())
+    db_handler.insert_playlist("Test Playlist", "Test Description", datetime.datetime.now())
     db_handler.insert_playlist_song("Test Playlist", 1)
     db_handler.insert_playlist_song("Test Playlist", 2)
     db_handler.insert_playlist_song("Test Playlist", 3)
     db_handler.insert_playlist_song("Test Playlist", 4)
+
+    print(db_handler.get_songs_in_playlist("Test Playlist"))
 
     # print(db_handler.get_songs_in_playlist("Test Playlist"))
     # print(db_handler.get_song_by_title_filesize("Gemstone", 34815481))
