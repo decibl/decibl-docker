@@ -245,7 +245,7 @@ class AnalyticsDBHandler:
         logging.info(f"Got song by ID: {song_id}")
         return song
 
-    def get_song_by_title_filesize(self, title: str, filesize: int) -> int:
+    def get_song_id_by_title_filesize(self, title: str, filesize: int) -> int:
         """Get a song by its title and filesize, returns the id of the song."""
 
         logging.info(
@@ -286,6 +286,7 @@ class AnalyticsDBHandler:
         return songs
 
     def get_playlist_id_by_name(self, playlist_name: str) -> int:
+        
         """Get a playlist by its name, returns the id of the playlist."""
 
         logging.info(f"Getting playlist by name: {playlist_name}")
@@ -299,6 +300,72 @@ class AnalyticsDBHandler:
             return None
         logging.info(f"Got playlist by name: {playlist_name}")
         return playlist[0]
+  
+    def get_playlist_by_id(self, playlist_id: int) -> tuple:
+        """Get a playlist by its ID, returns a Playlist object."""
+
+        logging.info(f"Getting playlist by ID: {playlist_id}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """SELECT * FROM playlists WHERE playlist_id = ?;""",
+            (playlist_id,)
+        )
+        playlist = cursor.fetchone()
+        logging.info(f"Got playlist by ID: {playlist_id}")
+        return playlist
+
+    def get_song_album_artists(self, song_id: int) -> list:
+        """Get all the album artists of a song, returns a list of Artist objects."""
+
+        logging.info(f"Getting song album artists by song ID: {song_id}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """SELECT * FROM album_artists WHERE song_id = ?;""",
+            (song_id,)
+        )
+        album_artists = cursor.fetchall()
+        logging.info(f"Got song album artists by song ID: {song_id}")
+        return album_artists
+
+    def get_song_composers(self, song_id: int) -> list:
+        """Get all the composers of a song, returns a list of Composer objects."""
+
+        logging.info(f"Getting song composers by song ID: {song_id}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """SELECT * FROM composers WHERE song_id = ?;""",
+            (song_id,)
+        )
+        composers = cursor.fetchall()
+        logging.info(f"Got song composers by song ID: {song_id}")
+        return composers
+
+    def get_song_artists(self, song_id: int) -> list:
+        """Get all the artists of a song, returns a list of Artist objects."""
+
+        logging.info(f"Getting song artists by song ID: {song_id}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """SELECT * FROM artists WHERE song_id = ?;""",
+            (song_id,)
+        )
+        artists = cursor.fetchall()
+        logging.info(f"Got song artists by song ID: {song_id}")
+        return artists
+
+    def get_song_genres(self, song_id: int) -> list:
+        """Get all the genres of a song, returns a list of Genre objects."""
+
+        logging.info(f"Getting song genres by song ID: {song_id}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """SELECT * FROM genres WHERE song_id = ?;""",
+            (song_id,)
+        )
+        genres = cursor.fetchall()
+        logging.info(f"Got song genres by song ID: {song_id}")
+        return genres
+
     # --------------------------------------------------------------------------------------------
     #                                    RETRIEVE DATA MULTIPLE
     # --------------------------------------------------------------------------------------------
@@ -334,7 +401,16 @@ class AnalyticsDBHandler:
         logging.info("Got all plays")
         return plays
 
-    
+    def get_all_song_artists(self) -> list:
+        """Get all the song artists in the database, returns a list of strings."""
+
+        # artists can be duplicated, so we need to remove duplicates from song_artists
+        logging.info("Getting all song artists")
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT DISTINCT artist_name FROM song_artists;")
+        song_artists = cursor.fetchall()
+        logging.info("Got all song artists")
+        return song_artists
 
     # --------------------------------------------------------------------------------------------
     #                                    INSERT DATA
@@ -414,7 +490,7 @@ class AnalyticsDBHandler:
         # }
 
         # check if song already exists
-        song_id = self.get_song_by_title_filesize(
+        song_id = self.get_song_id_by_title_filesize(
             kwargs["title"], kwargs["filesize"])
         if song_id:
             logging.warning("Song {} already exists in songs table".format(
@@ -712,8 +788,10 @@ if __name__ == "__main__":
 
     print(db_handler.get_songs_in_playlist("Test Playlist"))
 
+    print(db_handler.get_all_song_artists())
+
     # print(db_handler.get_songs_in_playlist("Test Playlist"))
-    # print(db_handler.get_song_by_title_filesize("Gemstone", 34815481))
+    # print(db_handler.get_song_id_by_title_filesize("Gemstone", 34815481))
     # # sp = songparser.SongMetadata(os.path.join(config.SOUNDFILES_PATH, "Gemstone.flac"))
     # # print(sp.get_song_table_data())
     # logging.error("Finished")
