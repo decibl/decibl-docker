@@ -12,7 +12,6 @@ import songparser
 # log a message
 logging.info("Loading database module")
 
-
 # Make Database class to hold all the data analytics
 # This will be used to create and manage the database of the users activity.
 # (there's lots of data in the songs table so I'm not going to put it in the graphic)
@@ -870,7 +869,6 @@ class AnalyticsDBHandler:
                 logging.error(f"Could not get song data for file: {file_path}")
                 continue
 
-            # get the
             # get the artist data and insert it into the database
             album_artist_data = parser.get_album_artist_data()
             if album_artist_data is not None:
