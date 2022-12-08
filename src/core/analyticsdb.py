@@ -934,11 +934,15 @@ class AnalyticsDBHandler:
 def init_db():
     # create an instance of the database handler
     db_handler = AnalyticsDBHandler()
-    db_handler.create_all_tables()
+
+if __name__ == "__main__":
+
+    db_handler = AnalyticsDBHandler()
+    # db_handler.create_all_tables()
     #db_handler.create_songs_table()
     # db_handler.clear_all_tables()
     # db_handler.populate_database()
-    # # print(db_handler.get_all_songs())
+    print(db_handler.get_all_songs())
 
     # db_handler.insert_playlist("Test Playlist", "Test Description", datetime.datetime.now())
     # db_handler.insert_playlist_song("Test Playlist", 1)

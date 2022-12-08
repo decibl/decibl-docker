@@ -4,6 +4,7 @@ import config
 import os
 from abc import ABC, abstractmethod
 import logging
+import audio_metadata
 
 # make decorator to log a certain method is being ran with a file
 # this is the first time I've used decorators LOL
@@ -22,11 +23,11 @@ class SongFile(ABC):
         self.filepath = filepath
         self.filename = os.path.basename(filepath)
         logging.info("Parsing metadata for " + self.filename)
-        self.metadata = self.loadMetadata(filepath)
 
-    @log_data
-    def loadMetadata(self, filepath):
-        pass
+    def __init__(self):
+        self.filepath = None
+        self.filename = None
+
 
     @log_data
     @abstractmethod
@@ -58,7 +59,17 @@ class SongFileFLAC(SongFile):
 
     def __init__(self, filepath):
         super().__init__(filepath)
+        self.metadata = None
+        self.song_table_data = None
+
+        self.loadMetadata(filepath)
         self.make_song_table_data()
+
+    def __init__(self):
+        super().__init__()
+        self.metadata = None
+        self.song_table_data = None
+
 
     def make_song_table_data(self):
         # there's so much data bruh, here's a big ass list that details everything
@@ -97,6 +108,9 @@ class SongFileFLAC(SongFile):
 
     def loadMetadata(self, filepath):
         return audio_metadata.load(filepath)
+
+    def loadMetadataParams(self, params):
+        self.song_table_data = params
 
     def get_song_table_data(self):
         super().get_song_table_data()
