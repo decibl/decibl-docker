@@ -288,9 +288,9 @@ class AnalyticsDBHandler:
         return True
 
     # ------------------------------------------------------------------------------------------------------------
-    # --------------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------
     #                                    RETRIEVE DATA INDIVIDUAL
-    # --------------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------
 
     def get_song_by_id(self, song_id: int) -> List[dict]:
@@ -563,9 +563,9 @@ class AnalyticsDBHandler:
         return genres
 
     # ------------------------------------------------------------------------------------------------------------
-    # --------------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------
     #                                    RETRIEVE DATA MULTIPLE
-    # --------------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------
 
     def get_all_tables(self) -> List[str]:
@@ -737,7 +737,26 @@ class AnalyticsDBHandler:
 
         Returns:
             List[dict]: list of dictionaries
-        """        
+        """
+            
+        logging.info("Getting all songs in genre {}".format(genre_name))
+        cursor = self.conn.cursor()
+
+        # get all song_id that matches the given genre_name in the genres table
+        
+        cursor.execute(
+            "SELECT song_id FROM genres WHERE genre_name = ?;", (genre_name,))
+        song_ids = cursor.fetchall()
+        song_ids = [song_id[0] for song_id in song_ids]
+
+        # get all the songs that match the song_ids
+        songs = []
+        for song_id in song_ids:
+            song_data = self.get_song_by_id(song_id)
+            songs.append(song_data)
+
+        logging.info("Got all songs in genre {}".format(genre_name))
+        return songs
 
     # ------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------
@@ -1159,5 +1178,5 @@ if __name__ == "__main__":
 
     db_handler = AnalyticsDBHandler()
     db_handler.create_all_tables()
-    db_handler.populate_database()
-
+    # db_handler.populate_database()
+    print(db_handler.get_all_songs_in_genre("None"))
