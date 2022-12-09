@@ -12,7 +12,7 @@ from typing import List, Dict
 
 def log_data(func):
     def wrapper(*args, **kwargs):
-        logging.info("Running " + func.__name__ + " on " + args[0].filename)
+        # logging.info("Running " + func.__name__ + " on " + args[0].filename)
         return func(*args, **kwargs)
     return wrapper
 
@@ -95,19 +95,19 @@ class SongFile(ABC):
 
 class SongFileFLAC(SongFile):
 
-    def __init__(self, filepath: str):
-        """
-        __init__ constructor for SongFileFLAC
+    # def __init__(self, filepath: str):
+    #     """
+    #     __init__ constructor for SongFileFLAC
 
-        Args:
-            filepath (str): the filepath of the FLAC song file (absolute path, use os.join)
-        """        
-        super().__init__(filepath)
-        self.metadata = None
-        self.song_table_data = None
+    #     Args:
+    #         filepath (str): the filepath of the FLAC song file (absolute path, use os.join)
+    #     """        
+    #     super().__init__(filepath)
+    #     self.metadata = None
+    #     self.song_table_data = None
 
-        self.loadMetadata(filepath)
-        self.make_song_table_data()
+    #     self.loadMetadata(filepath)
+    #     self.make_song_table_data()
 
     def __init__(self):
         """
@@ -116,6 +116,30 @@ class SongFileFLAC(SongFile):
         super().__init__()
         self.metadata = None
         self.song_table_data = None
+        self.make_song_table_data()
+
+    def load_file(self, filepath:str) -> None:
+        """
+        load_file Loads the metadata of the FLAC file into the metadata variable.
+
+        Args:
+            filepath (str): the filepath of the FLAC song file (absolute path, use os.join)
+
+        Returns:
+            _type_: None
+        """        
+        
+        self.metadata = audio_metadata.load(filepath)
+
+    def loadMetadataParams(self, params: dict) -> None:
+        """
+        loadMetadataParams Loads the metadata of the FLAC file into the metadata variable. Necessary if not using filepaths.
+
+        Args:
+            params (dict): the metadata of the FLAC song file
+        """        
+        self.song_table_data = params
+
 
 
     def make_song_table_data(self):
@@ -155,28 +179,6 @@ class SongFileFLAC(SongFile):
             "source": None,  # string
             "favorited": False,  # bool
         }
-
-    def loadMetadata(self, filepath:str) -> None:
-        """
-        loadMetadata Loads the metadata of the FLAC file into the metadata variable.
-
-        Args:
-            filepath (str): the filepath of the FLAC song file (absolute path, use os.join)
-
-        Returns:
-            _type_: None
-        """        
-        
-        return audio_metadata.load(filepath)
-
-    def loadMetadataParams(self, params: dict) -> None:
-        """
-        loadMetadataParams Loads the metadata of the FLAC file into the metadata variable. Necessary if not using filepaths.
-
-        Args:
-            params (dict): the metadata of the FLAC song file
-        """        
-        self.song_table_data = params
 
     def get_song_table_data(self) -> Dict[str, str]:
         """
@@ -336,15 +338,19 @@ class SongMetadata:
     #   - track total
     #   - favorited (bool)
 
-    def __init__(self, filepath):
+    
+
+    def __init__(self, filepath=None):
         """Initialize the SongMetadata object.
             We want to see what file type it is, and load the correct file."""
-        self.extension = os.path.splitext(filepath)[1]
-        self.songfile = None
-        if self.extension == ".flac":
-            self.songfile = SongFileFLAC(filepath)
-        else:
-            logging.error("File type not supported: " + self.extension)
+        if filepath != None:
+            self.extension = os.path.splitext(filepath)[1]
+            self.songfile = None
+            if self.extension == ".flac":
+                self.songfile = SongFileFLAC()
+                self.songfile.load_file(filepath)
+            else:
+                logging.error("File type not supported: " + self.extension)
 
 
     def get_song_table_data(self) -> Dict[str, str]:

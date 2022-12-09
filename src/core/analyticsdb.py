@@ -243,7 +243,7 @@ class AnalyticsDBHandler:
         except:
             self.raise_table_not_created("genres", "unable to create table")
 
-    async def create_all_tables(self):
+    def create_all_tables(self):
         """Create all the tables, returns True if successful, False if not."""
         logging.info("Creating all tables")
         self.create_songs_table()
@@ -720,6 +720,17 @@ class AnalyticsDBHandler:
             playlist_songs[playlist_name] = playlist_values
         return playlist_songs
 
+    def get_all_songs_in_genre(self, genre_name: str) -> List[dict]:
+        """
+        get_all_songs_in_genre Get all the songs in a genre, returns a list of dictionaries
+
+        Args:
+            genre_name (str): Name of the genre
+
+        Returns:
+            List[dict]: list of dictionaries
+        """        
+
     # --------------------------------------------------------------------------------------------
     #                                    INSERT DATA
     # --------------------------------------------------------------------------------------------
@@ -1069,7 +1080,7 @@ class AnalyticsDBHandler:
             file_path = os.path.join(config.SOUNDFILES_PATH, file)
 
             # get metadata from file
-            parser = songparser.SongMetadata(file_path)
+            parser = songparser.SongMetadata(filepath=file_path)
 
             # get the song data and insert it into the database
             song_data = parser.get_song_table_data()
@@ -1134,28 +1145,6 @@ def init_db():
 if __name__ == "__main__":
 
     db_handler = AnalyticsDBHandler()
-    # db_handler.create_all_tables()
-    # db_handler.create_songs_table()
-    # db_handler.clear_all_tables()
-    # db_handler.populate_database()
-    print(db_handler.get_all_songs())
+    db_handler.create_all_tables()
+    db_handler.populate_database()
 
-    # db_handler.insert_playlist("Test Playlist", "Test Description", datetime.datetime.now())
-    # db_handler.insert_playlist_song("Test Playlist", 1)
-    # db_handler.insert_playlist_song("Test Playlist", 2)
-    # db_handler.insert_playlist_song("Test Playlist", 3)
-    # db_handler.insert_playlist_song("Test Playlist", 4)
-
-    # print(db_handler.get_songs_in_playlist("Test Playlist"))
-
-    # print(db_handler.get_all_song_artists())
-    # print(db_handler.get_all_album_artists())
-    # print(db_handler.get_all_composers())
-    # print(db_handler.get_all_genres())
-    # print(db_handler.get_all_playlist_songs())
-
-    # print(db_handler.get_songs_in_playlist("Test Playlist"))
-    # print(db_handler.get_song_id_by_title_filesize("Gemstone", 34815481))
-    # # sp = songparser.SongMetadata(os.path.join(config.SOUNDFILES_PATH, "Gemstone.flac"))
-    # # print(sp.get_song_table_data())
-    # logging.error("Finished")
