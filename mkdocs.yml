@@ -6,6 +6,7 @@ plugins:
   - search
   - mkdocstrings:
       default_handler: python
+  
 
 nav:
   - Home: index.md

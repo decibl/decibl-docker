@@ -2,6 +2,7 @@ import datetime
 import os
 import sys
 import sqlite3
+from typing import List
 import zipfile
 # add current file to system path
 
@@ -24,6 +25,9 @@ class AnalyticsDBHandler:
     # CONSTRUCTOR
 
     def __init__(self) -> None:
+        """
+        __init__ Initialize the database handler. Creates the database at the path specified in config.py
+        """        
         self.conn = sqlite3.connect(config.DATABASE_PATH)
     
     # --------------------------------------------------------------------------------------------
@@ -40,8 +44,10 @@ class AnalyticsDBHandler:
     # --------------------------------------------------------------------------------------------
     
     def create_songs_table(self):
+        """
+        create_songs_table Creates the songs table in the database.
+        """        
         try:
-            """Create the songs table, returns True if successful, False if not."""
             logging.info("Creating songs table")
             cursor = self.conn.cursor()
             # This is going to be a LOT of data, make a table with the following:
@@ -104,7 +110,12 @@ class AnalyticsDBHandler:
             self.raise_table_not_created("plays","unable to create table")
 
     def create_playlists_table(self) -> bool:
-        """Create the playlists table, returns True if successful, False if not."""
+        """
+        create_playlists_table Creates the playlists table in the database.
+
+        Returns:
+            bool: _description_
+        """        
         try:
             logging.info("Creating playlists table")
             cursor = self.conn.cursor()
@@ -243,7 +254,11 @@ class AnalyticsDBHandler:
         return True
 
     def delete_database(self) -> bool:
-        """Delete the database, returns True if successful, False if not."""
+        """Delete the database, returns True if successful, False if not.
+
+        Returns:
+            bool: _description_
+        """        
         logging.info("Deleting database")
         os.remove(config.DATABASE_PATH)
         logging.info("Deleted database")
@@ -254,7 +269,14 @@ class AnalyticsDBHandler:
     # --------------------------------------------------------------------------------------------
 
     def get_song_by_id(self, song_id: int) -> tuple:
-        """Get a song by its ID, returns a Song object."""
+        """Search the database for a song with the given ID.
+
+        Args:
+            song_id (int): _description_
+
+        Returns:
+            tuple: _description_
+        """        
 
         logging.info(f"Getting song by ID: {song_id}")
         cursor = self.conn.cursor()
@@ -329,7 +351,17 @@ class AnalyticsDBHandler:
         return song_table_data
 
     def get_song_id_by_title_filesize(self, title: str, filesize: int) -> int:
-        """Get a song by its title and filesize, returns the id of the song."""
+        """
+        get_song_id_by_title_filesize Searches the database to find the song ID by title and filesize. 
+        You want to use filesize because they're basically gurenteed to be unique.
+
+        Args:
+            title (str): Title of Song
+            filesize (int): Filesize of song (get these from the song object)
+
+        Returns:
+            int: song_id of the song
+        """        
 
         logging.info(
             f"Getting song by title and filesize: {title}, {filesize}")
@@ -346,7 +378,15 @@ class AnalyticsDBHandler:
         return song[0]
 
     def get_songs_in_playlist(self, playlist_name: str) -> list:
-        """Get all the songs in a playlist, returns a list of Song objects."""
+        """
+        get_songs_in_playlist Returns a list of all the songs in a playlist.
+
+        Args:
+            playlist_name (str): name of playlist
+
+        Returns:
+            list: list of song objects (in dictionary form)
+        """        
 
         logging.info(f"Getting songs in playlist: {playlist_name}")
         
@@ -369,8 +409,15 @@ class AnalyticsDBHandler:
         return songs
 
     def get_playlist_id_by_name(self, playlist_name: str) -> int:
-        
-        """Get a playlist by its name, returns the id of the playlist."""
+        """
+        get_playlist_id_by_name Get ID of playlist by name.
+
+        Args:
+            playlist_name (str): Name of playlist
+
+        Returns:
+            int: ID of playlist
+        """        
 
         logging.info(f"Getting playlist by name: {playlist_name}")
         cursor = self.conn.cursor()
@@ -385,7 +432,15 @@ class AnalyticsDBHandler:
         return playlist[0]
   
     def get_playlist_by_id(self, playlist_id: int) -> tuple:
-        """Get a playlist by its ID, returns a Playlist object."""
+        """
+        get_playlist_by_id Get playlist by ID.
+
+        Args:
+            playlist_id (int): ID of playlist
+
+        Returns:
+            tuple: playlist object
+        """
 
         logging.info(f"Getting playlist by ID: {playlist_id}")
         cursor = self.conn.cursor()
@@ -398,7 +453,15 @@ class AnalyticsDBHandler:
         return playlist
 
     def get_song_album_artists(self, song_id: int) -> list:
-        """Get all the album artists of a song, returns a list of Artist objects."""
+        """
+        get_song_album_artists Get all the album artists of a song, returns a list of names.
+
+        Args:
+            song_id (int): ID of song
+
+        Returns:
+            list: list of names of album artists
+        """        
 
         logging.info(f"Getting song album artists by song ID: {song_id}")
         cursor = self.conn.cursor()
@@ -411,7 +474,15 @@ class AnalyticsDBHandler:
         return album_artists
 
     def get_song_composers(self, song_id: int) -> list:
-        """Get all the composers of a song, returns a list of Composer objects."""
+        """
+        get_song_composers Get all the composers of a song, returns a list of names.
+
+        Args:
+            song_id (int): ID of song
+
+        Returns:
+            list: list of names of composers
+        """        
 
         logging.info(f"Getting song composers by song ID: {song_id}")
         cursor = self.conn.cursor()
@@ -424,7 +495,15 @@ class AnalyticsDBHandler:
         return composers
 
     def get_song_artists(self, song_id: int) -> list:
-        """Get all the artists of a song, returns a list of Artist objects."""
+        """
+        get_song_artists Get all the artists of a song, returns a list of names of Artists.
+
+        Args:
+            song_id (int): ID of song
+
+        Returns:
+            list: list of names of artists
+        """        
 
         logging.info(f"Getting song artists by song ID: {song_id}")
         cursor = self.conn.cursor()
@@ -437,7 +516,15 @@ class AnalyticsDBHandler:
         return artists
 
     def get_song_genres(self, song_id: int) -> list:
-        """Get all the genres of a song, returns a list of Genre objects."""
+        """
+        get_song_genres Get all the genres of a song, returns a list of names of genres.
+
+        Args:
+            song_id (int): _description_
+
+        Returns:
+            list: _description_
+        """        
 
         logging.info(f"Getting song genres by song ID: {song_id}")
         cursor = self.conn.cursor()
@@ -454,8 +541,13 @@ class AnalyticsDBHandler:
     # --------------------------------------------------------------------------------------------
 
 
-    def get_all_tables(self) -> list:
-        """Get all the tables in the database, returns a list of table names."""
+    def get_all_tables(self) -> List[str]:
+        """
+        get_all_tables Get all the tables in the database, returns a list of table names.
+
+        Returns:
+            List[str]: list of table names
+        """        
 
         logging.info("Getting all tables")
         cursor = self.conn.cursor()
@@ -465,7 +557,12 @@ class AnalyticsDBHandler:
         return tables
 
     def get_all_songs(self) -> list:
-        """Get all the songs in the database, returns a list of Song objects."""
+        """
+        get_all_songs Get all the songs in the database, returns a list of Song objects
+
+        Returns:
+            list: list of dictionaries
+        """        
 
         logging.info("Getting all songs")
         cursor = self.conn.cursor()
@@ -475,7 +572,12 @@ class AnalyticsDBHandler:
         return songs
 
     def get_all_plays(self) -> list:
-        """Get all the plays in the database, returns a list of Play objects."""
+        """
+        get_all_plays Get all the plays in the database, returns a list of the plays
+
+        Returns:
+            list: list of dictionaries
+        """        
 
         logging.info("Getting all plays")
         cursor = self.conn.cursor()
@@ -485,7 +587,12 @@ class AnalyticsDBHandler:
         return plays
 
     def get_all_song_artists(self) -> list:
-        """Get all the song artists in the database, returns a list of strings."""
+        """
+        get_all_song_artists Get all the song artists in the database, returns a list of strings
+
+        Returns:
+            list: list of strings
+        """        
 
         # artists can be duplicated, so we need to remove duplicates from song_artists
         logging.info("Getting all song artists")
