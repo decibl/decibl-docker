@@ -18,6 +18,14 @@ def log_data(func):
 
 
 class SongFile(ABC):
+    """
+    SongFile The core class for parsing metadata from song files
+
+    Args:
+        ABC (_type_): Abstract Base Class
+    """    
+
+    
 
     def __init__(self, filepath):
         self.filepath = filepath
@@ -42,22 +50,46 @@ class SongFile(ABC):
 
     @log_data
     @abstractmethod
-    def get_album_artist_data(self):
+    def get_album_artist_data(self) -> List[str]:
+        """
+        get_album_artist_data Abstract method to get all the data required for the album artist table
+
+        Returns:
+            List[str]: a list of all the album artists
+        """        
         pass
 
     @log_data
     @abstractmethod
-    def get_song_artist_data(self):
+    def get_song_artist_data(self) -> List[str]:
+        """
+        get_song_artist_data Abstract method to get all the data required for the song artist table
+
+        Returns:
+            List[str]: a list of all the song artists
+        """        
         pass
 
     @log_data
     @abstractmethod
-    def get_composer_data(self):
+    def get_composer_data(self) -> List[str]:
+        """
+        get_composer_data Abstract method to get all the data required for the composer table
+
+        Returns:
+            List[str]: a list of all the composers
+        """        
         pass
 
     @log_data
     @abstractmethod
-    def get_genre_data(self):
+    def get_genre_data(self) -> List[str]:
+        """
+        get_genre_data Abstract method to get all the data required for the genre table
+
+        Returns:
+            List[str]: a list of all the genres
+        """        
         pass
 
 
@@ -146,12 +178,12 @@ class SongFileFLAC(SongFile):
         """        
         self.song_table_data = params
 
-    def get_song_table_data(self) -> dict:
+    def get_song_table_data(self) -> Dict[str, str]:
         """
         get_song_table_data Looks at self.metadata and self.song_table_data and grabs all possible data from self.metadata and puts it into self.song_table_data.
 
         Returns:
-            dict: dictionary of keys and values of the song table data
+            Dict: a dictionary with all the data required for the song table   
         """        
         super().get_song_table_data()
         # do the above but with if statements to check if the key exists
