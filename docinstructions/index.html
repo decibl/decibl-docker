@@ -446,21 +446,20 @@
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="k">pass</span>
 </code></pre></div>
 <p>or like</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span> <span class="nf">get_song_table_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span> <span class="nf">loadMetadataParams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="sd">    get_song_table_data Gets the required song data for inserting into the database depending on the file</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="sd">    loadMetadataParams Loads the metadata of the FLAC file into the metadata variable. Necessary if not using filepaths.</span>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="sd">    Returns:</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="sd">        Dict[str, str]: Dictionary of song data</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="sd">    &quot;&quot;&quot;</span>         
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">songfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">songfile</span><span class="o">.</span><span class="n">get_song_table_data</span><span class="p">()</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="sd">    Args:</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="sd">        params (dict): the metadata of the FLAC song file</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="sd">    &quot;&quot;&quot;</span>     
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="k">pass</span>
 </code></pre></div>
 <p>I highly encourage you to download a vs code extension to do this. I use <a href="https://marketplace.visualstudio.com/items?itemName=njpwerner.autodocstring">this one</a> for python.</p>
 <h2 id="adding-the-document-to-the-documentation">Adding the document to the documentation</h2>
 <p>Make a new doc in the <code>docs</code> folder. Name it something similar to the file you are documenting. For example, if you are documenting <code>songparser.py</code>, name the file <code>songparser.md</code>.</p>
 <p>Add whatever information you think is important in the file, <strong>then make sure to add a special signature that lets mkdocs read your code!</strong></p>
-<p>This signature will ALWAYS be <code>src.[folder in src].[file name]</code></p>
+<p>This signature will ALWAYS be <code>src.[folder in src].[file name]</code> with three colons in front (:::). Look below for example. (I cant add it here otherwise it gets overwritten.)</p>
 <p>Some examples:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>::: src.core.analyticsdb
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>::: src.core.songparser
