@@ -10,3 +10,9 @@ plugins:
         python:
           options:
             show_source: true 
+
+nav:
+  - Home: index.md
+  - "Core Modules":
+    - "analyticsdb.py": "analyticsdb.md"
+    - "config.py": "config.md"
