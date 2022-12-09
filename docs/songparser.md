@@ -42,7 +42,11 @@ If you are adding support for a new file, there's some very important things you
         self.songfile = None
         if self.extension == ".flac":
             self.songfile = SongFileFLAC(filepath)
-        # Add your file type here! For example, for mp3:
+
+        # ----------------------------------------------#
+        # Add your file type here! For example, for mp3:#
+        # ----------------------------------------------#
+
         elif self.extension == ".mp3":
             self.songfile = SongFileMP3(filepath) # change this to the class you made
         else:
