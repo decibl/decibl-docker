@@ -934,6 +934,7 @@ class AnalyticsDBHandler:
 def init_db():
     # create an instance of the database handler
     db_handler = AnalyticsDBHandler()
+    db_handler.create_all_tables()
 
 if __name__ == "__main__":
 
