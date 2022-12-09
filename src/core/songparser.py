@@ -12,7 +12,7 @@ from typing import List, Dict
 
 def log_data(func):
     def wrapper(*args, **kwargs):
-        # logging.info("Running " + func.__name__ + " on " + args[0].filename)
+        logging.info("Running " + func.__name__ + args[0].filename if args[0].filename else args[0].filepath)
         return func(*args, **kwargs)
     return wrapper
 
