@@ -34,15 +34,14 @@ def get_all_playlist_songs(self) -> List[dict]:
 or like
 
 ```py
-def get_song_table_data(self) -> Dict[str, str]:
+def loadMetadataParams(self, params: dict) -> None:
     """
-    get_song_table_data Gets the required song data for inserting into the database depending on the file
+    loadMetadataParams Loads the metadata of the FLAC file into the metadata variable. Necessary if not using filepaths.
 
-    Returns:
-        Dict[str, str]: Dictionary of song data
-    """         
-    if self.songfile is not None:
-        return self.songfile.get_song_table_data()
+    Args:
+        params (dict): the metadata of the FLAC song file
+    """     
+    pass
 ```
 
 I highly encourage you to download a vs code extension to do this. I use [this one](https://marketplace.visualstudio.com/items?itemName=njpwerner.autodocstring) for python.
@@ -53,7 +52,7 @@ Make a new doc in the `docs` folder. Name it something similar to the file you a
 
 Add whatever information you think is important in the file, **then make sure to add a special signature that lets mkdocs read your code!**
 
-This signature will ALWAYS be `::: src.[folder in src].[file name]`
+This signature will ALWAYS be `src.[folder in src].[file name]` with three colons in front (:::). Look below for example. (I cant add it here otherwise it gets overwritten.)
 
 Some examples:
 
