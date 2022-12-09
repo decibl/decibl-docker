@@ -88,4 +88,10 @@ nav: # DONT CHANGE THIS
       - "newdocument.py": "newdocument.md"
 ```
 
-And you're done
+## Push to gh-pages
+
+Run the command
+
+```bash
+mkdocs gh-deploy
+```
