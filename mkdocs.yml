@@ -1,0 +1,28 @@
+site_name: Decibl Docker Documentation
+theme:
+  name: material
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+
+nav:
+  - Home: index.md
+  - "Core Modules":
+      - "analyticsdb.py": "analyticsdb.md"
+      - "config.py": "config.md"
+      - "songparser.py": "songparser.md"
+  - "How to add to Documentation" : "docinstructions.md"
+
+markdown_extensions:
+  - pymdownx.critic
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences

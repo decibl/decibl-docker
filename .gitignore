@@ -7,3 +7,5 @@ src/databases/*
 
 # example.log
 __pycache__/
+
+site/

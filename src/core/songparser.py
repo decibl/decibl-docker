@@ -5,19 +5,27 @@ import os
 from abc import ABC, abstractmethod
 import logging
 import audio_metadata
-
+from typing import List, Dict
 # make decorator to log a certain method is being ran with a file
 # this is the first time I've used decorators LOL
 
 
 def log_data(func):
     def wrapper(*args, **kwargs):
-        logging.info("Running " + func.__name__ + " on " + args[0].filename)
+        logging.info("Running " + func.__name__ + args[0].filename if args[0].filename else args[0].filepath)
         return func(*args, **kwargs)
     return wrapper
 
 
 class SongFile(ABC):
+    """
+    SongFile The core class for parsing metadata from song files
+
+    Args:
+        ABC (_type_): Abstract Base Class
+    """    
+
+    
 
     def __init__(self, filepath):
         self.filepath = filepath
@@ -31,47 +39,113 @@ class SongFile(ABC):
 
     @log_data
     @abstractmethod
-    def get_song_table_data(self):
+    def get_song_table_data(self) -> Dict[str, str]:
+        """
+        get_song_table_data Abstract method to get all the data required for the song table
+
+        Returns:
+            Dict: a dictionary with all the data required for the song table
+        """        
         pass
 
     @log_data
     @abstractmethod
-    def get_album_artist_data(self):
+    def get_album_artist_data(self) -> List[str]:
+        """
+        get_album_artist_data Abstract method to get all the data required for the album artist table
+
+        Returns:
+            List[str]: a list of all the album artists
+        """        
         pass
 
     @log_data
     @abstractmethod
-    def get_song_artist_data(self):
+    def get_song_artist_data(self) -> List[str]:
+        """
+        get_song_artist_data Abstract method to get all the data required for the song artist table
+
+        Returns:
+            List[str]: a list of all the song artists
+        """        
         pass
 
     @log_data
     @abstractmethod
-    def get_composer_data(self):
+    def get_composer_data(self) -> List[str]:
+        """
+        get_composer_data Abstract method to get all the data required for the composer table
+
+        Returns:
+            List[str]: a list of all the composers
+        """        
         pass
 
     @log_data
     @abstractmethod
-    def get_genre_data(self):
+    def get_genre_data(self) -> List[str]:
+        """
+        get_genre_data Abstract method to get all the data required for the genre table
+
+        Returns:
+            List[str]: a list of all the genres
+        """        
         pass
 
 
 class SongFileFLAC(SongFile):
 
-    def __init__(self, filepath):
-        super().__init__(filepath)
-        self.metadata = None
-        self.song_table_data = None
+    # def __init__(self, filepath: str):
+    #     """
+    #     __init__ constructor for SongFileFLAC
 
-        self.loadMetadata(filepath)
-        self.make_song_table_data()
+    #     Args:
+    #         filepath (str): the filepath of the FLAC song file (absolute path, use os.join)
+    #     """        
+    #     super().__init__(filepath)
+    #     self.metadata = None
+    #     self.song_table_data = None
+
+    #     self.loadMetadata(filepath)
+    #     self.make_song_table_data()
 
     def __init__(self):
+        """
+        __init__ Default constructor for SongFileFLAC. Does nothing.
+        """        
         super().__init__()
         self.metadata = None
         self.song_table_data = None
+        self.make_song_table_data()
+
+    def load_file(self, filepath:str) -> None:
+        """
+        load_file Loads the metadata of the FLAC file into the metadata variable.
+
+        Args:
+            filepath (str): the filepath of the FLAC song file (absolute path, use os.join)
+
+        Returns:
+            _type_: None
+        """        
+        
+        self.metadata = audio_metadata.load(filepath)
+
+    def loadMetadataParams(self, params: dict) -> None:
+        """
+        loadMetadataParams Loads the metadata of the FLAC file into the metadata variable. Necessary if not using filepaths.
+
+        Args:
+            params (dict): the metadata of the FLAC song file
+        """        
+        self.song_table_data = params
+
 
 
     def make_song_table_data(self):
+        """
+        make_song_table_data Instantiates the song_table_data dictionary with all the keys and values set to None.
+        """        
         # there's so much data bruh, here's a big ass list that details everything
         # this method isn't really necessary, but I thinik it makes things cleaner
         self.song_table_data = {
@@ -106,13 +180,13 @@ class SongFileFLAC(SongFile):
             "favorited": False,  # bool
         }
 
-    def loadMetadata(self, filepath):
-        return audio_metadata.load(filepath)
+    def get_song_table_data(self) -> Dict[str, str]:
+        """
+        get_song_table_data Looks at self.metadata and self.song_table_data and grabs all possible data from self.metadata and puts it into self.song_table_data.
 
-    def loadMetadataParams(self, params):
-        self.song_table_data = params
-
-    def get_song_table_data(self):
+        Returns:
+            Dict: a dictionary with all the data required for the song table   
+        """        
         super().get_song_table_data()
         # do the above but with if statements to check if the key exists
         if "filepath" in self.metadata:
@@ -175,28 +249,53 @@ class SongFileFLAC(SongFile):
 
         return self.song_table_data
 
-    def get_album_artist_data(self):
+    def get_album_artist_data(self) -> List[str]:
+        """
+        get_album_artist_data gets the album artist data from the metadata
+
+        Returns:
+            List[str]: list of album artists for FLAC files
+        """        
         super().get_album_artist_data()
         if "albumartist" in self.metadata["tags"]:
             return self.metadata["tags"]["albumartist"]
         else:
             return None
 
-    def get_song_artist_data(self):
+    def get_song_artist_data(self) -> List[str]:
+        """
+        get_song_artist_data gets the song artist data from the metadata
+
+        Returns:
+            List[str]: list of song artists for FLAC files
+        """        
+        
         super().get_song_artist_data()
         if "artist" in self.metadata["tags"]:
             return self.metadata["tags"]["artist"]
         else:
             return None
 
-    def get_composer_data(self):
+    def get_composer_data(self) -> List[str]:
+        """
+        get_composer_data gets the composer data from the metadata
+
+        Returns:
+            List[str]: list of composers for FLAC files
+        """        
         super().get_composer_data()
         if "composer" in self.metadata["tags"]:
             return self.metadata["tags"]["composer"]
         else:
             return None
 
-    def get_genre_data(self):
+    def get_genre_data(self) -> List[str]:
+        """
+        get_genre_data gets the genre data from the metadata
+
+        Returns:
+            List[str]: list of genres for FLAC files
+        """        
         super().get_genre_data()
         if "genre" in self.metadata["tags"]:
             return self.metadata["tags"]["genre"]
@@ -239,34 +338,68 @@ class SongMetadata:
     #   - track total
     #   - favorited (bool)
 
-    def __init__(self, filepath):
+    
+
+    def __init__(self, filepath=None):
         """Initialize the SongMetadata object.
             We want to see what file type it is, and load the correct file."""
-        self.extension = os.path.splitext(filepath)[1]
-        self.songfile = None
-        if self.extension == ".flac":
-            self.songfile = SongFileFLAC(filepath)
-        else:
-            logging.error("File type not supported: " + self.extension)
+        if filepath != None:
+            self.extension = os.path.splitext(filepath)[1]
+            self.songfile = None
+            if self.extension == ".flac":
+                self.songfile = SongFileFLAC()
+                self.songfile.load_file(filepath)
+            else:
+                logging.error("File type not supported: " + self.extension)
 
 
-    def get_song_table_data(self):
+    def get_song_table_data(self) -> Dict[str, str]:
+        """
+        get_song_table_data Gets the required song data for inserting into the database depending on the file
+
+        Returns:
+            Dict[str, str]: Dictionary of song data
+        """         
         if self.songfile is not None:
             return self.songfile.get_song_table_data()
 
-    def get_album_artist_data(self):
+    def get_album_artist_data(self) -> List[str]:
+        """
+        get_album_artist_data Gets the album artist data for inserting into the database depending on the file
+
+        Returns:
+            List[str]: List of album artists
+        """        
         if self.songfile is not None:
             return self.songfile.get_album_artist_data()
 
-    def get_song_artist_data(self):
+    def get_song_artist_data(self) -> List[str]:
+        """
+        get_song_artist_data Gets the song artist data for inserting into the database depending on the file
+
+        Returns:
+            List[str]: List of song artists
+        """        
         if self.songfile is not None:
             return self.songfile.get_song_artist_data()
 
-    def get_composer_data(self):
+    def get_composer_data(self) -> List[str]:
+        """
+        get_composer_data Gets the composer data for inserting into the database depending on the file
+
+        Returns:
+            List[str]: List of composers
+        """        
         if self.songfile is not None:
             return self.songfile.get_composer_data()
 
-    def get_genre_data(self):
+    def get_genre_data(self) -> List[str]:
+        """
+        get_genre_data Gets the genre data for inserting into the database depending on the file
+
+        Returns:
+            List[str]: List of genres
+        """        
         if self.songfile is not None:
             return self.songfile.get_genre_data()
 
