@@ -24,5 +24,4 @@ The main file that contains all the configuration variables. Has tons of handy d
 - `DATABASE_BACKUP_PATH` - The path to the database backups. This is automatically generated based on the project's directory.
 - `LOGS_BACKUP_PATH` - The path to the logs backups. This is automatically generated based on the project's directory.
 
-
 ::: src.core.config

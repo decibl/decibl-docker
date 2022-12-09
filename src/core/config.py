@@ -1,5 +1,7 @@
 # File that takes system variables and puts them into python variables
-import os, sys, logging
+import os
+import sys
+import logging
 from logging.handlers import TimedRotatingFileHandler
 import datetime
 
@@ -12,22 +14,24 @@ LOGGING_LEVEL = logging.DEBUG
 LOGGING_FORMAT = "%(asctime)s - %(pathname)s - %(levelname)s - %(message)s"
 LOGGING_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 # make filename based on date
-LOGGING_FILENAME = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "logs", "log_{}.log".format(datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S"))))
+LOGGING_FILENAME = os.path.abspath(os.path.join(os.path.dirname(
+    __file__), "..", "logs", "log_{}.log".format(datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S"))))
 LOGGING_ENCODING = "utf-8"
 
 if not os.path.exists(os.path.dirname(LOGGING_FILENAME)):
     os.makedirs(os.path.dirname(LOGGING_FILENAME))
 
 
-logging.basicConfig(filename=LOGGING_FILENAME, encoding=LOGGING_ENCODING, level=LOGGING_LEVEL, format=LOGGING_FORMAT, datefmt=LOGGING_DATE_FORMAT)
+logging.basicConfig(filename=LOGGING_FILENAME, encoding=LOGGING_ENCODING,
+                    level=LOGGING_LEVEL, format=LOGGING_FORMAT, datefmt=LOGGING_DATE_FORMAT)
 logging.debug("Making folder for logs")
 
 
 logging.info("Loading config file")
 logger = logging.getLogger("Rotating Time Log")
 handler = TimedRotatingFileHandler(LOGGING_FILENAME,
-                                    when="h",
-                                    interval=1,)
+                                   when="h",
+                                   interval=1,)
 logger.addHandler(handler)
 
 # log a message that the config file has been loaded
@@ -39,7 +43,8 @@ logging.info("Loaded config file")
 #                                      Database
 # ---------------------------------------------------------------------------------------------
 
-DATABASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "databases", "analytics.db"))
+DATABASE_PATH = os.path.abspath(os.path.join(
+    os.path.dirname(__file__), "..", "databases", "analytics.db"))
 
 # make database folder if it doesn't exist
 logging.info("Making folder for database")
@@ -52,18 +57,22 @@ if not os.path.exists(os.path.dirname(DATABASE_PATH)):
 
 # make sound folder if it doesn't exist
 logging.info("Making folder for sound files")
-SOUNDFILES_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "soundfiles"))
+SOUNDFILES_PATH = os.path.abspath(os.path.join(
+    os.path.dirname(__file__), "..", "soundfiles"))
 if not os.path.exists(SOUNDFILES_PATH):
     os.makedirs(SOUNDFILES_PATH)
-    
+
 
 # ---------------------------------------------------------------------------------------------
 #                                      Backups
 # ---------------------------------------------------------------------------------------------
 
-BACKUPS_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "backups"))
-DATABASE_BACKUP_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "backups", "database"))
-LOGS_BACKUP_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "backups", "logs"))
+BACKUPS_PATH = os.path.abspath(os.path.join(
+    os.path.dirname(__file__), "..", "backups"))
+DATABASE_BACKUP_PATH = os.path.abspath(os.path.join(
+    os.path.dirname(__file__), "..", "backups", "database"))
+LOGS_BACKUP_PATH = os.path.abspath(os.path.join(
+    os.path.dirname(__file__), "..", "backups", "logs"))
 # make backup folder if it doesn't exist
 logging.info("Making folder for backups")
 if not os.path.exists(BACKUPS_PATH):

@@ -19,6 +19,7 @@ logging.info("Loading database module")
 # This will be used to create and manage the database of the users activity.
 # (there's lots of data in the songs table so I'm not going to put it in the graphic)
 
+
 class AnalyticsDBHandler:
     """Class to handle all the data analytics, especially stuff like creating tables, making backups, etc."""
 
@@ -27,14 +28,14 @@ class AnalyticsDBHandler:
     def __init__(self) -> None:
         """
         __init__ Initialize the database handler. Creates the database at the path specified in config.py
-        """        
+        """
         self.conn = sqlite3.connect(config.DATABASE_PATH)
-    
+
     # --------------------------------------------------------------------------------------------
     #                                    Error Handling
     # --------------------------------------------------------------------------------------------
-    
-    def raise_table_not_created(self,table,details):
+
+    def raise_table_not_created(self, table, details):
         err = "Unable to create "+table+" table: "+details
         logging.info(err)
         raise HTTPException(status_code=400, detail=err)
@@ -42,11 +43,11 @@ class AnalyticsDBHandler:
     # --------------------------------------------------------------------------------------------
     #                                    CREATE AND DELETE TABLES
     # --------------------------------------------------------------------------------------------
-    
+
     def create_songs_table(self):
         """
         create_songs_table Creates the songs table in the database.
-        """        
+        """
         try:
             logging.info("Creating songs table")
             cursor = self.conn.cursor()
@@ -86,13 +87,12 @@ class AnalyticsDBHandler:
             self.conn.commit()
             logging.info("Created songs table")
         except:
-            self.raise_table_not_created("song","unable to create table")
-        
+            self.raise_table_not_created("song", "unable to create table")
 
     def create_plays_table(self):
         """
         create_plays_table Creates the plays table in the database.
-        """        
+        """
         try:
             logging.info("Creating plays table")
             cursor = self.conn.cursor()
@@ -109,7 +109,7 @@ class AnalyticsDBHandler:
             self.conn.commit()
             logging.info("Created plays table")
         except:
-            self.raise_table_not_created("plays","unable to create table")
+            self.raise_table_not_created("plays", "unable to create table")
 
     def create_playlists_table(self) -> bool:
         """
@@ -117,7 +117,7 @@ class AnalyticsDBHandler:
 
         Returns:
             bool: True if successful, False if not.
-        """        
+        """
         try:
             logging.info("Creating playlists table")
             cursor = self.conn.cursor()
@@ -134,7 +134,7 @@ class AnalyticsDBHandler:
             self.conn.commit()
             logging.info("Created playlists table")
         except:
-            self.raise_table_not_created("playlists","unable to create table")
+            self.raise_table_not_created("playlists", "unable to create table")
 
     def create_playlists_songs_table(self) -> bool:
         """
@@ -142,7 +142,7 @@ class AnalyticsDBHandler:
 
         Returns:
             bool: True if successful, False if not.
-        """        
+        """
         try:
             # Song_id is a foreign key to the songs table
             logging.info("Creating playlists_songs table")
@@ -157,12 +157,13 @@ class AnalyticsDBHandler:
             self.conn.commit()
             logging.info("Created playlists_songs table")
         except:
-            self.raise_table_not_created("playlists_songs","unable to create table")
+            self.raise_table_not_created(
+                "playlists_songs", "unable to create table")
 
     def create_song_artists_table(self):
         """
         create_song_artists_table Creates the song_artists table in the database.
-        """        
+        """
         try:
             # Song_id is a foreign key to the songs table
             logging.info("Creating song_artists table")
@@ -177,7 +178,8 @@ class AnalyticsDBHandler:
             self.conn.commit()
             logging.info("Created song_artists table")
         except:
-            self.raise_table_not_created("song_artists","unable to create table")
+            self.raise_table_not_created(
+                "song_artists", "unable to create table")
 
     def create_album_artists_table(self):
         """Create the album_artists table, returns True if successful, False if not."""
@@ -195,7 +197,8 @@ class AnalyticsDBHandler:
             self.conn.commit()
             logging.info("Created album_artists table")
         except:
-            self.raise_table_not_created("album_artists","unable to create table")
+            self.raise_table_not_created(
+                "album_artists", "unable to create table")
 
     def create_composers_table(self) -> bool:
         """
@@ -203,7 +206,7 @@ class AnalyticsDBHandler:
 
         Returns:
             bool: True if successful, False if not.
-        """        
+        """
         try:
             # Song_id is a foreign key to the songs table
             logging.info("Creating composers table")
@@ -218,12 +221,12 @@ class AnalyticsDBHandler:
             self.conn.commit()
             logging.info("Created composers table")
         except:
-            self.raise_table_not_created("composers","unable to create table")
+            self.raise_table_not_created("composers", "unable to create table")
 
     def create_genres_table(self):
         """
         create_genres_table Creates the genres table in the database.
-        """        
+        """
         try:
             # Song_id is a foreign key to the songs table
             logging.info("Creating genres table")
@@ -238,7 +241,7 @@ class AnalyticsDBHandler:
             self.conn.commit()
             logging.info("Created genres table")
         except:
-            self.raise_table_not_created("genres","unable to create table")
+            self.raise_table_not_created("genres", "unable to create table")
 
     async def create_all_tables(self):
         """Create all the tables, returns True if successful, False if not."""
@@ -274,7 +277,7 @@ class AnalyticsDBHandler:
 
         Returns:
             bool: True if successful, False if not.
-        """        
+        """
         logging.info("Deleting database")
         os.remove(config.DATABASE_PATH)
         logging.info("Deleted database")
@@ -293,7 +296,7 @@ class AnalyticsDBHandler:
 
         Returns:
             List[dict]: List of dictionaries containing the song data.
-        """         
+        """
 
         logging.info(f"Getting song by ID: {song_id}")
         cursor = self.conn.cursor()
@@ -302,7 +305,7 @@ class AnalyticsDBHandler:
             (song_id,)
         )
         song = cursor.fetchone()
-        
+
         song_table_data = {
             "filepath": None,  # string
             "main_artist": None,  # string
@@ -378,7 +381,7 @@ class AnalyticsDBHandler:
 
         Returns:
             int: song_id of the song
-        """        
+        """
 
         logging.info(
             f"Getting song by title and filesize: {title}, {filesize}")
@@ -403,10 +406,10 @@ class AnalyticsDBHandler:
 
         Returns:
             List[dict]: List of dictionaries containing the song data.
-        """        
+        """
 
         logging.info(f"Getting songs in playlist: {playlist_name}")
-        
+
         playlist_id = self.get_playlist_id_by_name(playlist_name)
 
         # GET SONG IDS from playlists_songs table then look up songs in songs table
@@ -422,7 +425,7 @@ class AnalyticsDBHandler:
             song = self.get_song_by_id(song_id)
             songs.append(song)
         logging.info(f"Got songs in playlist: {playlist_name}")
-    
+
         return songs
 
     def get_playlist_id_by_name(self, playlist_name: str) -> int:
@@ -434,7 +437,7 @@ class AnalyticsDBHandler:
 
         Returns:
             int: ID of playlist
-        """        
+        """
 
         logging.info(f"Getting playlist by name: {playlist_name}")
         cursor = self.conn.cursor()
@@ -447,7 +450,7 @@ class AnalyticsDBHandler:
             return None
         logging.info(f"Got playlist by name: {playlist_name}")
         return playlist[0]
-  
+
     def get_playlist_by_id(self, playlist_id: int) -> tuple:
         """
         get_playlist_by_id Get playlist by ID.
@@ -478,7 +481,7 @@ class AnalyticsDBHandler:
 
         Returns:
             List[str]: list of names of album artists
-        """               
+        """
 
         logging.info(f"Getting song album artists by song ID: {song_id}")
         cursor = self.conn.cursor()
@@ -499,7 +502,7 @@ class AnalyticsDBHandler:
 
         Returns:
             List[str]: list of names of composers
-        """        
+        """
 
         logging.info(f"Getting song composers by song ID: {song_id}")
         cursor = self.conn.cursor()
@@ -520,7 +523,7 @@ class AnalyticsDBHandler:
 
         Returns:
             List[str]: list of names of artists
-        """        
+        """
 
         logging.info(f"Getting song artists by song ID: {song_id}")
         cursor = self.conn.cursor()
@@ -541,7 +544,7 @@ class AnalyticsDBHandler:
 
         Returns:
             List[str]: list of names of genres
-        """        
+        """
 
         logging.info(f"Getting song genres by song ID: {song_id}")
         cursor = self.conn.cursor()
@@ -557,14 +560,13 @@ class AnalyticsDBHandler:
     #                                    RETRIEVE DATA MULTIPLE
     # --------------------------------------------------------------------------------------------
 
-
     def get_all_tables(self) -> List[str]:
         """
         get_all_tables Get all the tables in the database, returns a list of table names.
 
         Returns:
             List[str]: list of table names
-        """        
+        """
 
         logging.info("Getting all tables")
         cursor = self.conn.cursor()
@@ -579,7 +581,7 @@ class AnalyticsDBHandler:
 
         Returns:
             List[dict]: list of dictionaries
-        """        
+        """
 
         logging.info("Getting all songs")
         cursor = self.conn.cursor()
@@ -594,7 +596,7 @@ class AnalyticsDBHandler:
 
         Returns:
             List[dict]: list of dictionaries
-        """        
+        """
 
         logging.info("Getting all plays")
         cursor = self.conn.cursor()
@@ -609,7 +611,7 @@ class AnalyticsDBHandler:
 
         Returns:
             List[str]: list of strings
-        """        
+        """
 
         # artists can be duplicated, so we need to remove duplicates from song_artists
         logging.info("Getting all song artists")
@@ -626,7 +628,7 @@ class AnalyticsDBHandler:
 
         Returns:
             List[str]: list of strings
-        """        
+        """
 
         # artists can be duplicated, so we need to remove duplicates from album_artists
         logging.info("Getting all album artists")
@@ -643,7 +645,7 @@ class AnalyticsDBHandler:
 
         Returns:
             List[str]: list of strings
-        """        
+        """
 
         # composers can be duplicated, so we need to remove duplicates from composers
         logging.info("Getting all composers")
@@ -660,7 +662,7 @@ class AnalyticsDBHandler:
 
         Returns:
             List[str]: list of strings
-        """        
+        """
 
         # genres can be duplicated, so we need to remove duplicates from genres
         logging.info("Getting all genres")
@@ -677,13 +679,13 @@ class AnalyticsDBHandler:
 
         Returns:
             List[str]: list of strings
-        """        
+        """
 
         logging.info("Getting all playlist names")
         cursor = self.conn.cursor()
         cursor.execute("SELECT playlist_name FROM playlists;")
         playlist_names = cursor.fetchall()
-        
+
         # remove the tuple from each playlist name
         playlist_names = [playlist_name[0] for playlist_name in playlist_names]
         logging.info("Got all playlist names")
@@ -695,8 +697,7 @@ class AnalyticsDBHandler:
 
         Returns:
             List[dict]: list of dictionaries [song_name, file_size, id]
-        """        
-        
+        """
 
         playlist_names = self.get_all_playlist_names()
         playlist_songs = {}
@@ -711,16 +712,13 @@ class AnalyticsDBHandler:
                     "file_size": song_data["filesize"],
                 }
 
-                song_id = self.get_song_id_by_title_filesize(song_values["song_name"], song_values["file_size"])
+                song_id = self.get_song_id_by_title_filesize(
+                    song_values["song_name"], song_values["file_size"])
                 song_values["id"] = song_id
                 playlist_values.append(song_values)
-            
+
             playlist_songs[playlist_name] = playlist_values
         return playlist_songs
-        
-
-
-
 
     # --------------------------------------------------------------------------------------------
     #                                    INSERT DATA
@@ -737,8 +735,9 @@ class AnalyticsDBHandler:
 
         Returns:
             bool: True if successful, False if not
-        """        
-        logging.info("Inserting playlist {} into playlists table".format(playlist_name))
+        """
+        logging.info(
+            "Inserting playlist {} into playlists table".format(playlist_name))
 
         cursor = self.conn.cursor()
         cursor.execute(
@@ -748,7 +747,8 @@ class AnalyticsDBHandler:
         )
 
         self.conn.commit()
-        logging.info("Inserted playlist {} into playlists table".format(playlist_name))
+        logging.info(
+            "Inserted playlist {} into playlists table".format(playlist_name))
         return True
 
     def insert_playlist_song(self, playlist_name: str, song_id: int) -> bool:
@@ -761,8 +761,9 @@ class AnalyticsDBHandler:
 
         Returns:
             bool: True if successful, False if not
-        """        
-        logging.info("Inserting playlist_song {} into playlists_songs table".format(playlist_name))
+        """
+        logging.info(
+            "Inserting playlist_song {} into playlists_songs table".format(playlist_name))
 
         playlist_id = self.get_playlist_id_by_name(playlist_name)
         added_dt = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -776,7 +777,8 @@ class AnalyticsDBHandler:
             (playlist_id, song_id, added_dt)
         )
         self.conn.commit()
-        logging.info("Inserted playlist_song {} into playlists_songs table".format(playlist_name))
+        logging.info(
+            "Inserted playlist_song {} into playlists_songs table".format(playlist_name))
         return True
 
     def insert_song(self, **kwargs) -> int:
@@ -789,7 +791,7 @@ class AnalyticsDBHandler:
 
         Returns:
             int: song_id of inserted song
-        """        
+        """
         logging.info(
             "Inserting song {} into songs table".format(kwargs["title"]))
         cursor = self.conn.cursor()
@@ -918,7 +920,7 @@ class AnalyticsDBHandler:
 
         Returns:
             bool: True if successful, False if not
-        """        
+        """
         logging.info("Attempting to insert album artist {} iwith song_id {} into album_artists table".format(
             artist_name, song_id))
         cursor = self.conn.cursor()
@@ -955,7 +957,7 @@ class AnalyticsDBHandler:
 
         Returns:
             bool: True if successful, False if not
-        """        
+        """
 
         logging.info("Attempting to insert song artist {} with song_id {} into song_artists table".format(
             artist_name, song_id))
@@ -1001,7 +1003,7 @@ class AnalyticsDBHandler:
 
         Returns:
             bool: True if successful, False if not
-        """        
+        """
         logging.info("Attempting to insert composer {} with song_id {} into composers table".format(
             composer_name, song_id))
         cursor = self.conn.cursor()
@@ -1057,7 +1059,7 @@ class AnalyticsDBHandler:
     def populate_database(self):
         """
         populate_database Populate the database using the data from the soundfiles in the SOUNDFILES_PATH directory
-        """        
+        """
 
         # fetch all the files from config.SOUNDFILES_PATH
         soundfiles = os.listdir(config.SOUNDFILES_PATH)
@@ -1110,7 +1112,7 @@ class AnalyticsDBHandler:
 
         Returns:
             bool: True if successful, False if not
-        """        
+        """
         logging.info("Backing up database")
 
         # Zip the database file and name it with the current date
@@ -1128,11 +1130,12 @@ def init_db():
     # create an instance of the database handler
     db_handler = AnalyticsDBHandler()
 
+
 if __name__ == "__main__":
 
     db_handler = AnalyticsDBHandler()
     # db_handler.create_all_tables()
-    #db_handler.create_songs_table()
+    # db_handler.create_songs_table()
     # db_handler.clear_all_tables()
     # db_handler.populate_database()
     print(db_handler.get_all_songs())

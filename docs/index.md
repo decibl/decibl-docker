@@ -52,7 +52,6 @@ core/
 |── songparser.py
 ```
 
-
 ## logs
 
 **Note: This folder is generated automatically when the project is run.**
@@ -82,8 +81,8 @@ This folder contains the tests for the project. Run `pytest` to run the tests. L
 9. **ADD MORE UNIT TESTS!!**
 10. Start resarching sync algorithms
 11. Implement Sync algorithms
-    * SYNC soundfiles (the actual sound data)
-    * SYNC Analyticsdb (there will be an exac copy on the user's end, we want to add their data to our table and delete theirs)
+    - SYNC soundfiles (the actual sound data)
+    - SYNC Analyticsdb (there will be an exac copy on the user's end, we want to add their data to our table and delete theirs)
 12. Add the API
 13. Add AUTH to the API
 14. Fix the logs, add option to hold X amount of logs or delete logs older than X days or something so they dont get a gazillion bytes big

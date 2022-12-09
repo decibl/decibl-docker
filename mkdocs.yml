@@ -6,13 +6,13 @@ plugins:
   - search
   - mkdocstrings:
       default_handler: python
-  
 
 nav:
   - Home: index.md
   - "Core Modules":
-    - "analyticsdb.py": "analyticsdb.md"
-    - "config.py": "config.md"
+      - "analyticsdb.py": "analyticsdb.md"
+      - "config.py": "config.md"
+      - "songparser.py": "songparser.md"
 
 markdown_extensions:
   - pymdownx.critic
