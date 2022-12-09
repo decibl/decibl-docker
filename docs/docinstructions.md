@@ -1,12 +1,22 @@
-## How to Add a New Document to Documentation
-
-1. Understanding the documentation Structure.
+## Understanding the documentation Structure.
 
 The config is in a file at the root called mkdocs.yml. This file contains all the information about the documentation. It contains the pages, the theme, and the plugins. The pages are the files that are used to generate the documentation. The theme is the theme of the documentation. 
 
+```bash
+/ # Root of the project
+├── docs/ # Contains all the documentation files
+|   ├── index.md # The main page of the documentation
+|   ├── docinstructions.md # This file
+|   ├── <other random .md files>
+├── mkdocs.yml # The config file for mkdocs
+├── src/
+├── <other random files>
+```
+
 All the actual "meat" of the documentation is in the docs folder. This folder contains all the files that are used to generate the documentation. The files are in markdown format.
 
-2. Documenting your code
+
+## Documenting your code
 
 Use docstrings in your code, this may look like:
 
@@ -37,7 +47,7 @@ def get_song_table_data(self) -> Dict[str, str]:
 
 I highly encourage you to download a vs code extension to do this. I use [this one](https://marketplace.visualstudio.com/items?itemName=njpwerner.autodocstring) for python.
 
-3. Adding the document to the documentation
+## Adding the document to the documentation
 
 Make a new doc in the `docs` folder. Name it something similar to the file you are documenting. For example, if you are documenting `songparser.py`, name the file `songparser.md`.
 
@@ -51,9 +61,9 @@ Some examples:
 ::: src.core.analyticsdb
 ::: src.core.songparser
 ::: src.tests.test_analyticsdb
-```md
+```
 
-4. Adding the document to the documentation index
+## Adding the document to the documentation index
 
 Open the mkdocs.yml file and edit the `nav` tree. For example, it may look something like this.
 
