@@ -1067,6 +1067,24 @@ class AnalyticsDBHandler:
         logging.info("Got all songs in genre {}".format(genre_name))
         return songs
 
+    def get_all_columns_from_table(self, table_name: str) -> List[str]:
+        """
+        get_all_columns_from_table Get all the columns from a table, returns a list of strings
+
+        Args:
+            table_name (str): Name of the table
+
+        Returns:
+            List[str]: list of strings
+        """
+
+        logging.info("Getting all columns from table {}".format(table_name))
+        cursor = self.conn.cursor()
+        cursor.execute("PRAGMA table_info({});".format(table_name))
+        columns = cursor.fetchall()
+        columns = [column[1] for column in columns]
+        logging.info("Got all columns from table {}".format(table_name))
+        return columns
     # ------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------
     #                                    INSERT DATA

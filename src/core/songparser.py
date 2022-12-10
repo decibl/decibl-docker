@@ -36,6 +36,16 @@ class SongFile(ABC):
         self.filepath = None
         self.filename = None
 
+    @log_data
+    @abstractmethod
+    def load_file(self, filepath) -> None:
+        """
+        load_file Abstract method to load a file
+
+        Args:
+            filepath (str): the path to the file
+        """        
+        pass
 
     @log_data
     @abstractmethod
