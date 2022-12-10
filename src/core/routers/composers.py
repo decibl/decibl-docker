@@ -8,15 +8,15 @@ router = APIRouter(
 )
 
 @router.get("/{song_id}")
-async def read_album_artist_by_song():
+async def read_composers_by_song_id():
     pass
 
 @router.get("/")
-async def read_all_album_artist():
+async def read_all_composers():
     pass
 
 @router.post("/")
-async def create_album_artist():
+async def create_composer():
     pass
 
 
