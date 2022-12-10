@@ -435,6 +435,10 @@ class SongFileMP3(SongFile):
             if "tracknumber" in self.metadata["tags"]:
                 self.song_table_data["track_number"] = self.metadata["tags"]["tracknumber"][0]
         
+        if self.song_table_data["title"] is None:
+            self.song_table_data["title"] = self.song_table_data["filepath"].split("\\")[-1].split(".")[0]
+        if self.song_table_data["main_artist"] is None:
+            self.song_table_data["main_artist"] = "Unknown Artist"
         return self.song_table_data
 
     def get_album_artist_data(self) -> List[str]:

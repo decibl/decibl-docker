@@ -1,6 +1,8 @@
 import pytest
 import sys, os
 import sqlite3
+import random
+import zipfile
 # add the parent directory to the path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "core")))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -11,6 +13,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "s
 import config
 import analyticsdb
 import songparser
+
+# unzip the test database in config.ZIPPED_DATABASE_TEST_PATH
+with zipfile.ZipFile(config.ZIPPED_DATABASE_TEST_PATH, "r") as zip_ref:
+    zip_ref.extractall(os.path.dirname(config.DATABASE_TEST_PATH))
 
 dbHelper = analyticsdb.AnalyticsDBHandler(debug_path=config.DATABASE_TEST_PATH)
 
@@ -45,9 +51,11 @@ song_table_dict = {
     "source": "N/A", # string
 }
 
-def setup_test():
+def setup_test_db():
     # create a test database
+    # dbHelper.clear_all_tables()
     dbHelper.create_all_tables()
+    dbHelper.populate_database()
 
     # lets make some example playlists
     # def insert_playlist(self, playlist_name: str, playlist_desc: str, created_dt: str) -> bool:
@@ -56,10 +64,39 @@ def setup_test():
 
     # lets make some example songs
     # def insert_playlist_song(self, playlist_name: str, song_id: int) -> bool:
+
+    # THESE NEED TO BE COMMENTED OTHERWISE THEY WILL RE-INSERT THE SAME SONGS. UNCOMMENT TO RE-CREATE DATABASE
+
     dbHelper.insert_playlist_song("test_playlist_1", 1)
     dbHelper.insert_playlist_song("test_playlist_1", 2)
     dbHelper.insert_playlist_song("test_playlist_1", 3)
     dbHelper.insert_playlist_song("favorites", 1)
+    dbHelper.insert_playlist_song("favorites", 2)
+    dbHelper.insert_playlist_song("favorites", 3)
+    dbHelper.insert_playlist_song("favorites", 19)
+
+    # lets add some example plays
+    
+    # lets get the song table to look at the song_title, song_primary_artist, filesize
+
+    # def get_play_information_from_song_id(self, song_id: int) -> Dict[str, int]:
+
+    songs_info = []
+    for i in range(1, 18):
+        songs_info.append(dbHelper.get_play_information_from_song_id(i))
+    
+    # add some plays using this info
+    # def insert_play(self, song_title: str, song_primary_artist: str, filesize: int, start_dt: str, end_dt: str) -> bool:
+    for i in range(0, 50):
+        # randomly pick a song
+        song = random.choice(songs_info)
+        # randomly pick a start time
+        start_time = random.randint(0, 1000000000)
+        # randomly pick an endtime up to 10 minutes after the start time
+        end_time = random.randint(start_time, start_time + 600)
+        # insert the play
+        dbHelper.insert_play(song["song_title"], song["song_primary_artist"], song["filesize"], start_time, end_time)
+
 
 def test_vital_folders():
     # check if ../analyticsdb ../backups ../logs exist
@@ -68,5 +105,5 @@ def test_vital_folders():
     assert os.path.exists(os.path.dirname(config.LOGGING_FILENAME))
 
 if __name__ == "__main__":
-    dbHelper = analyticsdb.AnalyticsDBHandler(debug_path=config.DATABASE_TEST_PATH)
-    setup_test()
+    pass
+    # setup_test_db()

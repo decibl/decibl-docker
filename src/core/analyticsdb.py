@@ -2,7 +2,7 @@ import datetime
 import os
 import sys
 import sqlite3
-from typing import List
+from typing import Dict, List
 import zipfile
 # add current file to system path
 
@@ -271,6 +271,7 @@ class AnalyticsDBHandler:
     #                                          DELETE TABLES & INFO  
     # ------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------
+
     def clear_songs_table(self):
         """
         clear_songs_table Clears the songs table in the database.
@@ -847,6 +848,29 @@ class AnalyticsDBHandler:
         logging.info(f"Got song genres by song ID: {song_id}")
         return genres
 
+    def get_play_information_from_song_id(self, song_id: int) -> Dict[str, int]:
+        """
+        get_play_information_from_song_id Get play information from song ID. This is the song_title, song_primary_artist, and filesize
+
+        Args:
+            song_id (int): ID of song
+
+        Returns:
+            Dict[str, int]: Dictionary of song_title, song_primary_artist, and filesize
+        """        
+
+        logging.info(f"Getting play information for song ID: {song_id}")
+
+        song_raw = self.get_song_by_id(song_id)
+        song_values = {
+            "song_title": song_raw["title"],
+            "song_primary_artist": song_raw["main_artist"],
+            "filesize": song_raw["filesize"]
+        }
+
+        logging.info(f"Got play information for song ID: {song_id}")
+        return song_values
+
     # ------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------
     #                                    RETRIEVE DATA MULTIPLE
@@ -1049,6 +1073,33 @@ class AnalyticsDBHandler:
     # ------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------
 
+    # play table: song_title, song_primary_artist, filesize, start_dt, end_dt
+    def insert_play(self, song_title: str, song_primary_artist: str, filesize: int, start_dt: str, end_dt: str) -> bool:
+        """
+        insert_play Insert a play into the plays table
+
+        Args:
+            song_title (str): Title of the song
+            song_primary_artist (str): Primary artist of the song
+            filesize (int): Filesize of the song
+            start_dt (str): Date the song started playing
+            end_dt (str): Date the song ended playing
+
+        Returns:
+            bool: True if successful, False if not
+        """
+
+
+        # plays table has auto incrementing id, so we don't need to insert the id
+        logging.info("Inserting play into plays table")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            "INSERT INTO plays (song_title, song_primary_artist, filesize, start_dt, end_dt) VALUES (?, ?, ?, ?, ?);",
+            (song_title, song_primary_artist, filesize, start_dt, end_dt))
+        self.conn.commit()
+        logging.info("Inserted play into plays table")
+        return True
+
     def insert_playlist(self, playlist_name: str, playlist_desc: str, created_dt: str) -> bool:
         """
         insert_playlist Insert a playlist into the playlists table. Only inserts if the playlist does not already exist
@@ -1073,7 +1124,6 @@ class AnalyticsDBHandler:
             "INSERT INTO playlists (playlist_name, playlist_desc, created_dt) VALUES (?, ?, ?);", (playlist_name, playlist_desc, created_dt))
         self.conn.commit()
         return True
-
 
     def insert_playlist_song(self, playlist_name: str, song_id: int) -> bool:
         """
