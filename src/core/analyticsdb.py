@@ -85,8 +85,8 @@ class AnalyticsDBHandler:
                 track_number INTEGER,
                 track_total INTEGER,
                 source TEXT,
-                favorited BOOLEAN,
-                main_artist TEXT
+                main_artist TEXT,
+                favorited INTEGER
             )""")
             self.conn.commit()
             logging.info("Created songs table")
@@ -341,7 +341,7 @@ class AnalyticsDBHandler:
             "track_number": None,  # int
             "track_total": None,  # int
             "source": None,  # string
-            "favorited": False,  # bool
+            "favorited": 0,  # bool
         }
         if song is None:
             return None
@@ -1178,5 +1178,5 @@ if __name__ == "__main__":
 
     db_handler = AnalyticsDBHandler()
     db_handler.create_all_tables()
+    db_handler.populate_database()
     # db_handler.populate_database()
-    print(db_handler.get_all_songs_in_genre("None"))

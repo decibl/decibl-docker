@@ -302,6 +302,71 @@ class SongFileFLAC(SongFile):
         else:
             return None
 
+class SongFileMP3(SongFile):
+
+    def __init__(self, filepath: str):
+        super().__init__(filepath)
+        self.metadata = self.load_metadata()
+
+    def load_file(self, filepath:str) -> None:
+        """
+        load_file Loads the metadata of the FLAC file into the metadata variable.
+
+        Args:
+            filepath (str): the filepath of the FLAC song file (absolute path, use os.join)
+
+        Returns:
+            _type_: None
+        """        
+        
+        self.metadata = audio_metadata.load(filepath)
+
+    def make_song_table_data(self):
+        """
+        make_song_table_data makes the song table data from the metadata
+        """        
+        
+        self.song_table_data = {
+            "filepath": None,  # string
+            "main_artist": None,  # string
+            "filesize": None,  # int in bytes
+            "padding": None,  # int in bytes
+            "album_artwork_bit_depth": None,  # int in bits
+            "album_artwork_colors": None,  # int
+            "album_artwork_height": None,  # int in pixels
+            "album_artwork_width": None,  # int in pixels
+            "bit_depth": None,  # int in bits
+            "bitrate": None,  # int in bits, divide by 1000 to get Kbps
+            "channels": None,  # int
+            "duration": None,  # int in seconds
+            "sample_rate": None,  # int in KHz
+            "album": None,  # string
+            "barcode": None,  # string
+            "date_created": None,  # string in YYYY-MM-DD
+            "disc_number": None,  # int
+            "disc_total": None,  # int
+            "genre": None,  # string
+            "isrc": None,  # string
+            "itunesadvisory": None,  # string
+            "length": None,  # int
+            "publisher": None,  # string
+            "rating": None,  # int
+            "title": None,  # string
+            "track_number": None,  # int
+            "track_total": None,  # int
+            "source": None,  # string
+            "favorited": False,  # bool
+        }
+
+    def get_song_table_data(self) -> Dict[str, Any]:
+        """
+        get_song_table_data gets the song table data from the metadata
+
+        Returns:
+            Dict[str, Any]: dictionary of song table data
+        """        
+        
+        super().get_song_table_data()
 
 class SongMetadata:
     # Songs have a lot of Metadata! We want to store as much as possible.
@@ -421,5 +486,6 @@ class SongMetadata:
 # md2 = SongMetadata(os.path.join(config.SOUNDFILES_PATH, "gemstone.flac"))
 # print(md2)
 # print(md2.get_song_table_data())
-# # metadata2 = audio_metadata.load(os.path.join(config.SOUNDFILES_PATH, "example.mp3"))
-# # print(metadata2)
+metadata2 = audio_metadata.load(os.path.join(config.SOUNDFILES_PATH, "backbone.mp3"))
+print(metadata2)
+
