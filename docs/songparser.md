@@ -96,7 +96,6 @@ This one has the most information. Here's the list of stuff you have to return
 "track_number": None, # int
 "track_total": None, # int
 "source": None, # string
-"favorited": False, # bool
 ```
 
 It HAS to be a dict with all these keys, if you don't have the value for one, set it to `None`.

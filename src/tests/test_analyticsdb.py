@@ -44,7 +44,6 @@ song_table_dict = {
     "track_number": -1, # int
     "track_total": -1, # int
     "source": "N/A", # string
-    "favorited": 0, # bool
 }
     
         

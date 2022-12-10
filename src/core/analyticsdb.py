@@ -85,8 +85,7 @@ class AnalyticsDBHandler:
                 track_number INTEGER,
                 track_total INTEGER,
                 source TEXT,
-                main_artist TEXT,
-                favorited INTEGER
+                main_artist TEXT
             )""")
             self.conn.commit()
             logging.info("Created songs table")
@@ -340,8 +339,7 @@ class AnalyticsDBHandler:
             "title": None,  # string
             "track_number": None,  # int
             "track_total": None,  # int
-            "source": None,  # string
-            "favorited": 0,  # bool
+            "source": None,  # string 
         }
         if song is None:
             return None
@@ -854,7 +852,6 @@ class AnalyticsDBHandler:
         #     "date_created": "N/A", # in YYYY-MM-DD
         #     "disc_number": -1, # int
         #     "disc_total": -1, # int
-        #     "genre": "N/A", # string
         #     "isrc": "N/A", # string
         #     "itunesadvisory": "N/A", # string
         #     "length": -1, # int
@@ -864,7 +861,6 @@ class AnalyticsDBHandler:
         #     "track_number": -1, # int
         #     "track_total": -1, # int
         #     "source": "N/A", # string
-        #     "favorited": False, # bool
         # }
 
         # check if song already exists
@@ -902,10 +898,9 @@ class AnalyticsDBHandler:
                 title,
                 track_number,
                 track_total,
-                source,
-                favorited
+                source
             ) VALUES (
-                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
             );""",
             (
                 kwargs["filepath"],
@@ -935,7 +930,6 @@ class AnalyticsDBHandler:
                 kwargs["track_number"],
                 kwargs["track_total"],
                 kwargs["source"],
-                kwargs["favorited"]
             )
         )
 
@@ -947,7 +941,8 @@ class AnalyticsDBHandler:
         )
 
         song_id = cursor.fetchone()[0]
-        logging.info(f"Inserted song with song_id: {song_id}")
+        song_name = kwargs["title"]
+        logging.info(f"Inserted {song_name} with song_id: {song_id}")
         return song_id
 
     def insert_album_artist(self, artist_name, song_id) -> bool:
@@ -1113,6 +1108,7 @@ class AnalyticsDBHandler:
 
             # get the song data and insert it into the database
             song_data = parser.get_song_table_data()
+            print(song_data, file)
             song_id = None
             if song_data is not None:
                 print(song_data['barcode'])

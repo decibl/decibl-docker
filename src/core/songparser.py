@@ -5,7 +5,7 @@ import os
 from abc import ABC, abstractmethod
 import logging
 import audio_metadata
-from typing import List, Dict
+from typing import Any, List, Dict
 # make decorator to log a certain method is being ran with a file
 # this is the first time I've used decorators LOL
 
@@ -177,7 +177,6 @@ class SongFileFLAC(SongFile):
             "track_number": None,  # int
             "track_total": None,  # int
             "source": None,  # string
-            "favorited": False,  # bool
         }
 
     def get_song_table_data(self) -> Dict[str, str]:
@@ -304,9 +303,9 @@ class SongFileFLAC(SongFile):
 
 class SongFileMP3(SongFile):
 
-    def __init__(self, filepath: str):
-        super().__init__(filepath)
-        self.metadata = self.load_metadata()
+    def __init__(self):
+        super().__init__()
+        self.make_song_table_data()
 
     def load_file(self, filepath:str) -> None:
         """
@@ -345,7 +344,6 @@ class SongFileMP3(SongFile):
             "date_created": None,  # string in YYYY-MM-DD
             "disc_number": None,  # int
             "disc_total": None,  # int
-            "genre": None,  # string
             "isrc": None,  # string
             "itunesadvisory": None,  # string
             "length": None,  # int
@@ -355,7 +353,6 @@ class SongFileMP3(SongFile):
             "track_number": None,  # int
             "track_total": None,  # int
             "source": None,  # string
-            "favorited": False,  # bool
         }
 
     def get_song_table_data(self) -> Dict[str, Any]:
@@ -365,8 +362,124 @@ class SongFileMP3(SongFile):
         Returns:
             Dict[str, Any]: dictionary of song table data
         """        
-        
         super().get_song_table_data()
+
+
+    #         MP3({
+    #     'filepath': 'c:\\Users\\drale\\Documents\\GitHub\\decibl-docker\\src\\soundfiles\\mp3_with_art.mp3',
+    #     'filesize': '7.98 MiB',
+    #     'pictures': [
+    #         <ID3v2Picture({
+    #             'data': '1.10 MiB',
+    #             'description': '',
+    #             'height': 1200,
+    #             'mime_type': 'image/jpeg',
+    #             'type': <ID3PictureType.COVER_FRONT>,
+    #             'width': 1200,
+    #         })>,
+    #     ],
+    #     'streaminfo': <MP3StreamInfo({
+    #         'bitrate': '245 Kbps',
+    #         'bitrate_mode': <MP3BitrateMode.ABR>,
+    #         'channel_mode': <MP3ChannelMode.JOINT_STEREO>,
+    #         'channels': 2,
+    #         'duration': '03:56',
+    #         'layer': 3,
+    #         'protected': False,
+    #         'sample_rate': '44.1 KHz',
+    #         'version': 1,
+    #     })>,
+    #     'tags': <ID3v2Frames({
+    #         'album': ['Bakusou Yumeuta'],
+    #         'artist': ["Diggy-MO'"],
+    #         'comment': [
+    #             <ID3v2Comment({
+    #                 'description': '',
+    #                 'language': 'eng',
+    #                 'text': 'Download at: https://www.yumeost.club/',
+    #             })>,
+    #         ],
+    #         'date': ['2008'],
+    #         'discnumber': ['1'],
+    #         'genre': ['Anime'],
+    #         'rating': [
+    #             <ID3v2Popularimeter({'count': 0, 'email': 'MusicBee', 'rating': 242})>,
+    #         ],
+    #         'title': ['Bakusou Yumeuta (\u7206\u8d70\u5922\u6b4c)'],
+    #         'tracknumber': ['1'],
+    #     })>,
+    # })>
+        if "filepath" in self.metadata:
+            self.song_table_data["filepath"] = self.metadata["filepath"]
+        if "filesize" in self.metadata:
+            self.song_table_data["filesize"] = self.metadata["filesize"]
+        if len(self.metadata["pictures"]) > 0:
+            self.song_table_data["album_artwork_height"] = self.metadata["pictures"][0]["height"]
+            self.song_table_data["album_artwork_width"] = self.metadata["pictures"][0]["width"]
+        if "streaminfo" in self.metadata:
+            self.song_table_data["bitrate"] = self.metadata["streaminfo"]["bitrate"]
+            self.song_table_data["channels"] = self.metadata["streaminfo"]["channels"]
+            self.song_table_data["duration"] = self.metadata["streaminfo"]["duration"]
+            self.song_table_data["sample_rate"] = self.metadata["streaminfo"]["sample_rate"]
+        if "tags" in self.metadata:
+            if "album" in self.metadata["tags"]:
+                self.song_table_data["album"] = self.metadata["tags"]["album"][0]
+            if "artist" in self.metadata["tags"]:
+                self.song_table_data["main_artist"] = self.metadata["tags"]["artist"][0]
+            if "date" in self.metadata["tags"]:
+                self.song_table_data["date_created"] = self.metadata["tags"]["date"][0]
+            if "discnumber" in self.metadata["tags"]:
+                self.song_table_data["disc_number"] = self.metadata["tags"]["discnumber"][0]
+            if "title" in self.metadata["tags"]:
+                self.song_table_data["title"] = self.metadata["tags"]["title"][0]
+            if "tracknumber" in self.metadata["tags"]:
+                self.song_table_data["track_number"] = self.metadata["tags"]["tracknumber"][0]
+        
+        return self.song_table_data
+
+    def get_album_artist_data(self) -> List[str]:
+        """
+        get_album_artist_data gets the album artist data from the metadata
+
+        Returns:
+            List[str]: list of album artists for FLAC files
+        """        
+        super().get_album_artist_data()
+        if "albumartist" in self.metadata["tags"]:
+            return self.metadata["tags"]["artist"]
+        else:
+            return None
+
+    def get_song_artist_data(self) -> List[str]:
+        """
+        get_song_artist_data gets the song artist data from the metadata
+
+        Returns:
+            List[str]: list of song artists for FLAC files
+        """        
+        
+        super().get_song_artist_data()
+        if "artist" in self.metadata["tags"]:
+            return self.metadata["tags"]["artist"]
+        else:
+            return None
+
+    def get_composer_data(self) -> List[str]:
+        return None
+
+    def get_genre_data(self) -> List[str]:
+        """
+        get_genre_data gets the genre data from the metadata
+
+        Returns:
+            List[str]: list of genres for FLAC files
+        """        
+        super().get_genre_data()
+        if "genre" in self.metadata["tags"]:
+            return self.metadata["tags"]["genre"]
+        else:
+            return None
+    
 
 class SongMetadata:
     # Songs have a lot of Metadata! We want to store as much as possible.
@@ -413,6 +526,9 @@ class SongMetadata:
             self.songfile = None
             if self.extension == ".flac":
                 self.songfile = SongFileFLAC()
+                self.songfile.load_file(filepath)
+            elif self.extension == ".mp3":
+                self.songfile = SongFileMP3()
                 self.songfile.load_file(filepath)
             else:
                 logging.error("File type not supported: " + self.extension)
@@ -486,6 +602,7 @@ class SongMetadata:
 # md2 = SongMetadata(os.path.join(config.SOUNDFILES_PATH, "gemstone.flac"))
 # print(md2)
 # print(md2.get_song_table_data())
-metadata2 = audio_metadata.load(os.path.join(config.SOUNDFILES_PATH, "backbone.mp3"))
-print(metadata2)
+# metadata2 = audio_metadata.load(os.path.join(config.SOUNDFILES_PATH, "mp3_with_art.mp3"))
+# print(metadata2['pictures'][0]['height'])
+# print(metadata2)
 
