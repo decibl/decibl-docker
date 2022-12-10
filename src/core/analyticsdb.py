@@ -25,11 +25,17 @@ class AnalyticsDBHandler:
 
     # CONSTRUCTOR
 
-    def __init__(self) -> None:
+    def __init__(self, debug_path=None) -> None:
         """
         __init__ Initialize the database handler. Creates the database at the path specified in config.py
+
+        Args:
+            debug_path (str, optional): Path to the database for debug. Defaults to None.
         """
-        self.conn = sqlite3.connect(config.DATABASE_PATH)
+        if debug_path is None:
+            self.conn = sqlite3.connect(config.DATABASE_PATH)
+        else:
+            self.conn = sqlite3.connect(debug_path)
 
     # ------------------------------------------------------------------------------------------------------------
     # --------------------------------------------------------------------------------------------

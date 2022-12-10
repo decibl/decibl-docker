@@ -12,8 +12,7 @@ import config
 import analyticsdb
 import songparser
 
-dbHelper = analyticsdb.AnalyticsDBHandler()
-dbHelper.create_all_tables()
+dbHelper = analyticsdb.AnalyticsDBHandler(debug_path=config.DATABASE_TEST_PATH)
 
 song_table_dict = {
     "filepath": "N/A", # string
@@ -45,11 +44,19 @@ song_table_dict = {
     "track_total": -1, # int
     "source": "N/A", # string
 }
-    
-        
+
+def setup_test():
+    # create a test database
+    dbHelper.create_all_tables()
+
+    # lets make some example playlists
         
 def test_vital_folders():
     # check if ../analyticsdb ../backups ../logs exist
     assert os.path.exists(os.path.dirname(config.DATABASE_PATH))
     assert os.path.exists(config.BACKUPS_PATH)
     assert os.path.exists(os.path.dirname(config.LOGGING_FILENAME))
+
+if __name__ == "__main__":
+    dbHelper = analyticsdb.AnalyticsDBHandler(debug_path=config.DATABASE_TEST_PATH)
+    print(dbHelper.get_all_songs())

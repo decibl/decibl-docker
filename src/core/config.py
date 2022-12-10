@@ -46,6 +46,8 @@ logging.info("Loaded config file")
 DATABASE_PATH = os.path.abspath(os.path.join(
     os.path.dirname(__file__), "..", "databases", "analytics.db"))
 
+DATABASE_TEST_PATH = os.path.abspath(os.path.join(
+    os.path.dirname(__file__), "..", "tests", "analytics.db"))
 # make database folder if it doesn't exist
 logging.info("Making folder for database")
 if not os.path.exists(os.path.dirname(DATABASE_PATH)):
