@@ -9,3 +9,5 @@ src/databases/*
 __pycache__/
 
 site/
+
+src/tests/analytics.db
