@@ -161,7 +161,7 @@ class SongFileFLAC(SongFile):
         self.song_table_data = {
             "filepath": None,  # string
             "main_artist": None,  # string
-            "filesize": None,  # int in bytes
+            "filesize": 0,  # int in bytes
             "padding": None,  # int in bytes
             "album_artwork_bit_depth": None,  # int in bits
             "album_artwork_colors": None,  # int
@@ -183,7 +183,7 @@ class SongFileFLAC(SongFile):
             "length": None,  # int
             "publisher": None,  # string
             "rating": None,  # int
-            "title": None,  # string
+            "title": "Missing",  # string
             "track_number": None,  # int
             "track_total": None,  # int
             "source": None,  # string
@@ -338,7 +338,7 @@ class SongFileMP3(SongFile):
         self.song_table_data = {
             "filepath": None,  # string
             "main_artist": None,  # string
-            "filesize": None,  # int in bytes
+            "filesize": 0,  # int in bytes
             "padding": None,  # int in bytes
             "album_artwork_bit_depth": None,  # int in bits
             "album_artwork_colors": None,  # int
@@ -359,7 +359,7 @@ class SongFileMP3(SongFile):
             "length": None,  # int
             "publisher": None,  # string
             "rating": None,  # int
-            "title": None,  # string
+            "title": "Missing",  # string
             "track_number": None,  # int
             "track_total": None,  # int
             "source": None,  # string

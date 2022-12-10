@@ -15,9 +15,9 @@ sys.path.append(os.path.abspath(os.path.join(
 sys.path.append(os.path.abspath(os.path.join(
     os.path.dirname(__file__), "..", "soundfiles")))
 
-import songparser
-import analyticsdb
 import config
+import analyticsdb
+import songparser
 
 # unzip the test database in config.ZIPPED_DATABASE_TEST_PATH
 
@@ -29,35 +29,34 @@ def setup_prezipped_db():
         zip_ref.extractall(os.path.dirname(config.DATABASE_TEST_PATH))
 
 
-song_table_dict = {
-    "filepath": "N/A",  # string
-    "main_artist": "N/A",  # string
-    "filesize": -1,  # in bytes
-    "padding": -1,  # in bytes
-    "album_artwork_bit_depth": -1,  # in bits
-    "album_artwork_colors": -1,  # int
-    "album_artwork_height": -1,  # in pixels
-    "album_artwork_width": -1,  # in pixels
-    "bit_depth": -1,  # in bits
-    "bitrate": -1,  # in bits, divide by 1000 to get Kbps
-    "channels": -1,  # int
-    "duration": -1,  # in seconds
-    "sample_rate": -1,  # in KHz
-    "album": "N/A",  # string
-    "barcode": "N/A",  # string
-    "date_created": "N/A",  # in YYYY-MM-DD
-    "disc_number": -1,  # int
-    "disc_total": -1,  # int
-    "genre": "N/A",  # string
-    "isrc": "N/A",  # string
-    "itunesadvisory": "N/A",  # string
-    "length": -1,  # int
-    "publisher": "N/A",  # string
-    "rating": -1,  # int
-    "title": "N/A",  # string
-    "track_number": -1,  # int
-    "track_total": -1,  # int
-    "source": "N/A",  # string
+song_table_data = {
+    "filepath": None,  # string
+    "main_artist": None,  # string
+    "filesize": 0,  # int in bytes
+    "padding": None,  # int in bytes
+    "album_artwork_bit_depth": None,  # int in bits
+    "album_artwork_colors": None,  # int
+    "album_artwork_height": None,  # int in pixels
+    "album_artwork_width": None,  # int in pixels
+    "bit_depth": None,  # int in bits
+    "bitrate": None,  # int in bits, divide by 1000 to get Kbps
+    "channels": None,  # int
+    "duration": None,  # int in seconds
+    "sample_rate": None,  # int in KHz
+    "album": None,  # string
+    "barcode": None,  # string
+    "date_created": None,  # string in YYYY-MM-DD
+    "disc_number": None,  # int
+    "disc_total": None,  # int
+    "isrc": None,  # string
+    "itunesadvisory": None,  # string
+    "length": None,  # int
+    "publisher": None,  # string
+    "rating": None,  # int
+    "title": "Missing",  # string
+    "track_number": None,  # int
+    "track_total": None,  # int
+    "source": None,  # string
 }
 
 
@@ -122,24 +121,34 @@ def test_vital_paths():
 #                          TESTING CREATE TABLES
 # --------------------------------------------------------------------------------
 
+
 def test_create_songs_table():
+    try:
+        dbHelper.clear_all_tables()
+    except:
+        pass
     dbHelper.create_songs_table()
     # get all the columns from the songs table
     columns = dbHelper.get_all_columns_from_table("songs")
     assert columns == ['song_id', 'filepath', 'filesize', 'padding', 'album_artwork_bit_depth', 'album_artwork_colors', 'album_artwork_height', 'album_artwork_width', 'bit_depth', 'bitrate', 'channels', 'duration',
                        'sample_rate', 'album', 'barcode', 'date_created', 'disc_number', 'disc_total', 'isrc', 'itunesadvisory', 'length', 'publisher', 'rating', 'title', 'track_number', 'track_total', 'source', 'main_artist']
 
+
 def test_create_plays_table():
     dbHelper.create_plays_table()
     # get all the columns from the plays table
     columns = dbHelper.get_all_columns_from_table("plays")
-    assert columns == ['play_id', 'song_title', 'song_primary_artist', 'filesize', 'start_dt', 'end_dt']
+    assert columns == ['play_id', 'song_title',
+                       'song_primary_artist', 'filesize', 'start_dt', 'end_dt']
+
 
 def test_create_playlists_table():
     dbHelper.create_playlists_table()
     # get all the columns from the playlists table
     columns = dbHelper.get_all_columns_from_table("playlists")
-    assert columns == ['playlist_id', 'playlist_name', 'playlist_desc', 'created_dt']
+    assert columns == ['playlist_id', 'playlist_name',
+                       'playlist_desc', 'created_dt']
+
 
 def test_create_playlist_songs_table():
     dbHelper.create_playlists_songs_table()
@@ -148,11 +157,13 @@ def test_create_playlist_songs_table():
     print(columns)
     assert columns == ['playlist_id', 'song_id', 'added_dt']
 
+
 def test_create_song_artists_table():
     dbHelper.create_song_artists_table()
     # get all the columns from the song_artists table
     columns = dbHelper.get_all_columns_from_table("song_artists")
     assert columns == ['artist_name', 'song_id', 'dt_added']
+
 
 def test_create_album_artists_table():
     dbHelper.create_album_artists_table()
@@ -160,11 +171,13 @@ def test_create_album_artists_table():
     columns = dbHelper.get_all_columns_from_table("album_artists")
     assert columns == ['artist_name', 'song_id', 'dt_added']
 
+
 def test_create_composers_table():
     dbHelper.create_composers_table()
     # get all the columns from the composers table
     columns = dbHelper.get_all_columns_from_table("composers")
     assert columns == ['composer_name', 'song_id', 'dt_added']
+
 
 def test_create_genres_table():
     dbHelper.create_genres_table()
@@ -176,6 +189,7 @@ def test_create_genres_table():
 #                          TESTING CLEAR TABLES
 # --------------------------------------------------------------------------------
 
+
 def test_clear_songs_table():
     dbHelper.clear_songs_table()
     # get all the columns from the songs table
@@ -183,6 +197,7 @@ def test_clear_songs_table():
         columns = dbHelper.get_all_columns_from_table("songs")
     except Exception as e:
         assert True
+
 
 def test_clear_plays_table():
     dbHelper.clear_plays_table()
@@ -192,6 +207,7 @@ def test_clear_plays_table():
     except Exception as e:
         assert True
 
+
 def test_clear_playlists_table():
     dbHelper.clear_playlists_table()
     # get all the columns from the playlists table
@@ -199,6 +215,7 @@ def test_clear_playlists_table():
         columns = dbHelper.get_all_columns_from_table("playlists")
     except Exception as e:
         assert True
+
 
 def test_clear_playlist_songs_table():
     dbHelper.clear_playlists_songs_table()
@@ -208,6 +225,7 @@ def test_clear_playlist_songs_table():
     except Exception as e:
         assert True
 
+
 def test_clear_song_artists_table():
     dbHelper.clear_song_artists_table()
     # get all the columns from the song_artists table
@@ -215,6 +233,7 @@ def test_clear_song_artists_table():
         columns = dbHelper.get_all_columns_from_table("song_artists")
     except Exception as e:
         assert True
+
 
 def test_clear_album_artists_table():
     dbHelper.clear_album_artists_table()
@@ -224,6 +243,7 @@ def test_clear_album_artists_table():
     except Exception as e:
         assert True
 
+
 def test_clear_composers_table():
     dbHelper.clear_composers_table()
     # get all the columns from the composers table
@@ -232,6 +252,7 @@ def test_clear_composers_table():
     except Exception as e:
         assert True
 
+
 def test_clear_genres_table():
     dbHelper.clear_genres_table()
     # get all the columns from the genres table
@@ -239,10 +260,113 @@ def test_clear_genres_table():
         columns = dbHelper.get_all_columns_from_table("genres")
     except Exception as e:
         assert True
-        
+
 # --------------------------------------------------------------------------------
-#                          TESTING INSERTS
+#                          TESTING INSERTS AND RETRIEVALS
 # --------------------------------------------------------------------------------
+
+    # def insert_play(self, song_title: str, song_primary_artist: str, filesize: int, start_dt: str, end_dt: str) -> bool:
+    # def insert_playlist(self, playlist_name: str, playlist_desc: str, created_dt: str) -> bool:
+    # def insert_playlist_song(self, playlist_name: str, song_id: int) -> bool:
+    # def insert_song(self, **kwargs) -> int:
+    # def insert_album_artist(self, artist_name, song_id) -> bool:
+    # def insert_song_artist(self, artist_name, song_id) -> bool:
+    # def insert_composer(self, composer_name, song_id) -> bool:
+    # def insert_genre(self, genre_name, song_id) -> bool:
+
+
+def test_insert_song():
+    dbHelper.create_all_tables()
+    song_id = dbHelper.insert_song(**song_table_data)
+    print(song_id)
+    song_data = dbHelper.get_song_by_id(song_id)
+    assert song_data == song_table_data
+
+
+def test_insert_play():
+    play_table_data = {
+        "song_title": "test song",
+        "song_primary_artist": "test artist",
+        "filesize": 123456,
+        "start_dt": "2020-01-01 00:00:00",
+        "end_dt": "2020-01-01 00:00:00"
+    }
+    play_id = dbHelper.insert_play(play_table_data["song_title"], play_table_data["song_primary_artist"],
+                                   play_table_data["filesize"], play_table_data["start_dt"], play_table_data["end_dt"])
+    
+    play_data = dbHelper.get_play_by_id(play_id)
+    play_table_data["play_id"] = play_id
+    assert play_data == play_table_data
+
+def test_insert_playlist():
+    playlist_table_data = {
+        "playlist_name": "test playlist",
+        "playlist_desc": "test playlist description",
+        "created_dt": "2020-01-01 00:00:00"
+    }
+    playlist_id = dbHelper.insert_playlist(playlist_table_data["playlist_name"], playlist_table_data["playlist_desc"],
+                                           playlist_table_data["created_dt"])
+    playlist_data = dbHelper.get_playlist_by_id(playlist_id)
+    playlist_table_data["playlist_id"] = playlist_id
+    assert playlist_data == playlist_table_data
+
+def test_insert_playlist_song():
+    # get all playlists
+    playlists = dbHelper.get_all_playlist_names()
+    # get all songs
+    songs = dbHelper.get_all_songs()
+    # insert a playlist song
+    playlist_song_id = dbHelper.insert_playlist_song(playlists[0], songs[0]["song_id"])
+    # get the playlist song
+    playlist_songs = dbHelper.get_songs_in_playlist(playlists[0])
+    playlist_songs[0]["song_id"] = songs[0]["song_id"]
+    # print(playlist_songs[0])
+    # print(songs[0])
+    assert playlist_songs[0] == songs[0]
+
+def test_insert_album_artist():
+    # get all songs
+    songs = dbHelper.get_all_songs()
+    # insert an album artist
+    dbHelper.insert_album_artist("test artist", songs[0]["song_id"])
+    # get the album artist
+    album_artists = dbHelper.get_all_album_artists()
+    assert album_artists[0] == "test artist"
+
+def test_insert_song_artist():
+    # get all songs
+    songs = dbHelper.get_all_songs()
+    # insert a song artist
+    dbHelper.insert_song_artist("test artist", songs[0]["song_id"])
+    # get the song artist
+    song_artists = dbHelper.get_all_song_artists()
+    assert song_artists[0] == "test artist"
+
+def test_insert_composer():
+    # get all songs
+    songs = dbHelper.get_all_songs()
+    # insert a composer
+    dbHelper.insert_composer("test composer", songs[0]["song_id"])
+    # get the composer
+    composers = dbHelper.get_all_composers()
+    assert composers[0] == "test composer"
+
+def test_insert_genre():
+    # get all songs
+    songs = dbHelper.get_all_songs()
+    # insert a genre
+    dbHelper.insert_genre("test genre", songs[0]["song_id"])
+    # get the genre
+    genres = dbHelper.get_all_genres()
+    assert genres[0] == "test genre"
+
+
+# --------------------------------------------------------------------------------
+#                          COMPLICATED TESTING
+# --------------------------------------------------------------------------------
+
+def test_get_all_songs():
+    setup_prezipped_db()
 if __name__ == "__main__":
     test_clear_songs_table()
     # setup_test_db()

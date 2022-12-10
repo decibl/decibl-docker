@@ -602,7 +602,7 @@ class AnalyticsDBHandler:
         song_table_data = {
             "filepath": None,  # string
             "main_artist": None,  # string
-            "filesize": None,  # int in bytes
+            "filesize": 0,  # int in bytes
             "padding": None,  # int in bytes
             "album_artwork_bit_depth": None,  # int in bits
             "album_artwork_colors": None,  # int
@@ -618,20 +618,18 @@ class AnalyticsDBHandler:
             "date_created": None,  # string in YYYY-MM-DD
             "disc_number": None,  # int
             "disc_total": None,  # int
-            "genre": None,  # string
             "isrc": None,  # string
             "itunesadvisory": None,  # string
             "length": None,  # int
             "publisher": None,  # string
             "rating": None,  # int
-            "title": None,  # string
+            "title": "Missing",  # string
             "track_number": None,  # int
             "track_total": None,  # int
             "source": None,  # string 
         }
         if song is None:
             return None
-
         song_table_data["filepath"] = song[1]
         song_table_data["filesize"] = song[2]
         song_table_data["padding"] = song[3]
@@ -659,7 +657,6 @@ class AnalyticsDBHandler:
         song_table_data["track_total"] = song[25]
         song_table_data["source"] = song[26]
         song_table_data["main_artist"] = song[27]
-
         return song_table_data
 
     def get_song_id_by_title_filesize(self, title: str, filesize: int) -> int:
@@ -743,7 +740,7 @@ class AnalyticsDBHandler:
         logging.info(f"Got playlist by name: {playlist_name}")
         return playlist[0]
 
-    def get_playlist_by_id(self, playlist_id: int) -> tuple:
+    def get_playlist_by_id(self, playlist_id: int) -> dict:
         """
         get_playlist_by_id Get playlist by ID.
 
@@ -751,7 +748,7 @@ class AnalyticsDBHandler:
             playlist_id (int): ID of playlist
 
         Returns:
-            tuple: playlist object
+            dict: Dictionary containing playlist data. {playlist_id, playlist_name, playlist_desc, created_dt}
         """
 
         logging.info(f"Getting playlist by ID: {playlist_id}")
@@ -762,7 +759,13 @@ class AnalyticsDBHandler:
         )
         playlist = cursor.fetchone()
         logging.info(f"Got playlist by ID: {playlist_id}")
-        return playlist
+
+        playlist_data = {}
+        playlist_data["playlist_id"] = playlist[0]
+        playlist_data["playlist_name"] = playlist[1]
+        playlist_data["playlist_desc"] = playlist[2]
+        playlist_data["created_dt"] = playlist[3]
+        return playlist_data
 
     def get_song_album_artists(self, song_id: int) -> List[str]:
         """
@@ -871,6 +874,35 @@ class AnalyticsDBHandler:
         logging.info(f"Got play information for song ID: {song_id}")
         return song_values
 
+    def get_play_by_id(self, play_id: int) -> dict:
+        """
+        get_play_by_id Get play by ID.
+
+        Args:
+            play_id (int): ID of play
+
+        Returns:
+            dict: play object
+        """
+
+        logging.info(f"Getting play by ID: {play_id}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """SELECT * FROM plays WHERE play_id = ?;""",
+            (play_id,)
+        )
+        play = cursor.fetchone()
+        logging.info(f"Got play by ID: {play_id}")
+
+        play_data = {
+            "play_id": play[0],
+            "song_title": play[1],
+            "song_primary_artist": play[2],
+            "filesize": play[3],
+            "start_dt": play[4],
+            "end_dt": play[5],
+        }
+        return play_data
     # ------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------
     #                                    RETRIEVE DATA MULTIPLE
@@ -904,8 +936,41 @@ class AnalyticsDBHandler:
         cursor = self.conn.cursor()
         cursor.execute("SELECT * FROM songs;")
         songs = cursor.fetchall()
-        logging.info("Got all songs")
-        return songs
+        songs_return = []
+        for song in songs:
+            # print("HAHAH", song)
+            song_table_data = {
+                "song_id": song[0],
+                "filepath": song[1],
+                "filesize": song[2],
+                "padding": song[3],
+                "album_artwork_bit_depth": song[4],
+                "album_artwork_colors": song[5],
+                "album_artwork_height": song[6],
+                "album_artwork_width": song[7],
+                "bit_depth": song[8],
+                "bitrate": song[9],
+                "channels": song[10],
+                "duration": song[11],
+                "sample_rate": song[12],
+                "album": song[13],
+                "barcode": song[14],
+                "date_created": song[15],
+                "disc_number": song[16],
+                "disc_total": song[17],
+                "isrc": song[18],
+                "itunesadvisory": song[19],
+                "length": song[20],
+                "publisher": song[21],
+                "rating": song[22],
+                "title": song[23],
+                "track_number": song[24],
+                "track_total": song[25],
+                "source": song[26],
+                "main_artist": song[27],
+            }
+            songs_return.append(song_table_data)
+        return songs_return
 
     def get_all_plays(self) -> List[dict]:
         """
@@ -1092,7 +1157,7 @@ class AnalyticsDBHandler:
     # ------------------------------------------------------------------------------------------------------------
 
     # play table: song_title, song_primary_artist, filesize, start_dt, end_dt
-    def insert_play(self, song_title: str, song_primary_artist: str, filesize: int, start_dt: str, end_dt: str) -> bool:
+    def insert_play(self, song_title: str, song_primary_artist: str, filesize: int, start_dt: str, end_dt: str) -> int:
         """
         insert_play Insert a play into the plays table
 
@@ -1104,7 +1169,7 @@ class AnalyticsDBHandler:
             end_dt (str): Date the song ended playing
 
         Returns:
-            bool: True if successful, False if not
+            int: id of the inserted play
         """
 
 
@@ -1115,10 +1180,13 @@ class AnalyticsDBHandler:
             "INSERT INTO plays (song_title, song_primary_artist, filesize, start_dt, end_dt) VALUES (?, ?, ?, ?, ?);",
             (song_title, song_primary_artist, filesize, start_dt, end_dt))
         self.conn.commit()
+        
+        # get the id of the inserted play
+        play_id = cursor.lastrowid
         logging.info("Inserted play into plays table")
-        return True
+        return play_id
 
-    def insert_playlist(self, playlist_name: str, playlist_desc: str, created_dt: str) -> bool:
+    def insert_playlist(self, playlist_name: str, playlist_desc: str, created_dt: str) -> int:
         """
         insert_playlist Insert a playlist into the playlists table. Only inserts if the playlist does not already exist
 
@@ -1128,7 +1196,7 @@ class AnalyticsDBHandler:
             created_dt (str): Date the playlist was created
 
         Returns:
-            bool: True if successful, False if not
+            int: id of the inserted playlist
         """
         
         # check if the playlist already exists
@@ -1141,7 +1209,12 @@ class AnalyticsDBHandler:
         cursor.execute(
             "INSERT INTO playlists (playlist_name, playlist_desc, created_dt) VALUES (?, ?, ?);", (playlist_name, playlist_desc, created_dt))
         self.conn.commit()
-        return True
+
+        # get the id of the inserted playlist
+        playlist_id = cursor.lastrowid
+        logging.info("Inserted playlist {} into playlists table".format(playlist_name))
+        return playlist_id
+
 
     def insert_playlist_song(self, playlist_name: str, song_id: int) -> bool:
         """
@@ -1289,12 +1362,9 @@ class AnalyticsDBHandler:
 
         self.conn.commit()
         # get the song_id of the inserted song
-        cursor.execute(
-            """SELECT song_id FROM songs WHERE filepath = ?;""",
-            (kwargs["filepath"],)
-        )
-
-        song_id = cursor.fetchone()[0]
+        song_id = self.get_song_id_by_title_filesize(
+            kwargs["title"], kwargs["filesize"])
+    
         song_name = kwargs["title"]
         logging.info(f"Inserted {song_name} with song_id: {song_id}")
         return song_id

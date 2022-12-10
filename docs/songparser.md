@@ -70,7 +70,7 @@ This one has the most information. Here's the list of stuff you have to return
 ```python
 "filepath": None, # string
 "main_artist": None, # string
-"filesize": None, # int in bytes
+"filesize": 0, # int in bytes
 "padding": None, # int in bytes
 "album_artwork_bit_depth": None, # int in bits
 "album_artwork_colors": None, # int
@@ -92,7 +92,7 @@ This one has the most information. Here's the list of stuff you have to return
 "length": None, # int
 "publisher": None, # string
 "rating": None, # int
-"title": None, # string
+"title": "Missing", # string
 "track_number": None, # int
 "track_total": None, # int
 "source": None, # string
