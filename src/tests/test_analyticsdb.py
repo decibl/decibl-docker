@@ -50,7 +50,17 @@ def setup_test():
     dbHelper.create_all_tables()
 
     # lets make some example playlists
-        
+    # def insert_playlist(self, playlist_name: str, playlist_desc: str, created_dt: str) -> bool:
+    dbHelper.insert_playlist("test_playlist_1", "test playlist 1 description", "2020-01-01")
+    dbHelper.insert_playlist("favorites", "test playlist 2 description", "2020-01-02")
+
+    # lets make some example songs
+    # def insert_playlist_song(self, playlist_name: str, song_id: int) -> bool:
+    dbHelper.insert_playlist_song("test_playlist_1", 1)
+    dbHelper.insert_playlist_song("test_playlist_1", 2)
+    dbHelper.insert_playlist_song("test_playlist_1", 3)
+    dbHelper.insert_playlist_song("favorites", 1)
+
 def test_vital_folders():
     # check if ../analyticsdb ../backups ../logs exist
     assert os.path.exists(os.path.dirname(config.DATABASE_PATH))
@@ -59,4 +69,4 @@ def test_vital_folders():
 
 if __name__ == "__main__":
     dbHelper = analyticsdb.AnalyticsDBHandler(debug_path=config.DATABASE_TEST_PATH)
-    print(dbHelper.get_all_songs())
+    setup_test()

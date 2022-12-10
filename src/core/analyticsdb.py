@@ -50,7 +50,7 @@ class AnalyticsDBHandler:
 
     # ------------------------------------------------------------------------------------------------------------
     # --------------------------------------------------------------------------------------------
-    #                                    CREATE AND DELETE TABLES
+    #                                    CREATE TABLES
     # --------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------
 
@@ -265,19 +265,104 @@ class AnalyticsDBHandler:
         self.create_genres_table()
         logging.info("Created all tables")
 
+
+    # ------------------------------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------
+    #                                          DELETE TABLES & INFO  
+    # ------------------------------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------
+    def clear_songs_table(self):
+        """
+        clear_songs_table Clears the songs table in the database.
+        """
+        logging.info("Clearing songs table")
+        cursor = self.conn.cursor()
+        cursor.execute("DELETE FROM songs;")
+        self.conn.commit()
+        logging.info("Cleared songs table")
+
+    def clear_plays_table(self):
+        """
+        clear_plays_table Clears the plays table in the database.
+        """
+        logging.info("Clearing plays table")
+        cursor = self.conn.cursor()
+        cursor.execute("DELETE FROM plays;")
+        self.conn.commit()
+        logging.info("Cleared plays table")
+
+    def clear_playlists_table(self):
+        """
+        clear_playlists_table Clears the playlists table in the database.
+        """
+        logging.info("Clearing playlists table")
+        cursor = self.conn.cursor()
+        cursor.execute("DELETE FROM playlists;")
+        self.conn.commit()
+        logging.info("Cleared playlists table")
+
+    def clear_playlists_songs_table(self):
+        """
+        clear_playlists_songs_table Clears the playlists_songs table in the database.
+        """
+        logging.info("Clearing playlists_songs table")
+        cursor = self.conn.cursor()
+        cursor.execute("DELETE FROM playlists_songs;")
+        self.conn.commit()
+        logging.info("Cleared playlists_songs table")
+
+    def clear_song_artists_table(self):
+        """
+        clear_song_artists_table Clears the song_artists table in the database.
+        """
+        logging.info("Clearing song_artists table")
+        cursor = self.conn.cursor()
+        cursor.execute("DELETE FROM song_artists;")
+        self.conn.commit()
+        logging.info("Cleared song_artists table")
+
+    def clear_album_artists_table(self):
+        """
+        clear_album_artists_table Clears the album_artists table in the database.
+        """
+        logging.info("Clearing album_artists table")
+        cursor = self.conn.cursor()
+        cursor.execute("DELETE FROM album_artists;")
+        self.conn.commit()
+        logging.info("Cleared album_artists table")
+
+    def clear_composers_table(self):
+        """
+        clear_composers_table Clears the composers table in the database.
+        """
+        logging.info("Clearing composers table")
+        cursor = self.conn.cursor()
+        cursor.execute("DELETE FROM composers;")
+        self.conn.commit()
+        logging.info("Cleared composers table")
+
+    def clear_genres_table(self):
+        """
+        clear_genres_table Clears the genres table in the database.
+        """
+        logging.info("Clearing genres table")
+        cursor = self.conn.cursor()
+        cursor.execute("DELETE FROM genres;")
+        self.conn.commit()
+        logging.info("Cleared genres table")
+
+        
     def clear_all_tables(self) -> bool:
         """Clear all the tables, returns True if successful, False if not."""
         logging.info("Clearing all tables")
-        cursor = self.conn.cursor()
-        cursor.execute("DELETE FROM songs;")
-        cursor.execute("DELETE FROM plays;")
-        cursor.execute("DELETE FROM playlists;")
-        cursor.execute("DELETE FROM playlists_songs;")
-        cursor.execute("DELETE FROM song_artists;")
-        cursor.execute("DELETE FROM album_artists;")
-        cursor.execute("DELETE FROM composers;")
-        cursor.execute("DELETE FROM genres;")
-        self.conn.commit()
+        self.clear_songs_table()
+        self.clear_plays_table()
+        self.clear_playlists_table()
+        self.clear_playlists_songs_table()
+        self.clear_song_artists_table()
+        self.clear_album_artists_table()
+        self.clear_composers_table()
+        self.clear_genres_table()
         logging.info("Cleared all tables")
         return True
 
@@ -292,6 +377,202 @@ class AnalyticsDBHandler:
         logging.info("Deleted database")
         return True
 
+    def delete_song_by_id(self, song_id: int) -> bool:
+        """Delete a song from the database by its ID.
+
+        Args:
+            song_id (int): ID of the song to delete.
+
+        Returns:
+            bool: True if successful, False if not.
+        """
+        logging.info(f"Deleting song by ID: {song_id}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """DELETE FROM songs WHERE song_id = ?;""",
+            (song_id,)
+        )
+        self.conn.commit()
+        logging.info(f"Deleted song by ID: {song_id}")
+        return True
+
+    def delete_playlist_by_id(self, playlist_id: int) -> bool:
+        """Delete a playlist from the database by its ID.
+
+        Args:
+            playlist_id (int): ID of the playlist to delete.
+
+        Returns:
+            bool: True if successful, False if not.
+        """
+        logging.info(f"Deleting playlist by ID: {playlist_id}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """DELETE FROM playlists WHERE playlist_id = ?;""",
+            (playlist_id,)
+        )
+        self.conn.commit()
+        logging.info(f"Deleted playlist by ID: {playlist_id}")
+        return True
+
+    def delete_playlist_by_name(self, playlist_name: str) -> bool:
+        """Delete a playlist from the database by its name.
+
+        Args:
+            playlist_name (str): Name of the playlist to delete.
+
+        Returns:
+            bool: True if successful, False if not.
+        """
+        logging.info(f"Deleting playlist by name: {playlist_name}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """DELETE FROM playlists WHERE playlist_name = ?;""",
+            (playlist_name,)
+        )
+        self.conn.commit()
+        logging.info(f"Deleted playlist by name: {playlist_name}")
+        return True
+
+    def delete_playlist_song_by_id(self, playlist_id: int, song_id: int) -> bool:
+        """Delete a song from a playlist by its ID.
+
+        Args:
+            playlist_id (int): ID of the playlist to delete the song from.
+            song_id (int): ID of the song to delete.
+
+        Returns:
+            bool: True if successful, False if not.
+        """
+        logging.info(f"Deleting song from playlist by ID: {song_id}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """DELETE FROM playlists_songs WHERE playlist_id = ? AND song_id = ?;""",
+            (playlist_id, song_id)
+        )
+        self.conn.commit()
+        logging.info(f"Deleted song from playlist by ID: {song_id}")
+        return True
+
+    def delete_playlist_song_by_name(self, playlist_name: str, song_name: str) -> bool:
+        """Delete a song from a playlist by its name.
+
+        Args:
+            playlist_name (str): Name of the playlist to delete the song from.
+            song_name (str): Name of the song to delete.
+
+        Returns:
+            bool: True if successful, False if not.
+        """
+        logging.info(f"Deleting song from playlist by name: {song_name}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """DELETE FROM playlists_songs WHERE playlist_id = (SELECT playlist_id FROM playlists WHERE playlist_name = ?) AND song_id = (SELECT song_id FROM songs WHERE song_name = ?);""",
+            (playlist_name, song_name)
+        )
+        self.conn.commit()
+        logging.info(f"Deleted song from playlist by name: {song_name}")
+        return True
+
+    def delete_playlist_song_by_playlist_id_song_id(self, playlist_id: int, song_id: int) -> bool:
+        """Delete a song from a playlist by its ID.
+
+        Args:
+            playlist_id (int): ID of the playlist to delete the song from.
+            song_id (int): ID of the song to delete.
+
+        Returns:
+            bool: True if successful, False if not.
+        """
+        logging.info(f"Deleting song from playlist by ID: {song_id}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """DELETE FROM playlists_songs WHERE playlist_id = ? AND song_id = ?;""",
+            (playlist_id, song_id)
+        )
+        self.conn.commit()
+        logging.info(f"Deleted song from playlist by ID: {song_id}")
+        return True
+
+    def delete_song_artist_by_artist_song_id(self, artist_id: int, song_id: int) -> bool:
+        """Delete a song from a playlist by its ID.
+
+        Args:
+            artist_id (int): ID of the artist to delete the song from.
+            song_id (int): ID of the song to delete.
+
+        Returns:
+            bool: True if successful, False if not.
+        """
+        logging.info(f"Deleting song from artist by ID: {song_id}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """DELETE FROM songs_artists WHERE artist_id = ? AND song_id = ?;""",
+            (artist_id, song_id)
+        )
+        self.conn.commit()
+        logging.info(f"Deleted song from artist by ID: {song_id}")
+        return True
+
+    def delete_album_artist_by_artist_album_id(self, artist_id: int, album_id: int) -> bool:
+        """Delete an album from an artist by its ID.
+
+        Args:
+            artist_id (int): ID of the artist to delete the album from.
+            album_id (int): ID of the album to delete.
+
+        Returns:
+            bool: True if successful, False if not.
+        """
+        logging.info(f"Deleting album from artist by ID: {album_id}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """DELETE FROM albums_artists WHERE artist_id = ? AND album_id = ?;""",
+            (artist_id, album_id)
+        )
+        self.conn.commit()
+        logging.info(f"Deleted album from artist by ID: {album_id}")
+        return True
+
+    def delete_composer_by_name_song_id(self, composer_name: str, song_id: int) -> bool:
+        """Delete a composer from a song by its name.
+
+        Args:
+            composer_name (str): Name of the composer to delete the song from.
+            song_id (int): ID of the song to delete.
+
+        Returns:
+            bool: True if successful, False if not.
+        """
+        logging.info(f"Deleting composer from song by name: {composer_name}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """DELETE FROM songs_composers WHERE composer_id = (SELECT composer_id FROM composers WHERE composer_name = ?) AND song_id = ?;""",
+            (composer_name, song_id)
+        )
+        self.conn.commit()
+        logging.info(f"Deleted composer from song by name: {composer_name}")
+        return True
+
+    def delete_genre_by_name_song_id(self, genre_name: str, song_id: int) -> bool:
+        """Delete a genre from a song by its name.
+
+        Args:
+            genre_name (str): Name of the genre to delete the song from.
+            song_id (int): ID of the song to delete.
+
+        Returns:
+            bool: True if successful, False if not.
+        """
+        logging.info(f"Deleting genre from song by name: {genre_name}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """DELETE FROM songs_genres WHERE genre_id = (SELECT genre_id FROM genres WHERE genre_name = ?) AND song_id = ?;""",
+            (genre_name, song_id)
+        )
+        self.conn.commit()
+        logging.info(f"Deleted genre from song by name: {genre_name}")
+        return True
     # ------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------
     #                                    RETRIEVE DATA INDIVIDUAL
@@ -770,7 +1051,7 @@ class AnalyticsDBHandler:
 
     def insert_playlist(self, playlist_name: str, playlist_desc: str, created_dt: str) -> bool:
         """
-        insert_playlist Insert a playlist into the playlists table
+        insert_playlist Insert a playlist into the playlists table. Only inserts if the playlist does not already exist
 
         Args:
             playlist_name (str): Name of the playlist
@@ -780,20 +1061,19 @@ class AnalyticsDBHandler:
         Returns:
             bool: True if successful, False if not
         """
-        logging.info(
-            "Inserting playlist {} into playlists table".format(playlist_name))
+        
+        # check if the playlist already exists
+        if self.get_playlist_id_by_name(playlist_name) is not None:
+            logging.info("Playlist {} already exists".format(playlist_name))
+            return False
 
+        logging.info("Inserting playlist {} into playlists table".format(playlist_name))
         cursor = self.conn.cursor()
         cursor.execute(
-            """INSERT INTO playlists (playlist_name, playlist_desc, created_dt)
-            VALUES (?, ?, ?);""",
-            (playlist_name, playlist_desc, created_dt)
-        )
-
+            "INSERT INTO playlists (playlist_name, playlist_desc, created_dt) VALUES (?, ?, ?);", (playlist_name, playlist_desc, created_dt))
         self.conn.commit()
-        logging.info(
-            "Inserted playlist {} into playlists table".format(playlist_name))
         return True
+
 
     def insert_playlist_song(self, playlist_name: str, song_id: int) -> bool:
         """
