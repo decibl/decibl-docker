@@ -4,3 +4,4 @@ alembic
 uvicorn
 music-tag
 audio_metadata
+pytest
