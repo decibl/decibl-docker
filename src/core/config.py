@@ -53,7 +53,7 @@ logging.info("Making folder for database")
 if not os.path.exists(os.path.dirname(DATABASE_PATH)):
     os.makedirs(os.path.dirname(DATABASE_PATH))
 
-ZIPPED_DATABASE_TEST_PATH = os.path.abspath(os.path.join(
+ZIPPED_DATABASE_TEST_PATH1 = os.path.abspath(os.path.join(
     os.path.dirname(DATABASE_TEST_PATH), "analyticsdb.zip"))
 # ---------------------------------------------------------------------------------------------
 #                                      Sound Files

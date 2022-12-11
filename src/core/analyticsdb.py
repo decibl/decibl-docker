@@ -1004,6 +1004,35 @@ class AnalyticsDBHandler:
             song_genres.append(genre[0])
         logging.info(f"Got song genres by song ID: {song_id}")
         return song_genres
+ 
+    def get_songs_in_album(self, album_name: str) -> List[dict]:
+        """
+        get_songs_in_album Get all the songs in an album, returns a list of Song objects.
+
+        Args:
+            album_name (str): name of album
+
+        Returns:
+            List[dict]: list of Song objects
+        """
+
+        logging.info(f"Getting songs in album: {album_name}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """SELECT * FROM songs WHERE album = ?;""",
+            (album_name,)
+        )
+        songs = cursor.fetchall()
+        song_list = []
+        for song in songs:
+            song_list.append({
+                "song_title": song[-5],
+                "song_primary_artist": song[-1],
+                "filesize": song[2],
+                "song_id": song[0]
+            })
+        logging.info(f"Got songs in album: {album_name}")
+        return song_list
     # ------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------
     #                                    RETRIEVE DATA MULTIPLE
@@ -1249,6 +1278,25 @@ class AnalyticsDBHandler:
         columns = [column[1] for column in columns]
         logging.info("Got all columns from table {}".format(table_name))
         return columns
+
+    def get_all_album_names(self) -> List[str]:
+        """
+        get_all_album_names Get all the album names in the database, returns a list of strings
+
+        Returns:
+            List[str]: list of strings
+        """
+
+        logging.info("Getting all album names")
+        cursor = self.conn.cursor()
+        # all the albums are a column in the songs table
+        cursor.execute("SELECT album FROM songs;")
+        albums = cursor.fetchall()
+        albums = [album[0] for album in albums]
+        # remove duplicates
+        albums = list(set(albums))
+        logging.info("Got all album names")
+        return albums
     # ------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------
     #                                    INSERT DATA

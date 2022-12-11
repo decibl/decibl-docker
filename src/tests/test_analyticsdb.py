@@ -20,13 +20,13 @@ import config
 import analyticsdb
 import songparser
 
-# unzip the test database in config.ZIPPED_DATABASE_TEST_PATH
+# unzip the test database in config.ZIPPED_DATABASE_TEST_PATH1
 
 dbHelper = analyticsdb.AnalyticsDBHandler(debug_path=config.DATABASE_TEST_PATH)
 
 
 def setup_prezipped_db():
-    with zipfile.ZipFile(config.ZIPPED_DATABASE_TEST_PATH, "r") as zip_ref:
+    with zipfile.ZipFile(config.ZIPPED_DATABASE_TEST_PATH1, "r") as zip_ref:
         zip_ref.extractall(os.path.dirname(config.DATABASE_TEST_PATH))
 
 
@@ -62,7 +62,7 @@ song_table_data = {
 }
 
 
-def setup_test_db():
+def setup_test_db1():
     # create a test database
     # dbHelper.clear_all_tables()
     dbHelper.create_all_tables()
@@ -120,7 +120,7 @@ def test_vital_paths():
     assert os.path.exists(os.path.dirname(config.DATABASE_PATH))
     assert os.path.exists(config.BACKUPS_PATH)
     assert os.path.exists(os.path.dirname(config.LOGGING_FILENAME))
-    assert os.path.exists(os.path.dirname(config.ZIPPED_DATABASE_TEST_PATH))
+    assert os.path.exists(os.path.dirname(config.ZIPPED_DATABASE_TEST_PATH1))
 
 # --------------------------------------------------------------------------------
 #                          TESTING CREATE TABLES
@@ -498,6 +498,34 @@ def test_get_songs_in_playlist():
     assert songs2[0]["song_id"] == "23fb2258052511a4d07bc555a1b45a41fbd8da0f3ec4a887c9c7282351672956"
     assert songs2[1]["song_id"] == "b87519d8ede9ab4e642bbe41815cbaf2ddb5245e5b23052a966808ef908e50b0"
     assert songs2[2]["song_id"] == "89661c6cc19c7f25ecb91d937d175394170672277527282ea7cec71e412c84ef"
+
+def test_get_songs_in_album():
+    albums = dbHelper.get_all_album_names()
+    # print(albums)
+    check_list = ['Bakusou Yumeuta', 'All Time Best "Day 2"', 'Samurai Sessions Vol.2', None, 'Luv Is Rage 2 (Deluxe)', 'Human (Deluxe)', 'Summer Days (feat. Macklemore & Patrick Stump of Fall Out Boy)', 'Enemy (from the series Arcane League of Legends)', 'The Lo-Fis', 'channel ORANGE', 'Satin Panthers']
+    for album in albums:
+        assert album in check_list
+
+    check_dict = {
+        "The Lo-Fis": 1,
+        "channel ORANGE": 1,
+        "Samurai Sessions Vol.2": 1,
+        "Enemy (from the series Arcane League of Legends)": 1,
+        None: 0,
+        "Luv Is Rage 2 (Deluxe)": 1,
+        "Bakusou Yumeuta": 1,
+        "All Time Best \"Day 2\"": 7,
+        "Human (Deluxe)": 1,
+        "Summer Days (feat. Macklemore & Patrick Stump of Fall Out Boy)": 1,
+        "Satin Panthers": 1
+    }
+
+
+    for idx, album in enumerate(albums):
+        songs_in_album = dbHelper.get_songs_in_album(album)
+        print(album, len(songs_in_album))
+        assert len(songs_in_album) == check_dict[album]
+
 if __name__ == "__main__":
     # test_clear_songs_table()
-    setup_test_db()
+    setup_test_db1()
