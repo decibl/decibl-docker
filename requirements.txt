@@ -3,4 +3,4 @@ sqlalchemy
 alembic
 uvicorn
 music-tag
-audio-metadata
+audio_metadata
