@@ -112,6 +112,7 @@ def test_create_songs_table():
 
 
 
+
 def test_create_plays_table():
     dbHelper.create_plays_table()
     # get all the columns from the plays table
