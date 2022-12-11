@@ -1033,6 +1033,138 @@ class AnalyticsDBHandler:
             })
         logging.info(f"Got songs in album: {album_name}")
         return song_list
+ 
+    def get_songs_in_album_artist(self, album_artist: str) -> List[dict]:
+        """
+        get_songs_in_album_artist Get all the songs in an album artist, returns a list of Song objects.
+
+        Args:
+            album_artist (str): name of album artist
+
+        Returns:
+            List[dict]: list of Song objects (song_title, song_primary_artist, filesize, song_id)
+        """
+
+        logging.info(f"Getting songs in album artist: {album_artist}")
+        cursor = self.conn.cursor()
+        # use table album_artists to get all songs by album artist
+        cursor.execute(
+            """SELECT * FROM album_artists WHERE artist_name = ?;""",
+            (album_artist,)
+        )
+        
+        songs = cursor.fetchall()
+        song_list = []
+        for song in songs:
+            song_data = self.get_song_by_id(song[1])
+            song_list.append({
+                "song_title": song_data['title'],
+                "song_primary_artist": song_data['main_artist'],
+                "filesize": song_data['filesize'],
+                "song_id": song_data['song_id']
+            })
+        logging.info(f"Got songs in album artist: {album_artist}")
+
+        return song_list
+  
+    def get_songs_in_song_artist(self, song_artist: str) -> List[dict]:
+        """
+        get_songs_in_song_artist Get all the songs in a song artist, returns a list of Song objects.
+
+        Args:
+            song_artist (str): name of song artist
+
+        Returns:
+            List[dict]: list of Song objects (song_title, song_primary_artist, filesize, song_id)
+        """
+
+        logging.info(f"Getting songs in song artist: {song_artist}")
+        cursor = self.conn.cursor()
+        # use table song_artists to get all songs by song artist
+        cursor.execute(
+            """SELECT * FROM song_artists WHERE artist_name = ?;""",
+            (song_artist,)
+        )
+        
+        songs = cursor.fetchall()
+        song_list = []
+        for song in songs:
+            song_data = self.get_song_by_id(song[1])
+            song_list.append({
+                "song_title": song_data['title'],
+                "song_primary_artist": song_data['main_artist'],
+                "filesize": song_data['filesize'],
+                "song_id": song_data['song_id']
+            })
+        logging.info(f"Got songs in song artist: {song_artist}")
+
+        return song_list
+  
+    def get_songs_in_composer(self, composer: str) -> List[dict]:
+        """
+        get_songs_in_composer Get all the songs in a composer, returns a list of Song objects.
+
+        Args:
+            composer (str): name of composer
+
+        Returns:
+            List[dict]: list of Song objects (song_title, song_primary_artist, filesize, song_id)
+        """
+
+        logging.info(f"Getting songs in composer: {composer}")
+        cursor = self.conn.cursor()
+        # use table composers to get all songs by composer
+        cursor.execute(
+            """SELECT * FROM composers WHERE composer_name = ?;""",
+            (composer,)
+        )
+        
+        songs = cursor.fetchall()
+        song_list = []
+        for song in songs:
+            song_data = self.get_song_by_id(song[1])
+            song_list.append({
+                "song_title": song_data['title'],
+                "song_primary_artist": song_data['main_artist'],
+                "filesize": song_data['filesize'],
+                "song_id": song_data['song_id']
+            })
+        logging.info(f"Got songs in composer: {composer}")
+
+        return song_list
+
+    def get_songs_in_genre(self, genre: str) -> List[dict]:
+        """
+        get_songs_in_genre Get all the songs in a genre, returns a list of Song objects.
+
+        Args:
+            genre (str): name of genre
+
+        Returns:
+            List[dict]: list of Song objects (song_title, song_primary_artist, filesize, song_id)
+        """
+
+        logging.info(f"Getting songs in genre: {genre}")
+        cursor = self.conn.cursor()
+        # use table genres to get all songs by genre
+        cursor.execute(
+            """SELECT * FROM genres WHERE genre_name = ?;""",
+            (genre,)
+        )
+        
+        songs = cursor.fetchall()
+        song_list = []
+        for song in songs:
+            song_data = self.get_song_by_id(song[1])
+            song_list.append({
+                "song_title": song_data['title'],
+                "song_primary_artist": song_data['main_artist'],
+                "filesize": song_data['filesize'],
+                "song_id": song_data['song_id']
+            })
+        logging.info(f"Got songs in genre: {genre}")
+
+        return song_list
     # ------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------
     #                                    RETRIEVE DATA MULTIPLE

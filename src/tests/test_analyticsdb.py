@@ -523,13 +523,92 @@ def test_get_songs_in_album():
 
     for idx, album in enumerate(albums):
         songs_in_album = dbHelper.get_songs_in_album(album)
-        print(album, len(songs_in_album))
+        # print(album, len(songs_in_album))
         assert len(songs_in_album) == check_dict[album]
 
-def test_get_songs_in_artist():
+def test_get_songs_in_album_artist():
     artists = dbHelper.get_all_album_artists()
-    print(artists)
+
+    check_dict = {
+        "Martin Garrix": 1,
+        "Macklemore": 1,
+        "Fall Out Boy": 1,
+        "Rag'n'Bone Man": 1,
+        "Imagine Dragons": 1,
+        "Arcane": 1,
+        "League Of Legends": 1,
+        "Frank Ocean": 1,
+        "Hudson Mohawke": 1,
+        "Lil Uzi Vert": 1,
+        "Steve Lacy": 1,
+        "MIYAVI": 8
+    }
+    for idx, artist in enumerate(artists):
+        songs_in_artist = dbHelper.get_songs_in_album_artist(artist)
+        assert len(songs_in_artist) == check_dict[artist]
+
+def test_get_songs_in_song_artist():
+    artists = dbHelper.get_all_song_artists()
+    check_dict = {
+        "Martin Garrix": 1,
+        "Macklemore": 1,
+        "Fall Out Boy": 1,
+        "Rag'n'Bone Man": 1,
+        "Imagine Dragons": 1,
+        "Arcane": 1,
+        "League Of Legends": 1,
+        "Frank Ocean": 1,
+        "Hudson Mohawke": 1,
+        "Lil Uzi Vert": 1,
+        "Steve Lacy": 1,
+        "MIYAVI": 8,
+        "Diggy-MO'": 1,
+        "Sky-Hi": 1
+    }
+
+    for idx, artist in enumerate(artists):
+        songs_in_artist = dbHelper.get_songs_in_song_artist(artist)
+        assert len(songs_in_artist) == check_dict[artist]
+
+def test_get_songs_in_composer():
+    composers = dbHelper.get_all_composers()
     
+
+    check_dict = {
+        "Sky-Hi": 1,
+        "MIYAVI": 6,
+        "Lenny Skolnik": 4,
+        "Jonny Litten": 1,
+        "Miyavi": 1,
+        "Martijn Garritsen": 1,
+        "Brian Lee": 1,
+        "Jaramye Daniels": 1,
+        "Giorgio Tuinfort": 1,
+        "Benjamin Hammond Haggerty": 1,
+        "Andrew Ramsey": 2,
+        "Shannon Sanders": 2,
+        "Ilan Kidron": 2,
+        "Seann Bowe": 1,
+        "Doc Brittain": 1,
+        "RAS": 1,
+        "Lalo Schifrin": 1,
+        "Dan Reynolds": 1,
+        "Wayne Sermon": 1,
+        "Ben McKee": 1,
+        "Daniel Platzman": 1,
+        "Robin Fredriksson": 1,
+        "Mattias Larsson": 1,
+        "Justin Tranter": 1,
+        "Destin Route": 1,
+        "Taylor Johnson": 1,
+        "James Ho": 1,
+        "Lonnie Breaux": 1
+    }
+
+    for idx, composer in enumerate(composers):
+        songs_in_composer = dbHelper.get_songs_in_composer(composer)
+        assert len(songs_in_composer) == check_dict[composer]
+        
 if __name__ == "__main__":
     # test_clear_songs_table()
     setup_test_db1()
