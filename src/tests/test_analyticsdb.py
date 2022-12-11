@@ -433,6 +433,59 @@ def test_get_album_artists_of_song():
     for idx, song in enumerate(songs):
         album_artists = dbHelper.get_album_artists_of_song(song["song_id"])
         assert album_artists == check_dict[idx]
+
+def test_get_composers_of_song():
+    songs = dbHelper.get_all_songs()
+    check_dict = {
+        0: ['Sky-Hi', 'MIYAVI', 'Lenny Skolnik', 'Jonny Litten'],
+        1: ['Miyavi'],
+        2: ['Martijn Garritsen', 'Brian Lee', 'Jaramye Daniels', 'Giorgio Tuinfort', 'Benjamin Hammond Haggerty'],
+        3: ['Andrew Ramsey', 'Shannon Sanders', 'MIYAVI'],
+        4: ['MIYAVI', 'Andrew Ramsey', 'Shannon Sanders'],
+        5: ['Lenny Skolnik', 'Ilan Kidron', 'MIYAVI'],
+        6: [],
+        7: ['MIYAVI', 'Lenny Skolnik', 'Seann Bowe'],
+        8: ['MIYAVI', 'Lenny Skolnik', 'Ilan Kidron', 'Doc Brittain', 'RAS'],
+        9: ['Lalo Schifrin'],
+        10: [],
+        11: ['Dan Reynolds', 'Wayne Sermon', 'Ben McKee', 'Daniel Platzman', 'Robin Fredriksson', 'Mattias Larsson', 'Justin Tranter', 'Destin Route'],
+        12: [],
+        13: ['Taylor Johnson', 'James Ho', 'Lonnie Breaux'],
+        14: [],
+        15: [],
+        16: [],
+        17: []
+    }
+    for idx, song in enumerate(songs):
+        composers = dbHelper.get_composers_of_song(song["song_id"])
+        assert composers == check_dict[idx]
+    
+def test_get_genres_of_song():
+    songs = dbHelper.get_all_songs()
+    check_dict = {
+        0: ['Rock'],
+        1: ['Rock'],
+        2: ['Electro', 'Techno/House', 'Dance', 'Pop', 'International Pop', 'Rock'],
+        3: ['Rock'],
+        4: ['Rock'],
+        5: ['Rock'],
+        6: ['Alternative; Indie Pop; Indie Rock'],
+        7: ['Rock'],
+        8: ['Rock'],
+        9: ['Rock'],
+        10: [],
+        11: ['Alternative'],
+        12: [],
+        13: ['Pop'],
+        14: ['Alternative', 'Electro'],
+        15: ['Rap/Hip Hop'],
+        16: ['Anime'],
+        17: ['R&B']
+    }
+    for idx, song in enumerate(songs):
+        genres = dbHelper.get_genres_of_song(song["song_id"])
+        assert genres == check_dict[idx]
+        
 if __name__ == "__main__":
     # test_clear_songs_table()
     # setup_test_db()

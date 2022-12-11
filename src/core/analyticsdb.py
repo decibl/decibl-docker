@@ -957,6 +957,53 @@ class AnalyticsDBHandler:
         logging.info(f"Got album artists by song ID: {song_id}")
         return album_artists
   
+    def get_composers_of_song(self, song_id: str) -> List[str]:
+        """
+        get_composers_of_song Get all the composers of a song, returns a list of names of composers.
+
+        Args:
+            song_id (str): ID of song
+
+        Returns:
+            List[str]: list of names of composers
+        """
+
+        logging.info(f"Getting composers by song ID: {song_id}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """SELECT * FROM composers WHERE song_id = ?;""",
+            (song_id,)
+        )
+        composers = cursor.fetchall()
+        song_composers = []
+        for composer in composers:
+            song_composers.append(composer[0])
+        logging.info(f"Got composers by song ID: {song_id}")
+        return song_composers
+
+    def get_genres_of_song(self, song_id: str) -> List[str]:
+        """
+        get_genres_of_song Get all the genres of a song, returns a list of names of genres.
+
+        Args:
+            song_id (str): ID of song
+
+        Returns:
+            List[str]: list of names of genres
+        """
+
+        logging.info(f"Getting song genres by song ID: {song_id}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """SELECT * FROM genres WHERE song_id = ?;""",
+            (song_id,)
+        )
+        genres = cursor.fetchall()
+        song_genres = []
+        for genre in genres:
+            song_genres.append(genre[0])
+        logging.info(f"Got song genres by song ID: {song_id}")
+        return song_genres
     # ------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------
     #                                    RETRIEVE DATA MULTIPLE
