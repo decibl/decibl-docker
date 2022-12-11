@@ -175,37 +175,7 @@ class SongFileFLAC(SongFile):
         """        
         # there's so much data bruh, here's a big ass list that details everything
         # this method isn't really necessary, but I thinik it makes things cleaner
-        self.song_table_data = {
-            "song_id": None,
-            "filepath": None,  # string
-            "main_artist": None,  # string
-            "filesize": 0,  # int in bytes
-            "padding": None,  # int in bytes
-            "album_artwork_bit_depth": None,  # int in bits
-            "album_artwork_colors": None,  # int
-            "album_artwork_height": None,  # int in pixels
-            "album_artwork_width": None,  # int in pixels
-            "bit_depth": None,  # int in bits
-            "bitrate": None,  # int in bits, divide by 1000 to get Kbps
-            "channels": None,  # int
-            "duration": None,  # int in seconds
-            "sample_rate": None,  # int in KHz
-            "album": None,  # string
-            "barcode": None,  # string
-            "date_created": None,  # string in YYYY-MM-DD
-            "disc_number": None,  # int
-            "disc_total": None,  # int
-            "genre": None,  # string
-            "isrc": None,  # string
-            "itunesadvisory": None,  # string
-            "length": None,  # int
-            "publisher": None,  # string
-            "rating": None,  # int
-            "title": "Missing",  # string
-            "track_number": None,  # int
-            "track_total": None,  # int
-            "source": None,  # string
-        }
+        self.song_table_data = config.song_table_data.copy()
 
     def get_song_table_data(self) -> Dict[str, str]:
         """
@@ -355,35 +325,7 @@ class SongFileMP3(SongFile):
         make_song_table_data makes the song table data from the metadata
         """        
         
-        self.song_table_data = {
-            "filepath": None,  # string
-            "main_artist": None,  # string
-            "filesize": 0,  # int in bytes
-            "padding": None,  # int in bytes
-            "album_artwork_bit_depth": None,  # int in bits
-            "album_artwork_colors": None,  # int
-            "album_artwork_height": None,  # int in pixels
-            "album_artwork_width": None,  # int in pixels
-            "bit_depth": None,  # int in bits
-            "bitrate": None,  # int in bits, divide by 1000 to get Kbps
-            "channels": None,  # int
-            "duration": None,  # int in seconds
-            "sample_rate": None,  # int in KHz
-            "album": None,  # string
-            "barcode": None,  # string
-            "date_created": None,  # string in YYYY-MM-DD
-            "disc_number": None,  # int
-            "disc_total": None,  # int
-            "isrc": None,  # string
-            "itunesadvisory": None,  # string
-            "length": None,  # int
-            "publisher": None,  # string
-            "rating": None,  # int
-            "title": "Missing",  # string
-            "track_number": None,  # int
-            "track_total": None,  # int
-            "source": None,  # string
-        }
+        self.song_table_data = config.song_table_data.copy()
 
     def get_song_table_data(self) -> Dict[str, Any]:
         """
