@@ -491,7 +491,13 @@ def test_get_songs_in_playlist():
     songs1 = dbHelper.get_songs_in_playlist(playlist1)
     songs2 = dbHelper.get_songs_in_playlist(playlist2)
 
+    assert songs1[0]["song_id"] == "23fb2258052511a4d07bc555a1b45a41fbd8da0f3ec4a887c9c7282351672956"
+    assert songs1[1]["song_id"] == "b87519d8ede9ab4e642bbe41815cbaf2ddb5245e5b23052a966808ef908e50b0"
+    assert songs1[2]["song_id"] == "4c1e39f575afeb262287c300338256d3b4e67d7bd5e4d431bb3aa67f7be84daa"
 
+    assert songs2[0]["song_id"] == "23fb2258052511a4d07bc555a1b45a41fbd8da0f3ec4a887c9c7282351672956"
+    assert songs2[1]["song_id"] == "b87519d8ede9ab4e642bbe41815cbaf2ddb5245e5b23052a966808ef908e50b0"
+    assert songs2[2]["song_id"] == "89661c6cc19c7f25ecb91d937d175394170672277527282ea7cec71e412c84ef"
 if __name__ == "__main__":
     # test_clear_songs_table()
     setup_test_db()
