@@ -1,6 +1,5 @@
-[![RelativelyBlank](https://circleci.com/gh/decibl/decibl-docker.svg?style=svg)](<LINK>)
-
 # decibl-docker
+[![RelativelyBlank](https://circleci.com/gh/decibl/decibl-docker.svg?style=svg)](<LINK>)
 
 The homeserver for the decibl service.
 
