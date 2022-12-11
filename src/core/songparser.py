@@ -515,6 +515,11 @@ class SongFileMP3(SongFile):
         else:
             return None
     
+    def __str__(self) -> str:
+        return self.get_song_table_data().__str__()
+
+    def __repr__(self) -> str:
+        return self.get_song_table_data().__repr__()
 
 class SongMetadata:
     # Songs have a lot of Metadata! We want to store as much as possible.

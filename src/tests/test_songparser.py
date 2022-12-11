@@ -18,7 +18,7 @@ sys.path.append(os.path.abspath(os.path.join(
     os.path.dirname(__file__), "..", "soundfiles")))
 
 sys.path.append(os.path.abspath(os.path.join(
-    os.path.dirname(__file__), "testsongs")))
+    os.path.dirname(__file__), "testsongs2")))
 
 import songparser
 import analyticsdb
@@ -33,7 +33,7 @@ def test_file_to_hash():
 
 def test_song_file_FLAC():
     filepath = os.path.abspath(os.path.join(
-        os.path.dirname(__file__), "testsongs", "02 - Gemstone.flac"))
+        os.path.dirname(__file__), "testsongs2", "02 - Gemstone.flac"))
     song = songparser.SongFileFLAC()
     song.load_file(filepath)
 
@@ -60,4 +60,41 @@ def test_song_file_FLAC():
     assert composer == composer_test
     assert genre == genre_test
 
-test_song_file_FLAC()
+def test_song_file_MP3():
+    filepath = os.path.abspath(os.path.join(
+        os.path.dirname(__file__), "testsongs2", "example.mp3"))
+    song = songparser.SongFileMP3()
+    song.load_file(filepath)
+
+    print(song.get_song_table_data())
+    print(song.get_album_artist_data())
+    print(song.get_song_artist_data())
+    print(song.get_composer_data())
+    print(song.get_genre_data())
+
+    song_test = {'song_id': 'c8d3a45d28c2bdc14b35d51837c980ca3d878127ca0d0ebfbe337517f489a3ab', 'filepath': 'c:\\Users\\drale\\Documents\\GitHub\\decibl-docker\\src\\tests\\testsongs2\\example.mp3', 'main_artist': "Diggy-MO'", 'filesize': 8364414, 'padding': None, 'album_artwork_bit_depth': None, 'album_artwork_colors': None, 'album_artwork_height': 1200, 'album_artwork_width': 1200, 'bit_depth': None, 'bitrate': 244599.11789652248, 'channels': 2, 'duration': 235.8136386428074, 'sample_rate': 44100, 'album': 'Bakusou Yumeuta', 'barcode': None, 'date_created': '2008', 'disc_number': '1', 'disc_total': None, 'isrc': None, 'itunesadvisory': None, 'length': None, 'publisher': None, 'rating': None, 'title': 'Bakusou Yumeuta (爆走夢歌)', 'track_number': '1', 'track_total': None, 'source': None}
+
+    album_artist_test = None
+    song_artist_test = ["Diggy-MO'"]
+    composer_test = None
+    genre_test = ['Anime']
+
+    album_artist = song.get_album_artist_data()
+    song_artist = song.get_song_artist_data()
+    composer = song.get_composer_data()
+    genre = song.get_genre_data()
+
+    for key in song_test.keys():
+        if key == "filepath":
+            continue
+        assert song_test[key] == song.get_song_table_data()[key]
+
+    assert album_artist == album_artist_test
+    assert song_artist == song_artist_test
+    assert composer == composer_test
+    assert genre == genre_test
+
+
+
+
+test_song_file_MP3()
