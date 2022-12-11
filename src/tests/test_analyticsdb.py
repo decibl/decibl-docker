@@ -364,6 +364,104 @@ def test_insert_genre():
     genres = dbHelper.get_all_genres()
     assert genres[0] == "test genre"
 
+def test_populate_db():
+    dbHelper.clear_all_tables()
+    dbHelper.create_all_tables()
+    testsongs_path = os.path.abspath("testsongs/")
+    dbHelper.populate_database(soundfiles_path=testsongs_path)
+
+    
+    # check the following tables:
+    # songs: 10 records with following song ids
+    # 23fb2258052511a4d07bc555a1b45a41fbd8da0f3ec4a887c9c7282351672956
+    # b87519d8ede9ab4e642bbe41815cbaf2ddb5245e5b23052a966808ef908e50b0
+    # 4c1e39f575afeb262287c300338256d3b4e67d7bd5e4d431bb3aa67f7be84daa
+    # 35dba2f69761f9d681662b6364974043261c9672f34aba7d8cb5a821d10ccea6
+    # cfc3b7e098d8105ffd5eab92bbe4b01bd5833029b086cbcc72ca25f1f6d3fec0
+    # 5f3012eccf122cf6e68243c57497d87498b01592e016d00c73143f50d2d45200
+    # 3dd9d2253c8156c8e66c6ed6acf04cb9603541618eafe39b4e8b28541d7059f5
+    # 82fef55bfe4e4ae4b3fe598acafd499cc22f7c47e12a54f850c13c8cca1a8471
+    # 0915edd1c75ef33839528377eea8265cddbca4eb7722dc92d74e9cd020497946
+    # 643a7837128bc5b932cf8b9dd6391d865801a492bfb361500ab190cc4abce226
+
+    songs = dbHelper.get_all_songs()
+    assert len(songs) == 10
+    assert songs[0]["song_id"] == "23fb2258052511a4d07bc555a1b45a41fbd8da0f3ec4a887c9c7282351672956"
+    assert songs[1]["song_id"] == "b87519d8ede9ab4e642bbe41815cbaf2ddb5245e5b23052a966808ef908e50b0"
+    assert songs[2]["song_id"] == "4c1e39f575afeb262287c300338256d3b4e67d7bd5e4d431bb3aa67f7be84daa"
+    assert songs[3]["song_id"] == "35dba2f69761f9d681662b6364974043261c9672f34aba7d8cb5a821d10ccea6"
+    assert songs[4]["song_id"] == "cfc3b7e098d8105ffd5eab92bbe4b01bd5833029b086cbcc72ca25f1f6d3fec0"
+    assert songs[5]["song_id"] == "5f3012eccf122cf6e68243c57497d87498b01592e016d00c73143f50d2d45200"
+    assert songs[6]["song_id"] == "3dd9d2253c8156c8e66c6ed6acf04cb9603541618eafe39b4e8b28541d7059f5"
+    assert songs[7]["song_id"] == "82fef55bfe4e4ae4b3fe598acafd499cc22f7c47e12a54f850c13c8cca1a8471"
+    assert songs[8]["song_id"] == "0915edd1c75ef33839528377eea8265cddbca4eb7722dc92d74e9cd020497946"
+    assert songs[9]["song_id"] == "643a7837128bc5b932cf8b9dd6391d865801a492bfb361500ab190cc4abce226"
+    
+    # song_artists: 13 records with the following people appearing n times:
+    # MIYAVI: 8
+    # Sky-Hi: 1
+    # Martin Garrix: 1
+    # Macklemore: 1
+    # Fall Out Boy: 1
+    # Rag'n'Bone Man: 1
+
+    song_artists = dbHelper.get_all_song_artists(no_duplicates=False)
+    assert len([x for x in song_artists if x == "MIYAVI"]) == 8
+    assert len([x for x in song_artists if x == "Sky-Hi"]) == 1
+    assert len([x for x in song_artists if x == "Martin Garrix"]) == 1
+    assert len([x for x in song_artists if x == "Macklemore"]) == 1
+    assert len([x for x in song_artists if x == "Fall Out Boy"]) == 1
+    assert len([x for x in song_artists if x == "Rag'n'Bone Man"]) == 1
+
+    # album_artists: 12 records with the following people appearing n times:
+    # MIYAVI: 8
+    # Martin Garrix: 1
+    # Macklemore: 1
+    # Fall Out Boy: 1
+    # Rag'n'Bone Man: 1
+
+    album_artists = dbHelper.get_all_album_artists(no_duplicates=False)
+    assert len([x for x in album_artists if x == "MIYAVI"]) == 8
+    assert len([x for x in album_artists if x == "Martin Garrix"]) == 1
+    assert len([x for x in album_artists if x == "Macklemore"]) == 1
+    assert len([x for x in song_artists if x == "Fall Out Boy"]) == 1
+    assert len([x for x in song_artists if x == "Rag'n'Bone Man"]) == 1
+
+    genres = dbHelper.get_all_genres(no_duplicates=False)
+
+    # ['Rock', 'Rock', 'Electro', 'Techno/House', 'Dance', 'Pop', 'International Pop', 'Rock', 'Rock', 'Rock', 'Rock', 'Alternative; Indie Pop; Indie Rock', 'Rock', 'Rock', 'Rock']
+
+    assert len([x for x in genres if x == "Rock"]) == 9
+    assert len([x for x in genres if x == "Electro"]) == 1
+    assert len([x for x in genres if x == "Techno/House"]) == 1
+    assert len([x for x in genres if x == "Dance"]) == 1
+    assert len([x for x in genres if x == "Pop"]) == 1
+    assert len([x for x in genres if x == "International Pop"]) == 1
+    assert len([x for x in genres if x == "Alternative; Indie Pop; Indie Rock"]) == 1
+
+    composers = dbHelper.get_all_composers(no_duplicates=False)
+
+#     ['Sky-Hi', 'MIYAVI', 'Lenny Skolnik', 'Jonny Litten', 'Miyavi', 'Martijn Garritsen', 'Brian Lee', 'Jaramye Daniels', 
+# 'Giorgio Tuinfort', 'Benjamin Hammond Haggerty', 'Andrew Ramsey', 'Shannon Sanders', 'MIYAVI', 'MIYAVI', 'Andrew Ramsey', 'Shannon Sanders', 'Lenny Skolnik', 'Ilan Kidron', 'MIYAVI', 'MIYAVI', 'Lenny Skolnik', 'Seann Bowe', 'MIYAVI', 'Lenny Skolnik', 'Ilan Kidron', 'Doc Brittain', 'RAS', 'Lalo Schifrin']
+
+    assert len([x for x in composers if x == "Sky-Hi"]) == 1
+    assert len([x for x in composers if x == "MIYAVI"]) == 6
+    assert len([x for x in composers if x == "Lenny Skolnik"]) == 4
+    assert len([x for x in composers if x == "Ilan Kidron"]) == 2
+    assert len([x for x in composers if x == "Lalo Schifrin"]) == 1
+    assert len([x for x in composers if x == "RAS"]) == 1
+    assert len([x for x in composers if x == "Doc Brittain"]) == 1
+    assert len([x for x in composers if x == "Seann Bowe"]) == 1
+    assert len([x for x in composers if x == "Martijn Garritsen"]) == 1
+    assert len([x for x in composers if x == "Brian Lee"]) == 1
+    assert len([x for x in composers if x == "Jaramye Daniels"]) == 1
+    assert len([x for x in composers if x == "Giorgio Tuinfort"]) == 1
+    assert len([x for x in composers if x == "Benjamin Hammond Haggerty"]) == 1
+    assert len([x for x in composers if x == "Andrew Ramsey"]) == 2
+    assert len([x for x in composers if x == "Shannon Sanders"]) == 2
+    assert len([x for x in composers if x == "Jonny Litten"]) == 1
+    assert len([x for x in composers if x == "Miyavi"]) == 1
+    assert len([x for x in composers if x == "Lenny Skolnik"]) == 4
 
 # --------------------------------------------------------------------------------
 #                          COMPLICATED TESTING - RETRIEVALS
@@ -608,7 +706,29 @@ def test_get_songs_in_composer():
     for idx, composer in enumerate(composers):
         songs_in_composer = dbHelper.get_songs_in_composer(composer)
         assert len(songs_in_composer) == check_dict[composer]
-        
+
+def test_get_songs_in_genre():
+    genres = dbHelper.get_all_genres()
+
+    check_dict = {
+        "Rock": 9,
+        "Electro": 2,
+        "Techno/House": 1,
+        "Dance": 1,
+        "Pop": 2,
+        "International Pop": 1,
+        "Alternative; Indie Pop; Indie Rock": 1,
+        "Alternative": 2,
+        "Rap/Hip Hop": 1,
+        "Anime": 1,
+        "R&B": 1
+    }
+    for idx, genre in enumerate(genres):
+        songs_in_genre = dbHelper.get_songs_in_genre(genre)
+        assert len(songs_in_genre) == check_dict[genre]
+
+
 if __name__ == "__main__":
     # test_clear_songs_table()
-    setup_test_db1()
+    # setup_test_db1()
+    test_populate_db()

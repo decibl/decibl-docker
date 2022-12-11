@@ -1248,7 +1248,7 @@ class AnalyticsDBHandler:
         logging.info("Got all plays")
         return plays
 
-    def get_all_song_artists(self) -> List[str]:
+    def get_all_song_artists(self, no_duplicates=True) -> List[str]:
         """
         get_all_song_artists Get all the song artists in the database, returns a list of strings
 
@@ -1259,15 +1259,21 @@ class AnalyticsDBHandler:
         # artists can be duplicated, so we need to remove duplicates from song_artists
         logging.info("Getting all song artists")
         cursor = self.conn.cursor()
-        cursor.execute("SELECT DISTINCT artist_name FROM song_artists;")
+        if no_duplicates:
+            cursor.execute("SELECT DISTINCT artist_name FROM song_artists;")
+        else:
+            cursor.execute("SELECT artist_name FROM song_artists;")
         song_artists = cursor.fetchall()
         logging.info("Got all song artists")
         song_artists = [artist[0] for artist in song_artists]
         return song_artists
 
-    def get_all_album_artists(self) -> List[str]:
+    def get_all_album_artists(self, no_duplicates=True) -> List[str]:
         """
         get_all_album_artists Get all the album artists in the database, returns a list of strings
+
+        Args:
+            no_duplicates (bool, optional): remove duplicates. Defaults to True.
 
         Returns:
             List[str]: list of strings
@@ -1276,15 +1282,22 @@ class AnalyticsDBHandler:
         # artists can be duplicated, so we need to remove duplicates from album_artists
         logging.info("Getting all album artists")
         cursor = self.conn.cursor()
-        cursor.execute("SELECT DISTINCT artist_name FROM album_artists;")
+        album_artists = []
+        if no_duplicates:
+            cursor.execute("SELECT DISTINCT artist_name FROM album_artists;")
+        else:
+            cursor.execute("SELECT artist_name FROM album_artists;")
         album_artists = cursor.fetchall()
         logging.info("Got all album artists")
         album_artists = [artist[0] for artist in album_artists]
         return album_artists
 
-    def get_all_composers(self) -> List[str]:
+    def get_all_composers(self, no_duplicates=True) -> List[str]:
         """
         get_all_composers Get all the composers in the database, returns a list of strings
+
+        Args:
+            no_duplicates (bool, optional): remove duplicates. Defaults to True.
 
         Returns:
             List[str]: list of strings
@@ -1293,15 +1306,21 @@ class AnalyticsDBHandler:
         # composers can be duplicated, so we need to remove duplicates from composers
         logging.info("Getting all composers")
         cursor = self.conn.cursor()
-        cursor.execute("SELECT DISTINCT composer_name FROM composers;")
+        if no_duplicates:
+            cursor.execute("SELECT DISTINCT composer_name FROM composers;")
+        else:
+            cursor.execute("SELECT composer_name FROM composers;")
         composers = cursor.fetchall()
         logging.info("Got all composers")
         composers = [composer[0] for composer in composers]
         return composers
 
-    def get_all_genres(self) -> List[str]:
+    def get_all_genres(self, no_duplicates=True) -> List[str]:
         """
         get_all_genres Get all the genres in the database, returns a list of strings
+
+        Args:
+            no_duplicates (bool, optional): remove duplicates. Defaults to True.
 
         Returns:
             List[str]: list of strings
@@ -1310,7 +1329,10 @@ class AnalyticsDBHandler:
         # genres can be duplicated, so we need to remove duplicates from genres
         logging.info("Getting all genres")
         cursor = self.conn.cursor()
-        cursor.execute("SELECT DISTINCT genre_name FROM genres;")
+        if no_duplicates:
+            cursor.execute("SELECT DISTINCT genre_name FROM genres;")
+        else:
+            cursor.execute("SELECT genre_name FROM genres;")
         genres = cursor.fetchall()
         logging.info("Got all genres")
         genres = [genre[0] for genre in genres]
@@ -1429,6 +1451,7 @@ class AnalyticsDBHandler:
         albums = list(set(albums))
         logging.info("Got all album names")
         return albums
+  
     # ------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------
     #                                    INSERT DATA
@@ -1795,17 +1818,17 @@ class AnalyticsDBHandler:
 
     # IMPORTANT: FUNCTION BELOW!
 
-    def populate_database(self):
+    def populate_database(self, soundfiles_path=config.SOUNDFILES_PATH):
         """
         populate_database Populate the database using the data from the soundfiles in the SOUNDFILES_PATH directory
         """
 
         # fetch all the files from config.SOUNDFILES_PATH
-        soundfiles = os.listdir(config.SOUNDFILES_PATH)
+        soundfiles = os.listdir(soundfiles_path)
 
         for file in soundfiles:
             # get path of file
-            file_path = os.path.join(config.SOUNDFILES_PATH, file)
+            file_path = os.path.join(soundfiles_path, file)
 
             # get metadata from file
             parser = songparser.SongMetadata(filepath=file_path)
