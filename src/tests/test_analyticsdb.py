@@ -31,6 +31,7 @@ def setup_prezipped_db():
 
 
 song_table_data = {
+    "song_id": "haeirofaiofnaiof",  # string
     "filepath": None,  # string
     "main_artist": None,  # string
     "filesize": 0,  # int in bytes
@@ -144,7 +145,7 @@ def test_create_plays_table():
     # get all the columns from the plays table
     columns = dbHelper.get_all_columns_from_table("plays")
     assert columns == ['play_id', 'song_title',
-                       'song_primary_artist', 'filesize', 'start_dt', 'end_dt']
+                       'song_primary_artist', 'filesize', 'start_dt', 'end_dt', 'song_id']
 
 
 def test_create_playlists_table():
@@ -294,10 +295,11 @@ def test_insert_play():
         "song_primary_artist": "test artist",
         "filesize": 123456,
         "start_dt": "2020-01-01 00:00:00",
-        "end_dt": "2020-01-01 00:00:00"
+        "end_dt": "2020-01-01 00:00:00",
+        "song_id": song_table_data["song_id"]
     }
     play_id = dbHelper.insert_play(play_table_data["song_title"], play_table_data["song_primary_artist"],
-                                   play_table_data["filesize"], play_table_data["start_dt"], play_table_data["end_dt"])
+                                   play_table_data["filesize"], play_table_data["start_dt"], play_table_data["end_dt"], play_table_data["song_id"])
     
     play_data = dbHelper.get_play_by_id(play_id)
     play_table_data["play_id"] = play_id
@@ -374,4 +376,5 @@ def test_get_all_songs():
     setup_prezipped_db()
 if __name__ == "__main__":
     # test_clear_songs_table()
-    setup_test_db()
+    # setup_test_db()
+    pass

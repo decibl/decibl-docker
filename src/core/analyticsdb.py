@@ -1162,7 +1162,7 @@ class AnalyticsDBHandler:
     # ------------------------------------------------------------------------------------------------------------
 
     # play table: song_title, song_primary_artist, filesize, start_dt, end_dt
-    def insert_play(self, song_title: str, song_primary_artist: str, filesize: int, start_dt: str, end_dt: str) -> int:
+    def insert_play(self, song_title: str, song_primary_artist: str, filesize: int, start_dt: str, end_dt: str, song_id: str) -> int:
         """
         insert_play Insert a play into the plays table
 
@@ -1183,7 +1183,7 @@ class AnalyticsDBHandler:
         cursor = self.conn.cursor()
         cursor.execute(
             "INSERT INTO plays (song_title, song_primary_artist, filesize, start_dt, end_dt, song_id) VALUES (?, ?, ?, ?, ?, ?);",
-            (song_title, song_primary_artist, filesize, start_dt, end_dt, self.get_song_id_by_title_filesize(song_title, filesize))
+            (song_title, song_primary_artist, filesize, start_dt, end_dt, song_id)
         )
         self.conn.commit()
         
