@@ -6,9 +6,26 @@ from abc import ABC, abstractmethod
 import logging
 import audio_metadata
 from typing import Any, List, Dict
+import hashlib
 # make decorator to log a certain method is being ran with a file
 # this is the first time I've used decorators LOL
 
+def file_to_hash(filepath: str) -> str:
+    """
+    file_to_hash Get the SHA256 hash of a file.
+
+    Args:
+        filepath (str): Path to the file.
+
+    Returns:
+        str: The SHA256 hash of the file.
+    """    
+
+    # Open,close, read file and calculate SHA256 on its contents
+    with open(filepath, "rb") as f:
+        bytes = f.read()  # read entire file as bytes
+        readable_hash = hashlib.sha256(bytes).hexdigest();
+        return readable_hash
 
 def log_data(func):
     def wrapper(*args, **kwargs):
@@ -138,7 +155,7 @@ class SongFileFLAC(SongFile):
         Returns:
             _type_: None
         """        
-        
+        self.hash = file_to_hash(filepath)
         self.metadata = audio_metadata.load(filepath)
 
     def loadMetadataParams(self, params: dict) -> None:
@@ -159,6 +176,7 @@ class SongFileFLAC(SongFile):
         # there's so much data bruh, here's a big ass list that details everything
         # this method isn't really necessary, but I thinik it makes things cleaner
         self.song_table_data = {
+            "song_id": None,
             "filepath": None,  # string
             "main_artist": None,  # string
             "filesize": 0,  # int in bytes
@@ -197,6 +215,7 @@ class SongFileFLAC(SongFile):
             Dict: a dictionary with all the data required for the song table   
         """        
         super().get_song_table_data()
+        self.song_table_data['song_id'] = self.hash
         # do the above but with if statements to check if the key exists
         if "filepath" in self.metadata:
             self.song_table_data["filepath"] = self.metadata["filepath"]
@@ -329,6 +348,7 @@ class SongFileMP3(SongFile):
         """        
         
         self.metadata = audio_metadata.load(filepath)
+        self.hash = file_to_hash(filepath)
 
     def make_song_table_data(self):
         """
@@ -419,6 +439,7 @@ class SongFileMP3(SongFile):
     #         'tracknumber': ['1'],
     #     })>,
     # })>
+        self.song_table_data["song_id"] = self.hash
         if "filepath" in self.metadata:
             self.song_table_data["filepath"] = self.metadata["filepath"]
         if "filesize" in self.metadata:
@@ -519,7 +540,6 @@ class SongMetadata:
     #   - Date Created (in YYYY-MM-DD)
     #   - Disc Number
     #   - Disc Total
-    #   - Genre
     #   - ISRC
     #   - itunesadvisory
     #   - length

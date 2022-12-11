@@ -68,7 +68,6 @@ Here's the actual hard part, you have to **return certain types of data for each
 This one has the most information. Here's the list of stuff you have to return
 
 ```python
-"filepath": None, # string
 "main_artist": None, # string
 "filesize": 0, # int in bytes
 "padding": None, # int in bytes
@@ -86,7 +85,6 @@ This one has the most information. Here's the list of stuff you have to return
 "date_created": None, # string in YYYY-MM-DD
 "disc_number": None, # int
 "disc_total": None, # int
-"genre": None, # string
 "isrc": None, # string
 "itunesadvisory": None, # string
 "length": None, # int

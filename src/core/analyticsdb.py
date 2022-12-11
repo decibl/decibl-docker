@@ -9,7 +9,6 @@ import zipfile
 import logging
 import config
 import songparser
-
 from fastapi import HTTPException
 
 # log a message
@@ -18,6 +17,7 @@ logging.info("Loading database module")
 # Make Database class to hold all the data analytics
 # This will be used to create and manage the database of the users activity.
 # (there's lots of data in the songs table so I'm not going to put it in the graphic)
+
 
 
 class AnalyticsDBHandler:
@@ -64,7 +64,7 @@ class AnalyticsDBHandler:
             # This is going to be a LOT of data, make a table with the following:
             # Create the table
             cursor.execute("""CREATE TABLE IF NOT EXISTS songs (
-                song_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                song_id TEXT PRIMARY KEY,
                 filepath TEXT,
                 filesize BIGINT,
                 padding INTEGER,
@@ -112,7 +112,8 @@ class AnalyticsDBHandler:
                     song_primary_artist TEXT NOT NULL,
                     filesize BIGINT,
                     start_dt TEXT NOT NULL,
-                    end_dt TEXT NOT NULL
+                    end_dt TEXT NOT NULL,
+                    song_id TEXT NOT NULL
                 );"""
             )
             self.conn.commit()
@@ -159,7 +160,7 @@ class AnalyticsDBHandler:
             cursor.execute(
                 """CREATE TABLE IF NOT EXISTS playlists_songs (
                     playlist_id INTEGER NOT NULL,
-                    song_id INTEGER NOT NULL,
+                    song_id TEXT NOT NULL,
                     added_dt TEXT NOT NULL
                 );"""
             )
@@ -180,7 +181,7 @@ class AnalyticsDBHandler:
             cursor.execute(
                 """CREATE TABLE IF NOT EXISTS song_artists (
                     artist_name TEXT NOT NULL,
-                    song_id INTEGER NOT NULL,
+                    song_id TEXT NOT NULL,
                     dt_added TEXT NOT NULL
                 );"""
             )
@@ -199,7 +200,7 @@ class AnalyticsDBHandler:
             cursor.execute(
                 """CREATE TABLE IF NOT EXISTS album_artists (
                     artist_name TEXT NOT NULL,
-                    song_id INTEGER NOT NULL,
+                    song_id TEXT NOT NULL,
                     dt_added TEXT NOT NULL
                 );"""
             )
@@ -223,7 +224,7 @@ class AnalyticsDBHandler:
             cursor.execute(
                 """CREATE TABLE IF NOT EXISTS composers (
                     composer_name TEXT NOT NULL,
-                    song_id INTEGER NOT NULL,
+                    song_id TEXT NOT NULL,
                     dt_added TEXT NOT NULL
                 );"""
             )
@@ -243,7 +244,7 @@ class AnalyticsDBHandler:
             cursor.execute(
                 """CREATE TABLE IF NOT EXISTS genres (
                     genre_name TEXT NOT NULL,
-                    song_id INTEGER NOT NULL,
+                    song_id TEXT NOT NULL,
                     dt_added TEXT NOT NULL
                 );"""
             )
@@ -378,11 +379,11 @@ class AnalyticsDBHandler:
         logging.info("Deleted database")
         return True
 
-    def delete_song_by_id(self, song_id: int) -> bool:
+    def delete_song_by_id(self, song_id: str) -> bool:
         """Delete a song from the database by its ID.
 
         Args:
-            song_id (int): ID of the song to delete.
+            song_id (str): ID of the song to delete.
 
         Returns:
             bool: True if successful, False if not.
@@ -435,12 +436,12 @@ class AnalyticsDBHandler:
         logging.info(f"Deleted playlist by name: {playlist_name}")
         return True
 
-    def delete_playlist_song_by_id(self, playlist_id: int, song_id: int) -> bool:
+    def delete_playlist_song_by_id(self, playlist_id: int, song_id: str) -> bool:
         """Delete a song from a playlist by its ID.
 
         Args:
             playlist_id (int): ID of the playlist to delete the song from.
-            song_id (int): ID of the song to delete.
+            song_id (str): ID of the song to delete.
 
         Returns:
             bool: True if successful, False if not.
@@ -475,12 +476,12 @@ class AnalyticsDBHandler:
         logging.info(f"Deleted song from playlist by name: {song_name}")
         return True
 
-    def delete_playlist_song_by_playlist_id_song_id(self, playlist_id: int, song_id: int) -> bool:
+    def delete_playlist_song_by_playlist_id_song_id(self, playlist_id: int, song_id: str) -> bool:
         """Delete a song from a playlist by its ID.
 
         Args:
             playlist_id (int): ID of the playlist to delete the song from.
-            song_id (int): ID of the song to delete.
+            song_id (str): ID of the song to delete.
 
         Returns:
             bool: True if successful, False if not.
@@ -495,12 +496,12 @@ class AnalyticsDBHandler:
         logging.info(f"Deleted song from playlist by ID: {song_id}")
         return True
 
-    def delete_song_artist_by_artist_song_id(self, artist_id: int, song_id: int) -> bool:
+    def delete_song_artist_by_artist_song_id(self, artist_id: int, song_id: str) -> bool:
         """Delete a song from a playlist by its ID.
 
         Args:
             artist_id (int): ID of the artist to delete the song from.
-            song_id (int): ID of the song to delete.
+            song_id (str): ID of the song to delete.
 
         Returns:
             bool: True if successful, False if not.
@@ -535,12 +536,12 @@ class AnalyticsDBHandler:
         logging.info(f"Deleted album from artist by ID: {album_id}")
         return True
 
-    def delete_composer_by_name_song_id(self, composer_name: str, song_id: int) -> bool:
+    def delete_composer_by_name_song_id(self, composer_name: str, song_id: str) -> bool:
         """Delete a composer from a song by its name.
 
         Args:
             composer_name (str): Name of the composer to delete the song from.
-            song_id (int): ID of the song to delete.
+            song_id (str): ID of the song to delete.
 
         Returns:
             bool: True if successful, False if not.
@@ -555,12 +556,12 @@ class AnalyticsDBHandler:
         logging.info(f"Deleted composer from song by name: {composer_name}")
         return True
 
-    def delete_genre_by_name_song_id(self, genre_name: str, song_id: int) -> bool:
+    def delete_genre_by_name_song_id(self, genre_name: str, song_id: str) -> bool:
         """Delete a genre from a song by its name.
 
         Args:
             genre_name (str): Name of the genre to delete the song from.
-            song_id (int): ID of the song to delete.
+            song_id (str): ID of the song to delete.
 
         Returns:
             bool: True if successful, False if not.
@@ -580,12 +581,12 @@ class AnalyticsDBHandler:
     # ------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------
 
-    def get_song_by_id(self, song_id: int) -> List[dict]:
+    def get_song_by_id(self, song_id: str) -> List[dict]:
         """
         get_song_by_id Searches the song table for a song with the given ID.
 
         Args:
-            song_id (int): ID of the song to search for.
+            song_id (str): ID of the song to search for.
 
         Returns:
             List[dict]: List of dictionaries containing the song data.
@@ -600,6 +601,7 @@ class AnalyticsDBHandler:
         song = cursor.fetchone()
 
         song_table_data = {
+            "song_id": None,
             "filepath": None,  # string
             "main_artist": None,  # string
             "filesize": 0,  # int in bytes
@@ -630,6 +632,7 @@ class AnalyticsDBHandler:
         }
         if song is None:
             return None
+        song_table_data['song_id'] = song[0]
         song_table_data["filepath"] = song[1]
         song_table_data["filesize"] = song[2]
         song_table_data["padding"] = song[3]
@@ -767,12 +770,12 @@ class AnalyticsDBHandler:
         playlist_data["created_dt"] = playlist[3]
         return playlist_data
 
-    def get_song_album_artists(self, song_id: int) -> List[str]:
+    def get_song_album_artists(self, song_id: str) -> List[str]:
         """
         get_song_album_artists Get all the album artists of a song, returns a list of names.
 
         Args:
-            song_id (int): ID of song
+            song_id (str): ID of song
 
         Returns:
             List[str]: list of names of album artists
@@ -788,12 +791,12 @@ class AnalyticsDBHandler:
         logging.info(f"Got song album artists by song ID: {song_id}")
         return album_artists
 
-    def get_song_composers(self, song_id: int) -> List[str]:
+    def get_song_composers(self, song_id: str) -> List[str]:
         """
         get_song_composers Get all the composers of a song, returns a list of names.
 
         Args:
-            song_id (int): ID of song
+            song_id (str): ID of song
 
         Returns:
             List[str]: list of names of composers
@@ -809,12 +812,12 @@ class AnalyticsDBHandler:
         logging.info(f"Got song composers by song ID: {song_id}")
         return composers
 
-    def get_song_artists(self, song_id: int) -> List[str]:
+    def get_song_artists(self, song_id: str) -> List[str]:
         """
         get_song_artists Get all the artists of a song, returns a list of names of Artists.
 
         Args:
-            song_id (int): ID of song
+            song_id (str): ID of song
 
         Returns:
             List[str]: list of names of artists
@@ -830,12 +833,12 @@ class AnalyticsDBHandler:
         logging.info(f"Got song artists by song ID: {song_id}")
         return artists
 
-    def get_song_genres(self, song_id: int) -> List[str]:
+    def get_song_genres(self, song_id: str) -> List[str]:
         """
         get_song_genres Get all the genres of a song, returns a list of names of genres.
 
         Args:
-            song_id (int): ID of song
+            song_id (str): ID of song
 
         Returns:
             List[str]: list of names of genres
@@ -851,15 +854,15 @@ class AnalyticsDBHandler:
         logging.info(f"Got song genres by song ID: {song_id}")
         return genres
 
-    def get_play_information_from_song_id(self, song_id: int) -> Dict[str, int]:
+    def get_play_information_from_song_id(self, song_id: str) -> Dict[str, str]:
         """
         get_play_information_from_song_id Get play information from song ID. This is the song_title, song_primary_artist, and filesize
 
         Args:
-            song_id (int): ID of song
+            song_id (str): ID of song
 
         Returns:
-            Dict[str, int]: Dictionary of song_title, song_primary_artist, and filesize
+            Dict[str, str]: Dictionary of song_title, song_primary_artist, filesize, and song_id
         """        
 
         logging.info(f"Getting play information for song ID: {song_id}")
@@ -868,7 +871,8 @@ class AnalyticsDBHandler:
         song_values = {
             "song_title": song_raw["title"],
             "song_primary_artist": song_raw["main_artist"],
-            "filesize": song_raw["filesize"]
+            "filesize": song_raw["filesize"],
+            "song_id": song_raw['song_id']
         }
 
         logging.info(f"Got play information for song ID: {song_id}")
@@ -901,6 +905,7 @@ class AnalyticsDBHandler:
             "filesize": play[3],
             "start_dt": play[4],
             "end_dt": play[5],
+            "song_id": play[6]
         }
         return play_data
     # ------------------------------------------------------------------------------------------------------------
@@ -1177,8 +1182,9 @@ class AnalyticsDBHandler:
         logging.info("Inserting play into plays table")
         cursor = self.conn.cursor()
         cursor.execute(
-            "INSERT INTO plays (song_title, song_primary_artist, filesize, start_dt, end_dt) VALUES (?, ?, ?, ?, ?);",
-            (song_title, song_primary_artist, filesize, start_dt, end_dt))
+            "INSERT INTO plays (song_title, song_primary_artist, filesize, start_dt, end_dt, song_id) VALUES (?, ?, ?, ?, ?, ?);",
+            (song_title, song_primary_artist, filesize, start_dt, end_dt, self.get_song_id_by_title_filesize(song_title, filesize))
+        )
         self.conn.commit()
         
         # get the id of the inserted play
@@ -1216,13 +1222,13 @@ class AnalyticsDBHandler:
         return playlist_id
 
 
-    def insert_playlist_song(self, playlist_name: str, song_id: int) -> bool:
+    def insert_playlist_song(self, playlist_name: str, song_id: str) -> bool:
         """
         insert_playlist_song Inserts a song into a playlist. Adds a record to the playlists_songs table
 
         Args:
             playlist_name (str): Name of the playlist
-            song_id (int): ID of the song
+            song_id (str): ID of the song
 
         Returns:
             bool: True if successful, False if not
@@ -1246,7 +1252,7 @@ class AnalyticsDBHandler:
             "Inserted playlist_song {} into playlists_songs table".format(playlist_name))
         return True
 
-    def insert_song(self, **kwargs) -> int:
+    def insert_song(self, **kwargs) -> str:
         """
         insert_song Insert a song into the songs table, returns song_id of inserted song.
         Only insert if the song does not already exist. Use the title and filesize.
@@ -1255,12 +1261,13 @@ class AnalyticsDBHandler:
             **kwargs: song_table_data (dict)
 
         Returns:
-            int: song_id of inserted song
+            str: song_id of inserted song
         """
         logging.info(
             "Inserting song {} into songs table".format(kwargs["title"]))
         cursor = self.conn.cursor()
         # self.song_table_data = {
+        #     "song_id": "N/A", # string
         #     "filepath": "N/A", # string
         #     "main_artist": "N/A", # string
         #     "filesize": -1, # in bytes
@@ -1291,14 +1298,14 @@ class AnalyticsDBHandler:
         # }
 
         # check if song already exists
-        song_id = self.get_song_id_by_title_filesize(
-            kwargs["title"], kwargs["filesize"])
+        song_id = self.get_song_by_id(kwargs['song_id'])
         if song_id:
             logging.warning("Song {} already exists in songs table".format(
                 kwargs["title"]))
             return song_id
         cursor.execute(
             """INSERT INTO songs (
+                song_id,
                 filepath,
                 main_artist,
                 filesize,
@@ -1327,9 +1334,10 @@ class AnalyticsDBHandler:
                 track_total,
                 source
             ) VALUES (
-                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
             );""",
             (
+                kwargs['song_id'],
                 kwargs["filepath"],
                 kwargs["main_artist"],
                 kwargs["filesize"],
@@ -1362,12 +1370,11 @@ class AnalyticsDBHandler:
 
         self.conn.commit()
         # get the song_id of the inserted song
-        song_id = self.get_song_id_by_title_filesize(
-            kwargs["title"], kwargs["filesize"])
     
         song_name = kwargs["title"]
         logging.info(f"Inserted {song_name} with song_id: {song_id}")
-        return song_id
+        print("hahahaha", kwargs['song_id'])
+        return kwargs['song_id']
 
     def insert_album_artist(self, artist_name, song_id) -> bool:
         """
@@ -1384,6 +1391,8 @@ class AnalyticsDBHandler:
             artist_name, song_id))
         cursor = self.conn.cursor()
         # check if album_artist already exists
+        print("artist_name", artist_name)
+        print("song_id", song_id)
         cursor.execute(
             """SELECT 1 FROM album_artists WHERE artist_name = ? AND song_id = ?;""",
             (artist_name, song_id)
@@ -1532,11 +1541,10 @@ class AnalyticsDBHandler:
 
             # get the song data and insert it into the database
             song_data = parser.get_song_table_data()
-            print(song_data, file)
             song_id = None
             if song_data is not None:
-                print(song_data['barcode'])
-                song_id = self.insert_song(**song_data)
+                self.insert_song(**song_data)
+                song_id = song_data["song_id"]
             else:
                 logging.error(f"Could not get song data for file: {file_path}")
                 continue
@@ -1599,4 +1607,3 @@ if __name__ == "__main__":
     db_handler = AnalyticsDBHandler()
     db_handler.create_all_tables()
     db_handler.populate_database()
-    # db_handler.populate_database()

@@ -4,6 +4,7 @@ import os
 import sqlite3
 import random
 import zipfile
+
 # add the parent directory to the path
 sys.path.append(os.path.abspath(os.path.join(
     os.path.dirname(__file__), "..", "core")))
@@ -74,7 +75,7 @@ def setup_test_db():
         "favorites", "test playlist 2 description", "2020-01-02")
 
     # lets make some example songs
-    # def insert_playlist_song(self, playlist_name: str, song_id: int) -> bool:
+    # def insert_playlist_song(self, playlist_name: str, song_id: str) -> bool:
 
     # THESE NEED TO BE COMMENTED OTHERWISE THEY WILL RE-INSERT THE SAME SONGS. UNCOMMENT TO RE-CREATE DATABASE
 
@@ -90,11 +91,15 @@ def setup_test_db():
 
     # lets get the song table to look at the song_title, song_primary_artist, filesize
 
-    # def get_play_information_from_song_id(self, song_id: int) -> Dict[str, int]:
+    # def get_play_information_from_song_id(self, song_id: str) -> Dict[str, int]:
 
     songs_info = []
-    for i in range(1, 18):
-        songs_info.append(dbHelper.get_play_information_from_song_id(i))
+    # get all song_ids
+    songs = dbHelper.get_all_songs()
+    for song in songs:
+        song_id = song["song_id"]
+        song_info = dbHelper.get_play_information_from_song_id(song_id)
+        songs_info.append(song_info)
 
     # add some plays using this info
     # def insert_play(self, song_title: str, song_primary_artist: str, filesize: int, start_dt: str, end_dt: str) -> bool:
@@ -267,7 +272,7 @@ def test_clear_genres_table():
 
     # def insert_play(self, song_title: str, song_primary_artist: str, filesize: int, start_dt: str, end_dt: str) -> bool:
     # def insert_playlist(self, playlist_name: str, playlist_desc: str, created_dt: str) -> bool:
-    # def insert_playlist_song(self, playlist_name: str, song_id: int) -> bool:
+    # def insert_playlist_song(self, playlist_name: str, song_id: str) -> bool:
     # def insert_song(self, **kwargs) -> int:
     # def insert_album_artist(self, artist_name, song_id) -> bool:
     # def insert_song_artist(self, artist_name, song_id) -> bool:
@@ -368,5 +373,5 @@ def test_insert_genre():
 def test_get_all_songs():
     setup_prezipped_db()
 if __name__ == "__main__":
-    test_clear_songs_table()
-    # setup_test_db()
+    # test_clear_songs_table()
+    setup_test_db()
