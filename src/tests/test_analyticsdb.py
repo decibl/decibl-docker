@@ -369,11 +369,70 @@ def test_insert_genre():
 
 
 # --------------------------------------------------------------------------------
-#                          COMPLICATED TESTING
+#                          COMPLICATED TESTING - RETRIEVALS
 # --------------------------------------------------------------------------------
 
 def test_get_all_songs():
     setup_prezipped_db()
+    songs = dbHelper.get_all_songs()
+    assert len(songs) == 18
+
+def test_get_song_artists_of_song():
+    songs = dbHelper.get_all_songs()
+
+    check_dict = {
+        0: ["MIYAVI", "Sky-Hi"],
+        1: ["MIYAVI"],
+        2: ["Martin Garrix", "Macklemore", "Fall Out Boy"],
+        3: ["MIYAVI"],
+        4: ["MIYAVI"],
+        5: ["MIYAVI"],
+        6: ["Rag'n'Bone Man"],
+        7: ["MIYAVI"],
+        8: ["MIYAVI"],
+        9: ["MIYAVI"],
+        10: [],
+        11: ["Imagine Dragons", "Arcane", "League Of Legends"],
+        12: [],
+        13: ["Frank Ocean"],
+        14: ["Hudson Mohawke"],
+        15: ["Lil Uzi Vert"],
+        16: ["Diggy-MO'"],
+        17: ["Steve Lacy"]
+
+    }
+    for idx, song in enumerate(songs):
+        song_artists = dbHelper.get_song_artists_of_song(song["song_id"])
+        assert song_artists == check_dict[idx]
+
+def test_get_album_artists_of_song():
+    songs = dbHelper.get_all_songs()
+
+    check_dict = {
+        0: ["MIYAVI"],
+        1: ["MIYAVI"],
+        2: ["Martin Garrix", "Macklemore", "Fall Out Boy"],
+        3: ["MIYAVI"],
+        4: ["MIYAVI"],
+        5: ["MIYAVI"],
+        6: ["Rag'n'Bone Man"],
+        7: ["MIYAVI"],
+        8: ["MIYAVI"],
+        9: ["MIYAVI"],
+        10: [],
+        11: ["Imagine Dragons", "Arcane", "League Of Legends"],
+        12: [],
+        13: ["Frank Ocean"],
+        14: ["Hudson Mohawke"],
+        15: ["Lil Uzi Vert"],
+        16: [],
+        17: ["Steve Lacy"]
+
+    }
+
+    for idx, song in enumerate(songs):
+        album_artists = dbHelper.get_album_artists_of_song(song["song_id"])
+        assert album_artists == check_dict[idx]
 if __name__ == "__main__":
     # test_clear_songs_table()
     # setup_test_db()

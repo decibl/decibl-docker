@@ -908,6 +908,55 @@ class AnalyticsDBHandler:
             "song_id": play[6]
         }
         return play_data
+
+    def get_song_artists_of_song(self, song_id: str) -> List[str]:
+        """
+        get_song_artists_of_song Get all the artists of a song, returns a list of names of Artists.
+
+        Args:
+            song_id (str): ID of song
+
+        Returns:
+            List[str]: list of names of artists
+        """
+
+        logging.info(f"Getting song artists by song ID: {song_id}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """SELECT * FROM song_artists WHERE song_id = ?;""",
+            (song_id,)
+        )
+        artists = cursor.fetchall()
+        song_artists = []
+        for artist in artists:
+            song_artists.append(artist[0])
+        logging.info(f"Got song artists by song ID: {song_id}")
+        return song_artists
+  
+    def get_album_artists_of_song(self, song_id: str) -> List[str]:
+        """
+        get_album_artists_of_song Get all the artists of a song, returns a list of names of Artists.
+
+        Args:
+            song_id (str): ID of song
+
+        Returns:
+            List[str]: list of names of artists
+        """
+
+        logging.info(f"Getting album artists by song ID: {song_id}")
+        cursor = self.conn.cursor()
+        cursor.execute(
+            """SELECT * FROM album_artists WHERE song_id = ?;""",
+            (song_id,)
+        )
+        artists = cursor.fetchall()
+        album_artists = []
+        for artist in artists:
+            album_artists.append(artist[0])
+        logging.info(f"Got album artists by song ID: {song_id}")
+        return album_artists
+  
     # ------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------
     #                                    RETRIEVE DATA MULTIPLE
@@ -1373,7 +1422,6 @@ class AnalyticsDBHandler:
     
         song_name = kwargs["title"]
         logging.info(f"Inserted {song_name} with song_id: {song_id}")
-        print("hahahaha", kwargs['song_id'])
         return kwargs['song_id']
 
     def insert_album_artist(self, artist_name, song_id) -> bool:
