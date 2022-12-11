@@ -337,6 +337,7 @@ class SongFileMP3(SongFile):
         super().get_song_table_data()
 
 
+
     #         MP3({
     #     'filepath': 'c:\\Users\\drale\\Documents\\GitHub\\decibl-docker\\src\\soundfiles\\mp3_with_art.mp3',
     #     'filesize': '7.98 MiB',
