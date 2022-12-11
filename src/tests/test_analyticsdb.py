@@ -526,6 +526,10 @@ def test_get_songs_in_album():
         print(album, len(songs_in_album))
         assert len(songs_in_album) == check_dict[album]
 
+def test_get_songs_in_artist():
+    artists = dbHelper.get_all_album_artists()
+    print(artists)
+    
 if __name__ == "__main__":
     # test_clear_songs_table()
     setup_test_db1()

@@ -92,5 +92,6 @@ nav: # DONT CHANGE THIS
 Run the command
 
 ```bash
+mkdocs serve
 mkdocs gh-deploy
 ```
