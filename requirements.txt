@@ -1,7 +1,6 @@
 fastapi
-sqlalchemy
-alembic
-uvicorn
-music-tag
 audio_metadata
 pytest
+mkdocs-glightbox
+mkdocs
+mkdocs-material
