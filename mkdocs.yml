@@ -6,6 +6,8 @@ plugins:
   - search
   - mkdocstrings:
       default_handler: python
+  - glightbox
+
 
 nav:
   - Home: index.md
@@ -14,6 +16,7 @@ nav:
       - "config.py": "config.md"
       - "songparser.py": "songparser.md"
   - "How to add to Documentation" : "docinstructions.md"
+  - "How to commit changes" : "commits.md"
 
 markdown_extensions:
   - pymdownx.critic
@@ -26,3 +29,5 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+  - attr_list
+  - md_in_html
