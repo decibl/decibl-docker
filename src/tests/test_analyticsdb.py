@@ -110,6 +110,7 @@ def test_create_songs_table():
                        'sample_rate', 'album', 'barcode', 'date_created', 'disc_number', 'disc_total', 'isrc', 'itunesadvisory', 'length', 'publisher', 'rating', 'title', 'track_number', 'track_total', 'source', 'main_artist']
 
 
+
 def test_create_plays_table():
     dbHelper.create_plays_table()
     # get all the columns from the plays table
