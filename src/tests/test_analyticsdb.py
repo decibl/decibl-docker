@@ -80,13 +80,12 @@ def setup_test_db():
 
     # THESE NEED TO BE COMMENTED OTHERWISE THEY WILL RE-INSERT THE SAME SONGS. UNCOMMENT TO RE-CREATE DATABASE
 
-    dbHelper.insert_playlist_song("test_playlist_1", 1)
-    dbHelper.insert_playlist_song("test_playlist_1", 2)
-    dbHelper.insert_playlist_song("test_playlist_1", 3)
-    dbHelper.insert_playlist_song("favorites", 1)
-    dbHelper.insert_playlist_song("favorites", 2)
-    dbHelper.insert_playlist_song("favorites", 3)
-    dbHelper.insert_playlist_song("favorites", 19)
+    dbHelper.insert_playlist_song("test_playlist_1", "23fb2258052511a4d07bc555a1b45a41fbd8da0f3ec4a887c9c7282351672956")
+    dbHelper.insert_playlist_song("test_playlist_1", "b87519d8ede9ab4e642bbe41815cbaf2ddb5245e5b23052a966808ef908e50b0")
+    dbHelper.insert_playlist_song("test_playlist_1", "4c1e39f575afeb262287c300338256d3b4e67d7bd5e4d431bb3aa67f7be84daa")
+    dbHelper.insert_playlist_song("favorites","23fb2258052511a4d07bc555a1b45a41fbd8da0f3ec4a887c9c7282351672956")
+    dbHelper.insert_playlist_song("favorites", "b87519d8ede9ab4e642bbe41815cbaf2ddb5245e5b23052a966808ef908e50b0")
+    dbHelper.insert_playlist_song("favorites", "89661c6cc19c7f25ecb91d937d175394170672277527282ea7cec71e412c84ef")
 
     # lets add some example plays
 
@@ -113,7 +112,7 @@ def setup_test_db():
         end_time = random.randint(start_time, start_time + 600)
         # insert the play
         dbHelper.insert_play(
-            song["song_title"], song["song_primary_artist"], song["filesize"], start_time, end_time)
+            song["song_title"], song["song_primary_artist"], song["filesize"], start_time, end_time, song["song_id"])
 
 
 def test_vital_paths():
@@ -160,7 +159,6 @@ def test_create_playlist_songs_table():
     dbHelper.create_playlists_songs_table()
     # get all the columns from the playlist_songs table
     columns = dbHelper.get_all_columns_from_table("playlists_songs")
-    print(columns)
     assert columns == ['playlist_id', 'song_id', 'added_dt']
 
 
@@ -284,7 +282,6 @@ def test_clear_genres_table():
 def test_insert_song():
     dbHelper.create_all_tables()
     song_id = dbHelper.insert_song(**song_table_data)
-    print(song_id)
     song_data = dbHelper.get_song_by_id(song_id)
     assert song_data == song_table_data
 
@@ -485,8 +482,16 @@ def test_get_genres_of_song():
     for idx, song in enumerate(songs):
         genres = dbHelper.get_genres_of_song(song["song_id"])
         assert genres == check_dict[idx]
-        
+
+def test_get_songs_in_playlist():
+    playlists = dbHelper.get_all_playlist_names()
+    playlist1 = playlists[0]
+    playlist2 = playlists[1]
+
+    songs1 = dbHelper.get_songs_in_playlist(playlist1)
+    songs2 = dbHelper.get_songs_in_playlist(playlist2)
+
+
 if __name__ == "__main__":
     # test_clear_songs_table()
-    # setup_test_db()
-    pass
+    setup_test_db()

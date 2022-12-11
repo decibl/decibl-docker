@@ -1039,7 +1039,6 @@ class AnalyticsDBHandler:
         songs = cursor.fetchall()
         songs_return = []
         for song in songs:
-            # print("HAHAH", song)
             song_table_data = {
                 "song_id": song[0],
                 "filepath": song[1],
@@ -1189,7 +1188,6 @@ class AnalyticsDBHandler:
             songs = self.get_songs_in_playlist(playlist_name)
             playlist_values = []
             for song_data in songs:
-                print(song_data)
                 song_values = {
                     "song_name": song_data["title"],
                     "file_size": song_data["filesize"],
@@ -1486,8 +1484,6 @@ class AnalyticsDBHandler:
             artist_name, song_id))
         cursor = self.conn.cursor()
         # check if album_artist already exists
-        print("artist_name", artist_name)
-        print("song_id", song_id)
         cursor.execute(
             """SELECT 1 FROM album_artists WHERE artist_name = ? AND song_id = ?;""",
             (artist_name, song_id)
