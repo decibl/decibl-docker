@@ -3,11 +3,12 @@ from fastapi import FastAPI
 import random
 import analyticsdb
 import os,sys
+import logging
 
 import config
 
 app = FastAPI(debug=True)
-
+logger = logging.getLogger("gunicorn.error")
 def lmao():
     return "lmao{}".format(random.randint(0, 100))
 
@@ -26,8 +27,7 @@ async def get_song(song_path: str):
     print(song_path)
     song_loc = os.path.abspath(os.path.join(
         config.SOUNDFILES_PATH, song_path))
-    with open ("example.txt", "w") as f:
-        f.write(song_loc)
+    logger.info(song_loc)
     if os.path.exists(song_loc):
         with open(song_loc, "rb") as f:
             return {"song_name": song_path, "song_bytes": f.read().hex()}
