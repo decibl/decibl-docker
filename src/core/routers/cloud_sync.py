@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from ..main import remoteTree
+import json
 
 router = APIRouter(
     prefix="/sync",
@@ -9,7 +10,7 @@ router = APIRouter(
 
 @router.get("/")
 async def read_remote_sync():
-    remoteTree.
+    pass
 
 @router.put("/")
 async def edit_remote_branch():

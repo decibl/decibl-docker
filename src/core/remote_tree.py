@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 import uuid
+import json
 
 class FileNode():
     def __init__(self,filename: str,file_id: str,isFile: bool):
@@ -10,21 +11,28 @@ class FileNode():
     
     def __str__(self) -> str:
         return(
-            "FileNode { "+
-            "filename: "+self.filename+
-            ", children: "+str(self.children)+
-            ", file_id: "+self.file_id+
-            ", isFile: "+str(self.isFile)+
-            " }"
+            "{"+
+            "\"filename\": \""+self.filename+
+            "\", \"children\": \""+str(self.children)+
+            "\", \"file_id\": \""+self.file_id+
+            "\", \"isFile\": \""+str(self.isFile)+
+            "\"}"
         )
     
 class RemoteTree():
 
     def __init__(self):
         self.tree = {
-            "root": FileNode("root",uuid.uuid4,False)
+            "root": FileNode("root",str(uuid.uuid4()),False)
         }
-    
+    def __str__(self) -> str:
+        res = self.tree.copy()
+
+        for node in self.tree:
+            res[node] = json.loads(str(self.tree[node]))
+
+        return str(res)
+
     def insertFile(self,dir: str,data: dict):
         if dir in self.tree:
             raise HTTPException(status_code=400, detail="File already Exists In This Directory")
@@ -53,7 +61,30 @@ class RemoteTree():
                     self.recurDelete(self.tree[child])
         del self.tree[dir]
 
+if __name__ =="__main__":
+    tree = RemoteTree()
+    #res =json.loads(str(tree.tree["root"]))
+    tree.insertFile("root/test.py",{
+        "filename": "test",
+        "file_id": "id2",
+        "isFile": True
+    })
+    tree.insertFile("root/test.py3",{
+        "filename": "test3",
+        "file_id": "id2",
+        "isFile": True
+    })
+    tree.insertFile("root/test.py2",{
+        "filename": "test2",
+        "file_id": "id2",
+        "isFile": True
+    })
+    res = tree.tree.copy()
+
+    for node in tree.tree:
+        res[node] = json.loads(str(tree.tree[node]))
         
+    print(res)
 
         
 
