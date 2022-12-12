@@ -1781,20 +1781,31 @@ class AnalyticsDBHandler:
         """
 
         # fetch all the files from config.SOUNDFILES_PATH
-        soundfiles = os.listdir(soundfiles_path)
+        soundfiles = []
 
+        # there could be nested directories, so we need to recursively go through all the directories
+        for root, dirs, files in os.walk(soundfiles_path):
+            for file in files:
+                soundfiles.append(os.path.abspath(os.path.join(root, file)))
+
+        
         bar = Bar("Processing soundfiles", max=len(soundfiles))
 
-        for file in soundfiles:
+        for file_path in soundfiles:
             # get path of file
-            file_path = os.path.join(soundfiles_path, file)
 
             # get metadata from file
-            parser = songparser.SongMetadata(filepath=file_path)
+            parser = None
+            try:
+                parser = songparser.SongMetadata(filepath=file_path)
+            except Exception as e:
+                logging.error(f"Could not parse file: {file_path} with error: {e}")
+                continue
 
             # get the song data and insert it into the database
             song_data = parser.get_song_table_data()
-            song_id = None
+            song_id = "N/A"
+
             if song_data is not None:
                 self.insert_song(**song_data)
                 song_id = song_data["song_id"]
@@ -1860,5 +1871,5 @@ if __name__ == "__main__":
 
     db_handler = AnalyticsDBHandler()
     db_handler.create_all_tables()
-    songs = db_handler.get_songs_in_album("Time")
-    print(songs)
+    db_handler.populate_database(soundfiles_path="C:\\Users\\drale\\Music\\music")
+    # albums = db_handler.get_all_albums()
