@@ -5,3 +5,4 @@ mkdocs-glightbox
 mkdocs
 mkdocs-material
 progress
+uvicorn
