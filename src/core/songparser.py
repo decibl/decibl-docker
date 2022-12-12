@@ -193,7 +193,7 @@ class SongFileFLAC(SongFile):
             self.song_table_data["filesize"] = self.metadata["filesize"]
         if "padding" in self.metadata:
             self.song_table_data["padding"] = self.metadata["padding"].size
-        if "pictures" in self.metadata:
+        if "pictures" in self.metadata and len(self.metadata["pictures"]) > 0:
             if "bit_depth" in self.metadata["pictures"][0]:
                 self.song_table_data["album_artwork_bit_depth"] = self.metadata["pictures"][0]["bit_depth"]
             if "colors" in self.metadata["pictures"][0]:

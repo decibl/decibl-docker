@@ -66,11 +66,11 @@ def test_song_file_MP3():
     song = songparser.SongFileMP3()
     song.load_file(filepath)
 
-    print(song.get_song_table_data())
-    print(song.get_album_artist_data())
-    print(song.get_song_artist_data())
-    print(song.get_composer_data())
-    print(song.get_genre_data())
+    # print(song.get_song_table_data())
+    # print(song.get_album_artist_data())
+    # print(song.get_song_artist_data())
+    # print(song.get_composer_data())
+    # print(song.get_genre_data())
 
     song_test = {'song_id': 'c8d3a45d28c2bdc14b35d51837c980ca3d878127ca0d0ebfbe337517f489a3ab', 'filepath': 'c:\\Users\\drale\\Documents\\GitHub\\decibl-docker\\src\\tests\\testsongs2\\example.mp3', 'main_artist': "Diggy-MO'", 'filesize': 8364414, 'padding': None, 'album_artwork_bit_depth': None, 'album_artwork_colors': None, 'album_artwork_height': 1200, 'album_artwork_width': 1200, 'bit_depth': None, 'bitrate': 244599.11789652248, 'channels': 2, 'duration': 235.8136386428074, 'sample_rate': 44100, 'album': 'Bakusou Yumeuta', 'barcode': None, 'date_created': '2008', 'disc_number': '1', 'disc_total': None, 'isrc': None, 'itunesadvisory': None, 'length': None, 'publisher': None, 'rating': None, 'title': 'Bakusou Yumeuta (爆走夢歌)', 'track_number': '1', 'track_total': None, 'source': None}
 
@@ -97,4 +97,4 @@ def test_song_file_MP3():
 
 
 
-test_song_file_MP3()
+# test_song_file_MP3()
