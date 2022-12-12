@@ -1,12 +1,14 @@
 from fastapi import Depends, FastAPI
 from analyticsdb import init_db
-from routers import album_artists,composers,genres,playlists_songs,playlists,plays,song_artists,songs
+from routers import album_artists,composers,genres,playlists_songs,playlists,plays,song_artists,songs,cloud_sync
 
 app = FastAPI(
     prefix="/api",
     tags=["api"],
     dependencies=[Depends(init_db)]
 )
+from remote_tree import RemoteTree
+remoteTree = RemoteTree()
 
 app.include_router(album_artists.router)
 app.include_router(composers.router)
@@ -16,6 +18,7 @@ app.include_router(playlists.router)
 app.include_router(plays.router)
 app.include_router(song_artists.router)
 app.include_router(songs.router)
+app.include_router(cloud_sync.router)
 
 '''
 @router.get("/users/", tags=["users"],)
