@@ -1804,7 +1804,8 @@ class AnalyticsDBHandler:
 
             # get the song data and insert it into the database
             song_data = parser.get_song_table_data()
-            song_id = "1"
+            song_id = "N/A"
+
             if song_data is not None:
                 self.insert_song(**song_data)
                 song_id = song_data["song_id"]
@@ -1871,51 +1872,4 @@ if __name__ == "__main__":
     db_handler = AnalyticsDBHandler()
     db_handler.create_all_tables()
     db_handler.populate_database(soundfiles_path="C:\\Users\\drale\\Music\\music")
-
-    # parser = songparser.SongMetadata(filepath="C:\\Users\\drale\\Music\\music\\2010's HITS\\419 - Adele - Hello.flac")
-    bar = Bar("Processing soundfiles", max=10000)
-
-    # make dummy sqlite database
-    conn = sqlite3.connect("test.db")
-    cursor = conn.cursor()
-    # make table dummy with one id and thirty value columns
-    cursor.execute("""CREATE TABLE dummy (
-        id INTEGER PRIMARY KEY,
-        value1 INTEGER,
-        value2 INTEGER,
-        value3 INTEGER,
-        value4 INTEGER,
-        value5 INTEGER,
-        value6 INTEGER,
-        value7 INTEGER,
-        value8 INTEGER,
-        value9 INTEGER,
-        value10 INTEGER,
-        value11 INTEGER,
-        value12 INTEGER,
-        value13 INTEGER,
-        value14 INTEGER,
-        value15 INTEGER,
-        value16 INTEGER,
-        value17 INTEGER,
-        value18 INTEGER,
-        value19 INTEGER,
-        value20 INTEGER,
-        value21 INTEGER,
-        value22 INTEGER,
-        value23 INTEGER,
-        value24 INTEGER,
-        value25 INTEGER,
-        value26 INTEGER,
-        value27 INTEGER,
-        value28 INTEGER,
-        value29 INTEGER,
-        value30 INTEGER
-    );""")
-
-    # insert 10000 rows into dummy table
-    for i in range(10000):
-        cursor.execute("""INSERT INTO dummy (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18, value19, value20, value21, value22, value23, value24, value25, value26, value27, value28, value29, value30) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);""", (i,)*30)
-        bar.next()
-    
     # albums = db_handler.get_all_albums()
