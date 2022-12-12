@@ -10,6 +10,8 @@ import logging
 import config
 import songparser
 from fastapi import HTTPException
+from progress.bar import Bar
+
 
 # log a message
 logging.info("Loading database module")
@@ -434,26 +436,6 @@ class AnalyticsDBHandler:
         )
         self.conn.commit()
         logging.info(f"Deleted playlist by name: {playlist_name}")
-        return True
-
-    def delete_playlist_song_by_id(self, playlist_id: int, song_id: str) -> bool:
-        """Delete a song from a playlist by its ID.
-
-        Args:
-            playlist_id (int): ID of the playlist to delete the song from.
-            song_id (str): ID of the song to delete.
-
-        Returns:
-            bool: True if successful, False if not.
-        """
-        logging.info(f"Deleting song from playlist by ID: {song_id}")
-        cursor = self.conn.cursor()
-        cursor.execute(
-            """DELETE FROM playlists_songs WHERE playlist_id = ? AND song_id = ?;""",
-            (playlist_id, song_id)
-        )
-        self.conn.commit()
-        logging.info(f"Deleted song from playlist by ID: {song_id}")
         return True
 
     def delete_playlist_song_by_name(self, playlist_name: str, song_name: str) -> bool:
@@ -978,22 +960,23 @@ class AnalyticsDBHandler:
         logging.info(f"Got song genres by song ID: {song_id}")
         return song_genres
  
-    def get_songs_in_album(self, album_name: str) -> List[dict]:
+    def get_songs_in_album(self, album_name: str, album_artist: str) -> List[dict]:
         """
-        get_songs_in_album Get all the songs in an album, returns a list of Song objects.
+        get_songs_in_album Get all the songs in an album, returns a list of song objects.
 
         Args:
             album_name (str): name of album
+            album_artist (str): name of album artist
 
         Returns:
-            List[dict]: list of Song objects
+            List[dict]: list of song objects (song_title, song_primary_artist, filesize, song_id)
         """
 
         logging.info(f"Getting songs in album: {album_name}")
         cursor = self.conn.cursor()
         cursor.execute(
-            """SELECT * FROM songs WHERE album = ?;""",
-            (album_name,)
+            """SELECT * FROM songs WHERE album = ? AND main_artist = ?;""",
+            (album_name, album_artist)
         )
         songs = cursor.fetchall()
         song_list = []
@@ -1406,23 +1389,24 @@ class AnalyticsDBHandler:
         logging.info("Got all columns from table {}".format(table_name))
         return columns
 
-    def get_all_album_names(self) -> List[str]:
+    def get_all_albums(self) -> List[Dict[str, str]]:
         """
-        get_all_album_names Get all the album names in the database, returns a list of strings
+        get_all_albums Get all the albums in the database, returns a list of dictionaries
 
         Returns:
-            List[str]: list of strings
+            List[Dict[str, str]]: list of dictionaries, artist_name, album_name
         """
 
-        logging.info("Getting all album names")
+        # need to get all albums from song table and pair it with the artist_name from the artists table
+        logging.info("Getting all albums")
         cursor = self.conn.cursor()
-        # all the albums are a column in the songs table
-        cursor.execute("SELECT album FROM songs;")
+        cursor.execute("SELECT album, main_artist FROM songs;")
         albums = cursor.fetchall()
-        albums = [album[0] for album in albums]
-        # remove duplicates
-        albums = list(set(albums))
-        logging.info("Got all album names")
+        albums = [{"artist_name": album[1], "album_name": album[0]} for album in albums]
+
+        # now we need to remove duplicates
+        albums = [dict(t) for t in {tuple(d.items()) for d in albums}]
+        logging.info("Got all albums")
         return albums
   
     # ------------------------------------------------------------------------------------------------------------
@@ -1799,6 +1783,8 @@ class AnalyticsDBHandler:
         # fetch all the files from config.SOUNDFILES_PATH
         soundfiles = os.listdir(soundfiles_path)
 
+        bar = Bar("Processing soundfiles", max=len(soundfiles))
+
         for file in soundfiles:
             # get path of file
             file_path = os.path.join(soundfiles_path, file)
@@ -1837,6 +1823,7 @@ class AnalyticsDBHandler:
                 for genre in genre_data:
                     self.insert_genre(genre, song_id)
 
+            bar.next()
     # ------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------
     #                                  Backup and Restore
@@ -1873,4 +1860,5 @@ if __name__ == "__main__":
 
     db_handler = AnalyticsDBHandler()
     db_handler.create_all_tables()
-    db_handler.populate_database()
+    songs = db_handler.get_songs_in_album("Time")
+    print(songs)

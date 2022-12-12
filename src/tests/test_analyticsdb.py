@@ -338,7 +338,7 @@ def test_insert_genre():
 def test_populate_db():
     dbHelper.clear_all_tables()
     dbHelper.create_all_tables()
-    testsongs_path = os.path.abspath("src/tests/testsongs/")
+    testsongs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "testsongs"))
     dbHelper.populate_database(soundfiles_path=testsongs_path)
 
     
@@ -569,31 +569,43 @@ def test_get_songs_in_playlist():
     assert songs2[2]["song_id"] == "89661c6cc19c7f25ecb91d937d175394170672277527282ea7cec71e412c84ef"
 
 def test_get_songs_in_album():
-    albums = dbHelper.get_all_album_names()
+    albums = dbHelper.get_all_albums()
     # print(albums)
-    check_list = ['Bakusou Yumeuta', 'All Time Best "Day 2"', 'Samurai Sessions Vol.2', None, 'Luv Is Rage 2 (Deluxe)', 'Human (Deluxe)', 'Summer Days (feat. Macklemore & Patrick Stump of Fall Out Boy)', 'Enemy (from the series Arcane League of Legends)', 'The Lo-Fis', 'channel ORANGE', 'Satin Panthers']
-    for album in albums:
-        assert album in check_list
 
-    check_dict = {
-        "The Lo-Fis": 1,
-        "channel ORANGE": 1,
-        "Samurai Sessions Vol.2": 1,
-        "Enemy (from the series Arcane League of Legends)": 1,
-        None: 0,
-        "Luv Is Rage 2 (Deluxe)": 1,
-        "Bakusou Yumeuta": 1,
-        "All Time Best \"Day 2\"": 7,
-        "Human (Deluxe)": 1,
-        "Summer Days (feat. Macklemore & Patrick Stump of Fall Out Boy)": 1,
-        "Satin Panthers": 1
-    }
+
+# [{'song_title': 'Gemstone', 'song_primary_artist': 'MIYAVI', 'filesize': 34815481, 'song_id': '23fb2258052511a4d07bc555a1b45a41fbd8da0f3ec4a887c9c7282351672956'}]
+# [{'song_title': 'Loaded', 'song_primary_artist': 'Lil Uzi Vert', 'filesize': 21073949, 'song_id': 'cd0c07ef5178049c30cc632002e39000f138eb35ebd300b3e3b349da05670eff'}]
+# [{'song_title': 'Bakusou Yumeuta (爆走夢歌)', 'song_primary_artist': "Diggy-MO'", 'filesize': 8364414, 'song_id': 'c8d3a45d28c2bdc14b35d51837c980ca3d878127ca0d0ebfbe337517f489a3ab'}]
+# []
+# [{'song_title': 'Summer Days (feat. Macklemore & Patrick Stump of Fall Out Boy)', 'song_primary_artist': 'Martin Garrix', 'filesize': 18447881, 'song_id': '4c1e39f575afeb262287c300338256d3b4e67d7bd5e4d431bb3aa67f7be84daa'}]
+# [{'song_title': 'Enemy (From the series Arcane League of Legends)', 'song_primary_artist': 'Imagine Dragons', 'filesize': 21495795, 'song_id': 'f2ee683a57fb292b2af911d3522996c3a4497e03cb509b9b62efbd0557c6d582'}]
+# [{'song_title': 'Pyramids', 'song_primary_artist': 'Frank Ocean', 'filesize': 64746295, 'song_id': '0b8a3f9714d616e00b59c451b21783bdb4e964330fd6f112fab5973bc3868f05'}]
+# [{'song_title': 'Cbat', 'song_primary_artist': 'Hudson Mohawke', 'filesize': 2973802, 'song_id': '673738b05a45d5de00ae08e007372e45dc941dcd2d386044eaae3675e928854d'}]
+# [{'song_title': 'Thats No Fun', 'song_primary_artist': 'Steve Lacy', 'filesize': 18688972, 'song_id': '89661c6cc19c7f25ecb91d937d175394170672277527282ea7cec71e412c84ef'}]
+# [{'song_title': 'Human', 'song_primary_artist': "Rag'n'Bone Man", 'filesize': 21857519, 'song_id': '3dd9d2253c8156c8e66c6ed6acf04cb9603541618eafe39b4e8b28541d7059f5'}]
+# [{'song_title': 'What A Wonderful World (Day 2 Mix)', 'song_primary_artist': 'MIYAVI', 'filesize': 30181873, 'song_id': 'b87519d8ede9ab4e642bbe41815cbaf2ddb5245e5b23052a966808ef908e50b0'}, {'song_title': 'Let Go', 'song_primary_artist': 'MIYAVI', 'filesize': 19641836, 'song_id': '35dba2f69761f9d681662b6364974043261c9672f34aba7d8cb5a821d10ccea6'}, {'song_title': 'The Others', 'song_primary_artist': 'MIYAVI', 'filesize': 27868010, 'song_id': 'cfc3b7e098d8105ffd5eab92bbe4b01bd5833029b086cbcc72ca25f1f6d3fec0'}, {'song_title': 'Afraid To Be Cool', 'song_primary_artist': 'MIYAVI', 'filesize': 28612566, 'song_id': '5f3012eccf122cf6e68243c57497d87498b01592e016d00c73143f50d2d45200'}, {'song_title': 'Fire Bird', 'song_primary_artist': 'MIYAVI', 'filesize': 26848748, 'song_id': '82fef55bfe4e4ae4b3fe598acafd499cc22f7c47e12a54f850c13c8cca1a8471'}, {'song_title': 'Long Nights', 'song_primary_artist': 'MIYAVI', 'filesize': 32307426, 'song_id': '0915edd1c75ef33839528377eea8265cddbca4eb7722dc92d74e9cd020497946'}, {'song_title': 'Mission: Impossible Theme', 'song_primary_artist': 'MIYAVI', 'filesize': 38018706, 'song_id': '643a7837128bc5b932cf8b9dd6391d865801a492bfb361500ab190cc4abce226'}]
+
+    check_dict = [
+        {'artist_name': 'Imagine Dragons', 'album_name': 'Enemy (from the series Arcane League of Legends)', 'song_count': 1},
+        {'artist_name': 'MIYAVI', 'album_name': 'Samurai Sessions Vol.2', 'song_count': 1},
+        {'artist_name': "Diggy-MO'", 'album_name': 'Bakusou Yumeuta', 'song_count': 1},
+        {'artist_name': 'Hudson Mohawke', 'album_name': 'Satin Panthers', 'song_count': 1},
+        {'artist_name': 'Unknown Artist', 'album_name': None, 'song_count': 0},
+        {'artist_name': 'Frank Ocean', 'album_name': 'channel ORANGE', 'song_count': 1},
+        {'artist_name': 'Martin Garrix', 'album_name': 'Summer Days (feat. Macklemore & Patrick Stump of Fall Out Boy)', 'song_count': 1},
+        {'artist_name': 'Steve Lacy', 'album_name': 'The Lo-Fis', 'song_count': 1},
+        {'artist_name': 'MIYAVI', 'album_name': 'All Time Best "Day 2"', 'song_count': 7},
+        {'artist_name': "Rag'n'Bone Man", 'album_name': 'Human (Deluxe)', 'song_count': 1}
+
+    ]
+
 
 
     for idx, album in enumerate(albums):
-        songs_in_album = dbHelper.get_songs_in_album(album)
-        # print(album, len(songs_in_album))
-        assert len(songs_in_album) == check_dict[album]
+        songs_in_album = dbHelper.get_songs_in_album(album['album_name'], album['artist_name'])
+        for dic in check_dict:
+            if dic['artist_name'] == album['artist_name'] and dic['album_name'] == album['album_name']:
+                assert len(songs_in_album) == dic['song_count']
 
 def test_get_songs_in_album_artist():
     artists = dbHelper.get_all_album_artists()
