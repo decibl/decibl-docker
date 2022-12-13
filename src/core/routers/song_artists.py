@@ -8,7 +8,7 @@ router = APIRouter(
 )
 
 @router.get("/{song_id}")
-async def read_song_artists_by_song_id():
+async def read_song_artists_by_song_id(song_id: str):
     pass
 
 @router.get("/")
