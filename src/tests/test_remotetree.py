@@ -9,7 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(
 import remote_tree
 
 def test_vital_insert():
-    tree = remote_tree.RemoteTree()
+    tree = remote_tree.RemoteTree("src/soundfiles")
     '''
     tree = {
         "soundfiles": FileNode("soundfiles","id1",False),
@@ -33,7 +33,7 @@ def test_vital_insert():
     assert len(tree.tree) == 25
 
 def test_insert_1():
-    tree = remote_tree.RemoteTree()
+    tree = remote_tree.RemoteTree("src/soundfiles")
     tree.insertFile("soundfiles/test.py",{
         "filename": "test",
         "file_id": "id2",
@@ -52,7 +52,7 @@ def test_insert_1():
     assert len(tree.tree) == 25
 
 def test_vital_remove():
-    tree = remote_tree.RemoteTree()
+    tree = remote_tree.RemoteTree("src/soundfiles")
     tree.insertFile("soundfiles/test.py",{
         "filename": "test",
         "file_id": "id2",
@@ -64,7 +64,7 @@ def test_vital_remove():
     assert len(tree.tree) == 24
 
 def test_remove_soundfiles():
-    tree = remote_tree.RemoteTree()
+    tree = remote_tree.RemoteTree("src/soundfiles")
     try:
         tree.removeFile("soundfiles")
     except:
@@ -72,7 +72,7 @@ def test_remove_soundfiles():
     assert len(tree.tree) == 24
 
 def test_remove_1():
-    tree = remote_tree.RemoteTree()
+    tree = remote_tree.RemoteTree("src/soundfiles")
     tree.insertFile("soundfiles/test",{
         "filename": "test",
         "file_id": "id1",
@@ -104,7 +104,7 @@ def test_remove_1():
     assert len(tree.tree) == 25
 
 def test_remove_2():
-    tree = remote_tree.RemoteTree()
+    tree = remote_tree.RemoteTree("src/soundfiles")
     tree.insertFile("soundfiles/test",{
         "filename": "test",
         "file_id": "id1",
@@ -116,7 +116,7 @@ def test_remove_2():
     assert len(tree.tree) == 24
 
 def test_remove_3():
-    tree = remote_tree.RemoteTree()
+    tree = remote_tree.RemoteTree("src/soundfiles")
     try:
         tree.removeFile("soundfiles/test")
     except:
@@ -125,7 +125,7 @@ def test_remove_3():
     assert len(tree.tree) == 24
 
 def test_remove_4():
-    tree = remote_tree.RemoteTree()
+    tree = remote_tree.RemoteTree("src/soundfiles")
     tree.insertFile("soundfiles/test",{
         "filename": "test",
         "file_id": "id1",
@@ -142,7 +142,7 @@ def test_remove_4():
     assert len(tree.tree) == 24
 
 def test_remove_5():
-    tree = remote_tree.RemoteTree()
+    tree = remote_tree.RemoteTree("src/soundfiles")
 
     tree.removeFile("soundfiles/test1/mommy")
     

@@ -61,6 +61,9 @@ class RemoteTree():
         elif dir not in self.tree:
             raise HTTPException(status_code=400, detail="Action Not Allowed: File Not Found") 
         self.recurDelete(dir)
+        location = dir.split("/")
+        parentDir = "/".join(location[:-1])
+        self.tree[parentDir].children.remove(dir)
 
     def recurDelete(self,dir: str):
         
@@ -105,7 +108,9 @@ class RemoteTree():
         '''
 
 if __name__ =="__main__":
-    tree = RemoteTree()
+    tree = RemoteTree("src/soundfiles")
+    tree.removeFile("soundfiles/test1/mommy")
+    print(tree.tree["soundfiles/test1"].children)
     #tree.get_json()
     #res =json.loads(str(tree.tree["root"]))
     '''
