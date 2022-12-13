@@ -15,7 +15,7 @@ jobs:
           pkg-manager: pip
       - run:
           name: Run tests
-          command: pytest
+          command: pytest -s
 
 workflows:
   build-master: # This is the name of the workflow, feel free to change it to better match your workflow.
