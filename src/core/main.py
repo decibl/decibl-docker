@@ -3,10 +3,12 @@ from analyticsdb import init_db
 from routers import album_artists,composers,genres,playlists_songs,playlists,plays,song_artists,songs,cloud_sync
 from remote_tree import RemoteTree
 import sys,os
+import logging
 
 app = FastAPI(
     dependencies=[Depends(init_db)]
 )
+logger = logging.getLogger("gunicorn.error")
 
 os.chdir("../..")
 remoteTree = RemoteTree("src/soundfiles")
