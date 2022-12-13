@@ -17,7 +17,7 @@ https://decibl.github.io/decibl-docker/
 5. Add more support for song files (mp3, wav, m4a, etc.)
 6. ~~Add a way to add a song from a raw file~~
 7. Add a way to remove an entry using a raw file
-8. Add CircleCI support
+8. ~~Add CircleCI support~~
 9. **ADD MORE UNIT TESTS!!**
 10. Start resarching sync algorithms
 11. Implement Sync algorithms
