@@ -30,22 +30,6 @@ class RemoteTree():
         }
         self.populate_with_files('src/soundfiles')
     
-    '''
-    iterative
-     stack = ["soundfiles"]
-            visited = set()
-            visited.add("soundfiles")
-            
-            while stack:
-                curr = stack.pop()
-                print(curr)
-                visited.add(curr)
-                curr_data = {}
-                for child in self.tree[curr].children:
-                    
-                    stack.append(child)
-
-    '''
     def get_json(self):
         visited = set()
         def dfs(root,curr):     
@@ -121,7 +105,7 @@ class RemoteTree():
 
 if __name__ =="__main__":
     tree = RemoteTree()
-    tree.get_json()
+    #tree.get_json()
     #res =json.loads(str(tree.tree["root"]))
     '''
     tree.insertFile("root/test.py",{
