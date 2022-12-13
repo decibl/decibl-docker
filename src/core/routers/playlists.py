@@ -8,11 +8,11 @@ router = APIRouter(
 )
 
 @router.get("/{playlist_name}")
-async def read_songs_by_playlist_name():
+async def read_songs_by_playlist_name(playlist_name: str):
     pass
 
 @router.get("/{playlist_id}")
-async def read_playlist_by_id():
+async def read_playlist_by_id(playlists_id: str):
     pass
 
 @router.post("/")
