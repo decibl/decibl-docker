@@ -29,7 +29,7 @@ class RemoteTree():
 
     def __init__(self, soundfiles_path: str = config.SOUNDFILES_PATH):
         self.tree = {
-            "root": FileNode("root", "DIR", False, config.SOUNDFILES_PATH)
+            "root": FileNode("root", "DIR", False, soundfiles_path)
         }
         self.soundfiles_path = soundfiles_path
         
