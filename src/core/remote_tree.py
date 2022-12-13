@@ -42,6 +42,7 @@ class RemoteTree():
             fileNode (FileNode): The file node to insert
         """
 
+        print(self.soundfiles_path)
         insertion_path = fileNode.file_path.replace(self.soundfiles_path + "\\", "")
         print(insertion_path)
         # turn path into an os path
