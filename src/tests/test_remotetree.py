@@ -141,6 +141,14 @@ def test_remove_4():
     
     assert len(tree.tree) == 24
 
+def test_remove_5():
+    tree = remote_tree.RemoteTree()
+
+    tree.removeFile("soundfiles/test1/mommy")
+    
+    assert len(tree.tree) == 22
+    assert len(tree.tree["soundfiles/test1"].children) == 1
+
 
 
 

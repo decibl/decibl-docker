@@ -24,11 +24,12 @@ class FileNode():
     
 class RemoteTree():
 
-    def __init__(self):
+    def __init__(self,dir):
+        self.rel_dir = dir
         self.tree = {
             "soundfiles": FileNode("soundfiles",str(uuid.uuid4()),False)
         }
-        self.populate_with_files('src/soundfiles')
+        self.populate_with_files(dir)
     
     def get_json(self):
         visited = set()
