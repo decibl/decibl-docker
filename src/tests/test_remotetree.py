@@ -44,3 +44,6 @@ def test_tree():
             traverse(tree_dict["children"].pop(0), child)
 
     traverse(tree_dict)
+
+if __name__ == "__main__":
+    test_tree()
