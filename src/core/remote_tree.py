@@ -107,6 +107,7 @@ class RemoteTree():
         self.insertFile(FileNode(file, filehash, True, file_path))
         '''
 
+
 if __name__ =="__main__":
     tree = RemoteTree("src/soundfiles")
     tree.removeFile("soundfiles/test1/mommy")
