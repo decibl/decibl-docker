@@ -8,6 +8,10 @@ sys.path.append(os.path.abspath(os.path.join(
 
 import remote_tree
 
+def test_sanity():
+    tree = remote_tree.RemoteTree("src/soundfiles")
+    tree.removeFile("soundfiles/test1/mommy")
+    
 def test_vital_insert():
     tree = remote_tree.RemoteTree("src/soundfiles")
     '''
