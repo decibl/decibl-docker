@@ -7,3 +7,5 @@ mkdocs-material
 progress
 uvicorn
 deepdiff
+mkdocstrings-python
+mkdocstrings
