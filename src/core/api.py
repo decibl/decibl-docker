@@ -9,6 +9,8 @@ import config
 
 app = FastAPI(debug=True)
 logger = logging.getLogger("gunicorn.error")
+path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "soundfiles"))
+path = path.replace("\\","/")
 def lmao():
     return "lmao{}".format(random.randint(0, 100))
 

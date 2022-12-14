@@ -4,6 +4,7 @@ import json
 
 import os
 import songparser
+import api
 
 
 class FileNode:
@@ -27,28 +28,26 @@ class FileNode:
             + '"}'
         )
 
-
 class RemoteTree:
-    def __init__(self, dir):
-        self.rel_dir = dir
-        self.tree = {"soundfiles": FileNode("soundfiles", str(uuid.uuid4()), False)}
+    def __init__(self,dir):
+        self.tree = {}
+        self.abs_dir = dir
+        self.tree[dir] = FileNode("soundfiles",str(uuid.uuid4()),False)
         self.populate_with_files(dir)
 
     def get_json(self):
         visited = set()
-
-        def dfs(root, curr):
+        def dfs(root,curr): 
             if root in visited:
                 return None
             visited.add(root)
             curr["filename"] = self.tree[root].filename
             curr["file_id"] = self.tree[root].file_id
             curr["isFile"] = self.tree[root].isFile
-            curr["children"] = [dfs(child, {}) for child in self.tree[root].children]
-
+            curr["children"] = [dfs(child,{}) for child in self.tree[root].children]
             return curr
-
-        return dfs("soundfiles", {})
+        
+        return dfs(self.abs_dir,{})
 
     def insertFile(self, dir: str, data: dict):
         if dir in self.tree:
@@ -58,14 +57,14 @@ class RemoteTree:
 
         location = dir.split("/")
         parentDir = "/".join(location[:-1])
-        self.tree[dir] = FileNode(location[-1], data["file_id"], data["isFile"])
-        self.tree[parentDir].children.append(dir)
+        self.tree[dir] = FileNode(location[-1],data["file_id"],data["isFile"])
 
-    def removeFile(self, dir: str):
-        if dir == "soundfiles":
-            raise HTTPException(
-                status_code=400, detail="Action Not Allowed: Cannot delete root folder"
-            )
+        if location[-1] != "soundfiles":
+            self.tree[parentDir].children.append(dir)
+
+    def removeFile(self,dir: str):
+        if dir == api.path:
+            raise HTTPException(status_code=400, detail="Action Not Allowed: Cannot delete root folder") 
         elif dir not in self.tree:
             raise HTTPException(
                 status_code=400, detail="Action Not Allowed: File Not Found"
@@ -73,18 +72,17 @@ class RemoteTree:
         self.recurDelete(dir)
         location = dir.split("/")
         parentDir = "/".join(location[:-1])
-        self.tree[parentDir].children.remove(dir)
+        if location[-1] != "soundfiles":
+            self.tree[parentDir].children.remove(dir)
 
     def recurDelete(self, dir: str):
 
         for child in self.tree[dir].children:
             if child in self.tree:
-                if self.tree[child].isFile:
-                    del self.tree[child]
-                elif not self.tree[child].isFile and self.tree[child].children == []:
+                if self.tree[child].children == []:
                     del self.tree[child]
                 else:
-                    self.recurDelete(self.tree[child])
+                    self.recurDelete(child)
         del self.tree[dir]
 
     def checkIsFile(self, dir: str):
@@ -95,52 +93,37 @@ class RemoteTree:
 
     def populate_with_files(self, dir: str):
         for root, dirs, files in os.walk(dir):
-            root = root[4:]
             for file in files:
-                res = root.replace("\\", "/")
-                new_dir = str(res.encode("utf-8"))[2:-1]
-                if self.checkIsFile and (new_dir not in self.tree):
-                    self.insertFile(
-                        new_dir, {"file_id": str(uuid.uuid4()), "isFile": False}
-                    )
-                filehash = songparser.file_to_hash(os.path.join("src/" + root, file))
-                self.insertFile(
-                    new_dir + "/" + file, {"file_id": str(filehash), "isFile": True}
-                )
+                res = root.replace('\\','/')
+                new_dir = str(res.encode('utf-8'))[2:-1]
+                if (self.checkIsFile and (new_dir not in self.tree)):
+                    self.insertFile(new_dir,{
+                        "file_id": str(uuid.uuid4()),
+                        "isFile": False
+                    })
+                filehash = songparser.file_to_hash(os.path.join(root, file))
+                self.insertFile(new_dir+"/"+file,{
+                    "file_id": str(filehash),
+                    "isFile": True
+                })
 
-        """
+        
         filehash = songparser.file_to_hash(os.path.join(root, file))
         file_path = os.path.join(root, file)
         self.insertFile(FileNode(file, filehash, True, file_path))
-        """
+        
 
 
-if __name__ == "__main__":
-    tree = RemoteTree("src/soundfiles")
-    tree.removeFile("soundfiles/test1/mommy")
-    print(tree.tree["soundfiles/test1"].children)
-    # tree.get_json()
-    # res =json.loads(str(tree.tree["root"]))
-    """
-    tree.insertFile("root/test.py",{
-        "filename": "test",
-        "file_id": "id2",
-        "isFile": True
-    })
-    tree.insertFile("root/test.py3",{
-        "filename": "test3",
-        "file_id": "id2",
-        "isFile": True
-    })
-    tree.insertFile("root/test.py2",{
-        "filename": "test2",
-        "file_id": "id2",
-        "isFile": True
-    })
-    res = tree.tree.copy()
+if __name__ =="__main__":
 
-    for node in tree.tree:
-        res[node] = json.loads(str(tree.tree[node]))
-       
-    print(res)
-    """
+    # tree.removeFile("soundfiles/test1/mommy")
+    # print(tree.tree["soundfiles/test1"].children)
+    tree = RemoteTree(api.path)
+    path = os.path.join(api.path,"balls")
+    path = path.replace("\\","/")
+    try:
+        tree.removeFile(path)
+    except:
+        pass 
+
+    print(tree.tree)
