@@ -65,7 +65,6 @@ def test_vital_remove():
 
 def test_remove_soundfiles():
     tree = remote_tree.RemoteTree(api.path)
-    print(api.path)
     try:
         tree.removeFile(api.path)
     except:

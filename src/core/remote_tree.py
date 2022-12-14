@@ -106,11 +106,6 @@ class RemoteTree:
                     "file_id": str(filehash),
                     "isFile": True
                 })
-
-        
-        filehash = songparser.file_to_hash(os.path.join(root, file))
-        file_path = os.path.join(root, file)
-        self.insertFile(FileNode(file, filehash, True, file_path))
         
 
 
